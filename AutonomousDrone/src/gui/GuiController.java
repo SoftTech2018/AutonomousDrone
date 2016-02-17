@@ -11,24 +11,33 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GuiController {
-	
+
+
+	@FXML
+	private ChoiceBox<Integer> frames_choiceBox;
+
 	@FXML
 	private Button start_btn;
 
-    @FXML
-    private ImageView currentFrame;
-    
-    @FXML
-    private CheckBox grey_checkBox;
-    
+	@FXML
+	private ImageView currentFrame;
+
+	@FXML
+	private CheckBox grey_checkBox;
+
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
 	// the OpenCV object that realizes the video capture
@@ -37,26 +46,53 @@ public class GuiController {
 	private boolean cameraActive = false;
 	// a flag to enable/disable greyscale colors
 	private boolean greyScale = false;
+	// number of ms between each frame (33 ms = 30 fps)
+	private int frameDt = 33;
+	// Objekt der bruges til at opdatere billedet på GUI
+	private Runnable frameGrabber;
+	// Liste af valgmuligheder i GUI til frames per second
+	private ObservableList<Integer> frameChoicesList = FXCollections.observableArrayList(15, 30, 60, 120);
+
+	@FXML
+	private void initialize(){
+		frames_choiceBox.setValue(30);
+		frames_choiceBox.setItems(frameChoicesList);
+		frames_choiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
+
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				frameDt = 1000/frameChoicesList.get((Integer) arg2);
+				
+				if(GuiStarter.DEBUG){
+					System.out.println("Debug: GuiController.frames_choiceBox changelistener kaldt! Frames er: " + frameDt);
+				}
+				
+				GuiController.this.timer.shutdown();
+				GuiController.this.timer = Executors.newSingleThreadScheduledExecutor();
+				GuiController.this.timer.scheduleAtFixedRate(GuiController.this.frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+			}
+		});
+	}
 
 	@FXML
 	void startCamera(ActionEvent event) {
 		if(GuiStarter.DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt! " + event.getSource().toString());
 		}
-		
+
 		if (!this.cameraActive)
 		{
 			// start the video capture
 			this.capture.open(0);
-			
+
 			// is the video stream available?
 			if (this.capture.isOpened())
 			{
 				this.cameraActive = true;
-				
+
 				// grab a frame every 33 ms (30 frames/sec)
-				Runnable frameGrabber = new Runnable() {
-					
+				frameGrabber = new Runnable() {
+
 					@Override
 					public void run()
 					{
@@ -66,8 +102,8 @@ public class GuiController {
 				};
 
 				this.timer = Executors.newSingleThreadScheduledExecutor();
-				this.timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-				
+				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+
 				// update the button content
 				this.start_btn.setText("Stop Camera");
 			}
@@ -83,7 +119,7 @@ public class GuiController {
 			this.cameraActive = false;
 			// update again the button content
 			this.start_btn.setText("Start Camera");
-			
+
 			// stop the timer
 			try
 			{
@@ -95,7 +131,7 @@ public class GuiController {
 				// log the exception
 				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
 			}
-			
+
 			// release the camera
 			this.capture.release();
 			// clean the frame
@@ -113,7 +149,7 @@ public class GuiController {
 		// init everything
 		Image imageToShow = null;
 		Mat frame = new Mat();
-		
+
 		// check if the capture is open
 		if (this.capture.isOpened())
 		{
@@ -121,19 +157,19 @@ public class GuiController {
 			{
 				// read the current frame
 				this.capture.read(frame);
-				
+
 				// if the frame is not empty, process it
 				if (!frame.empty())
 				{
 					if(greyScale){						
-					// convert the image to gray scale
-					Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+						// convert the image to gray scale
+						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
 					}
-					
+
 					// convert the Mat object (OpenCV) to Image (JavaFX)
 					imageToShow = mat2Image(frame);
 				}
-				
+
 			}
 			catch (Exception e)
 			{
@@ -141,10 +177,10 @@ public class GuiController {
 				System.err.println("Exception during the image elaboration: " + e);
 			}
 		}
-		
+
 		return imageToShow;
 	}
-	
+
 	/**
 	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX
 	 * 
@@ -162,22 +198,21 @@ public class GuiController {
 		// buffer
 		return new Image(new ByteArrayInputStream(buffer.toArray()));
 	}
-	
 
-    @FXML
-    void colorChange(ActionEvent event) {
-    	if(GuiStarter.DEBUG){
+
+	@FXML
+	void colorChange(ActionEvent event) {
+		if(GuiStarter.DEBUG){
 			System.out.println("Debug: GuiController.colorChange() kaldt! " + event.getSource().toString());
 		}
-    	
-    	// Hvis der klikkes på greyScale_checkbox
-    	if(event.getSource().equals(grey_checkBox)){
-    		if(greyScale)
-    			greyScale = false;
-    		else
-    			greyScale = true;
-    	}
 
-    }
+		// Hvis der klikkes på greyScale_checkbox
+		if(event.getSource().equals(grey_checkBox)){
+			if(greyScale)
+				greyScale = false;
+			else
+				greyScale = true;
+		}
+	}
 
 }
