@@ -26,17 +26,58 @@ import javafx.scene.image.ImageView;
 public class GuiController {
 
 
-	@FXML
-	private ChoiceBox<Integer> frames_choiceBox;
+	// NUMPAD 7
+    @FXML
+    private Button strafeLeft_btn;
 
-	@FXML
-	private Button start_btn;
+    // START CAMERA BUTTON
+    @FXML
+    private Button start_btn;
 
-	@FXML
-	private ImageView currentFrame;
+    // NUMPAD 1
+    @FXML
+    private Button up_btn;
+    
+    // NUMPAD 2
+    @FXML
+    private Button stop_btn;
 
-	@FXML
-	private CheckBox grey_checkBox;
+    @FXML
+    private CheckBox grey_checkBox;
+
+    // NUMPAD 6
+    @FXML
+    private Button right_btn;
+
+    // NUMPAD 5
+    @FXML
+    private Button back_btn;
+
+    // NUMPAD 9
+    @FXML
+    private Button strafeRight_btn;
+
+    // NUMPAD 3
+    @FXML
+    private Button down_btn;
+
+    // NUMPAD 8
+    @FXML
+    private Button forward_btn;
+
+    // NUMPAD 4
+    @FXML
+    private Button left_btn;
+
+    // ENTER
+    @FXML
+    private Button takeoff_btn;
+
+    @FXML
+    private ImageView currentFrame;
+
+    @FXML
+    private ChoiceBox<Integer> frames_choiceBox;
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
@@ -52,6 +93,8 @@ public class GuiController {
 	private Runnable frameGrabber;
 	// Liste af valgmuligheder i GUI til frames per second
 	private ObservableList<Integer> frameChoicesList = FXCollections.observableArrayList(15, 30, 60, 120);
+	// Flyver dronen?
+	private boolean flying = false;
 
 	@FXML
 	private void initialize(){
@@ -214,5 +257,91 @@ public class GuiController {
 				greyScale = true;
 		}
 	}
+
+    @FXML
+    void goForward(ActionEvent event) {
+
+    }
+
+    @FXML
+    void turnLeft(ActionEvent event) {
+
+    }
+
+    @FXML
+    void goBack(ActionEvent event) {
+
+    }
+
+    @FXML
+    void turnRight(ActionEvent event) {
+
+    }
+
+    @FXML
+    void takeoff(ActionEvent event) {
+    	if(flying){
+    		if(GuiStarter.DEBUG){
+    			System.out.println("Dronen lander!");
+    		}
+    		
+    		// Land command
+    		flying = false;
+    		this.takeoff_btn.setText("Take Off");
+    		initButtons();
+    	} else {
+    		if(GuiStarter.DEBUG){
+    			System.out.println("Dronen starter!");
+    		}
+    		
+    		// take off command
+    		flying = true;
+    		this.takeoff_btn.setText("Land Drone");
+    		initButtons();
+    	}
+    }
+    
+    // Skifter knappers enabled tilstand afhængig af dronens tilstand
+    private void initButtons(){
+    	this.stop_btn.setDisable(!flying);
+		this.left_btn.setDisable(!flying);
+		this.right_btn.setDisable(!flying);
+		this.strafeLeft_btn.setDisable(!flying);
+		this.strafeRight_btn.setDisable(!flying);
+		this.forward_btn.setDisable(!flying);
+		this.up_btn.setDisable(!flying);
+		this.down_btn.setDisable(!flying);
+		this.back_btn.setDisable(!flying);
+    }
+
+    @FXML
+    void goLeft(ActionEvent event) {
+
+    }
+
+    @FXML
+    void goRight(ActionEvent event) {
+
+    }
+
+    @FXML
+    void flyUp(ActionEvent event) {
+
+    }
+
+    @FXML
+    void flyDown(ActionEvent event) {
+
+    }
+    
+    @FXML
+    void hoover(ActionEvent event) {
+
+    }
+    
+    // Metoden tjekker om dronen pt flyver eller ej.
+    private boolean isFlying(){
+    	return false;
+    }
 
 }
