@@ -15,10 +15,10 @@ public class DroneControl implements IDroneControl {
 	IARDrone drone;
 	CommandManager cmd;
 	NavDataManager ndm;
-	final int speed = 30;
-	final int minAlt = 1000;
-	final int maxAlt = 3000;
-	final int duration = 100;
+	final int speed = 30; /* % */
+	final int minAlt = 1000; /* mm */
+	final int maxAlt = 3000; /* mm */
+	final int duration = 100; /* ms */
 	private WritableImage imageOutput;
 	
 	public DroneControl() {
@@ -30,12 +30,12 @@ public class DroneControl implements IDroneControl {
 		cmd.setMinAltitude(minAlt);
 		cmd.setMaxAltitude(maxAlt);
 		
-		startImageCapture();		
+		imageCapture();		
 	}
 	
-	private void startImageCapture(){
+	private void imageCapture(){
 		
-//		drone.toggleCamera();
+//		drone.toggleCamera(); /* skal måske bruges? */
 		
 		drone.getVideoManager().addImageListener(new ImageListener() {			
 			@Override
@@ -47,7 +47,7 @@ public class DroneControl implements IDroneControl {
 	
 	@Override
 	public Image getImage(){
-		startImageCapture();
+		imageCapture();
 		Image output = (Image) imageOutput;
 		return output;
 	}
