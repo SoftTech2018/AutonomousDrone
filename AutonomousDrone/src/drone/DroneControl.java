@@ -47,6 +47,7 @@ public class DroneControl implements IDroneControl {
 	
 	@Override
 	public Image getImage(){
+		startImageCapture();
 		Image output = (Image) imageOutput;
 		return output;
 	}
