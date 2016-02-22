@@ -4,7 +4,9 @@ import de.yadrone.base.IARDrone;
 
 public class Main {
 
-	public static void main(String[] args) {IARDrone drone = null;
+	public static void main(String[] args) {
+		
+		IARDrone drone = null;
     try
     {
         drone = new ARDrone();
