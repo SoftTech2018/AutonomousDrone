@@ -11,6 +11,8 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
+import drone.DroneControl;
+import drone.IDroneControl;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -24,6 +26,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GuiController {
+	
+	IDroneControl dc;
+	
+	public GuiController() {
+		dc = new DroneControl();
+	}
 
 
 	// NUMPAD 7
