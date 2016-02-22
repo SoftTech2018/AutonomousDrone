@@ -27,57 +27,57 @@ public class GuiController {
 
 
 	// NUMPAD 7
-    @FXML
-    private Button strafeLeft_btn;
+	@FXML
+	private Button strafeLeft_btn;
 
-    // START CAMERA BUTTON
-    @FXML
-    private Button start_btn;
+	// START CAMERA BUTTON
+	@FXML
+	private Button start_btn;
 
-    // NUMPAD 1
-    @FXML
-    private Button up_btn;
-    
-    // NUMPAD 2
-    @FXML
-    private Button stop_btn;
+	// NUMPAD 1
+	@FXML
+	private Button up_btn;
 
-    @FXML
-    private CheckBox grey_checkBox;
+	// NUMPAD 2
+	@FXML
+	private Button stop_btn;
 
-    // NUMPAD 6
-    @FXML
-    private Button right_btn;
+	@FXML
+	private CheckBox grey_checkBox;
 
-    // NUMPAD 5
-    @FXML
-    private Button back_btn;
+	// NUMPAD 6
+	@FXML
+	private Button right_btn;
 
-    // NUMPAD 9
-    @FXML
-    private Button strafeRight_btn;
+	// NUMPAD 5
+	@FXML
+	private Button back_btn;
 
-    // NUMPAD 3
-    @FXML
-    private Button down_btn;
+	// NUMPAD 9
+	@FXML
+	private Button strafeRight_btn;
 
-    // NUMPAD 8
-    @FXML
-    private Button forward_btn;
+	// NUMPAD 3
+	@FXML
+	private Button down_btn;
 
-    // NUMPAD 4
-    @FXML
-    private Button left_btn;
+	// NUMPAD 8
+	@FXML
+	private Button forward_btn;
 
-    // ENTER
-    @FXML
-    private Button takeoff_btn;
+	// NUMPAD 4
+	@FXML
+	private Button left_btn;
 
-    @FXML
-    private ImageView currentFrame;
+	// ENTER
+	@FXML
+	private Button takeoff_btn;
 
-    @FXML
-    private ChoiceBox<Integer> frames_choiceBox;
+	@FXML
+	private ImageView currentFrame;
+
+	@FXML
+	private ChoiceBox<Integer> frames_choiceBox;
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
@@ -87,7 +87,7 @@ public class GuiController {
 	private boolean cameraActive = false;
 	// a flag to enable/disable greyscale colors
 	private boolean greyScale = false;
-	// number of ms between each frame (33 ms = 30 fps)
+	// Antal ms mellem hver frame (33 ms = 30 fps)
 	private int frameDt = 33;
 	// Objekt der bruges til at opdatere billedet pÃ¥ GUI
 	private Runnable frameGrabber;
@@ -101,18 +101,18 @@ public class GuiController {
 		frames_choiceBox.setValue(30);
 		frames_choiceBox.setItems(frameChoicesList);
 		frames_choiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
-
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
 				frameDt = 1000/frameChoicesList.get((Integer) arg2);
-				
+
 				if(GuiStarter.DEBUG){
 					System.out.println("Debug: GuiController.frames_choiceBox changelistener kaldt! Frames er: " + frameDt);
 				}
-				
-				GuiController.this.timer.shutdown();
-				GuiController.this.timer = Executors.newSingleThreadScheduledExecutor();
-				GuiController.this.timer.scheduleAtFixedRate(GuiController.this.frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+				if(GuiController.this.timer!=null){					
+					GuiController.this.timer.shutdown();
+					GuiController.this.timer = Executors.newSingleThreadScheduledExecutor();
+					GuiController.this.timer.scheduleAtFixedRate(GuiController.this.frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+				}
 			}
 		});
 	}
@@ -258,52 +258,52 @@ public class GuiController {
 		}
 	}
 
-    @FXML
-    void goForward(ActionEvent event) {
+	@FXML
+	void goForward(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void turnLeft(ActionEvent event) {
+	@FXML
+	void turnLeft(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void goBack(ActionEvent event) {
+	@FXML
+	void goBack(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void turnRight(ActionEvent event) {
+	@FXML
+	void turnRight(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void takeoff(ActionEvent event) {
-    	if(flying){
-    		if(GuiStarter.DEBUG){
-    			System.out.println("Dronen lander!");
-    		}
-    		
-    		// Land command
-    		flying = false;
-    		this.takeoff_btn.setText("Take Off");
-    		initButtons();
-    	} else {
-    		if(GuiStarter.DEBUG){
-    			System.out.println("Dronen starter!");
-    		}
-    		
-    		// take off command
-    		flying = true;
-    		this.takeoff_btn.setText("Land Drone");
-    		initButtons();
-    	}
-    }
-    
-    // Skifter knappers enabled tilstand afhængig af dronens tilstand
-    private void initButtons(){
-    	this.stop_btn.setDisable(!flying);
+	@FXML
+	void takeoff(ActionEvent event) {
+		if(flying){
+			if(GuiStarter.DEBUG){
+				System.out.println("Dronen lander!");
+			}
+
+			// Land command
+			flying = false;
+			this.takeoff_btn.setText("Take Off");
+			initButtons();
+		} else {
+			if(GuiStarter.DEBUG){
+				System.out.println("Dronen starter!");
+			}
+
+			// take off command
+			flying = true;
+			this.takeoff_btn.setText("Land Drone");
+			initButtons();
+		}
+	}
+
+	// Skifter knappers enabled tilstand afhængig af dronens tilstand
+	private void initButtons(){
+		this.stop_btn.setDisable(!flying);
 		this.left_btn.setDisable(!flying);
 		this.right_btn.setDisable(!flying);
 		this.strafeLeft_btn.setDisable(!flying);
@@ -312,36 +312,42 @@ public class GuiController {
 		this.up_btn.setDisable(!flying);
 		this.down_btn.setDisable(!flying);
 		this.back_btn.setDisable(!flying);
-    }
+	}
 
-    @FXML
-    void goLeft(ActionEvent event) {
+	@FXML
+	void goLeft(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void goRight(ActionEvent event) {
+	@FXML
+	void goRight(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void flyUp(ActionEvent event) {
+	@FXML
+	void flyUp(ActionEvent event) {
 
-    }
+	}
 
-    @FXML
-    void flyDown(ActionEvent event) {
+	@FXML
+	void flyDown(ActionEvent event) {
 
-    }
-    
-    @FXML
-    void hoover(ActionEvent event) {
+	}
 
-    }
-    
-    // Metoden tjekker om dronen pt flyver eller ej.
-    private boolean isFlying(){
-    	return false;
-    }
+	@FXML
+	void hoover(ActionEvent event) {
+
+	}
+
+	// Metoden tjekker om dronen pt flyver eller ej.
+	private boolean isFlying(){
+		return false;
+	}
+
+	public void landDrone() {
+		if(flying){
+			takeoff(null);
+		}
+	}
 
 }

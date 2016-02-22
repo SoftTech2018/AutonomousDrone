@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class GuiStarter extends Application{
 	
@@ -21,7 +22,6 @@ public class GuiStarter extends Application{
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/GuiFXML.fxml"));
 			BorderPane root = (BorderPane) loader.load();
 			GuiController controller = loader.getController();
-//			BorderPane root = (BorderPane) FXMLLoader.load(Main.class.getResource("/MyFXML.fxml"));
 			Scene scene = new Scene(root,600,500);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
@@ -52,6 +52,16 @@ public class GuiStarter extends Application{
 					}
 				}		
 			});
+			
+			// Køres når vinduet lukkes - hvad skal der ske hvis vinduet lukkes mens dronen flyver?
+			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+		          public void handle(WindowEvent we) {
+		        	  if(DEBUG){
+		        		  System.out.println("Vinduet lukkes.");
+		        	  }
+		        	  controller.landDrone();
+		          }
+		      });
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
