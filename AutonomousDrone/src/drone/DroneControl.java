@@ -82,7 +82,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void up(){
 		cmd.up(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -91,7 +91,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void down(){
 		cmd.down(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -100,7 +100,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void forward(){
 		cmd.forward(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -109,7 +109,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void backward(){
 		cmd.backward(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -118,7 +118,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void left(){
 		cmd.goLeft(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -127,7 +127,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void right(){
 		cmd.goRight(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -136,7 +136,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void turnLeft(){
 		cmd.spinLeft(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 	
 	/* (non-Javadoc)
@@ -145,7 +145,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void turnRight(){
 		cmd.spinRight(speed).doFor(duration);
-		cmd.hover();
+//		cmd.hover();
 	}
 
 
