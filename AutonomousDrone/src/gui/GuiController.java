@@ -30,7 +30,7 @@ public class GuiController {
 	IDroneControl dc;
 	
 	public GuiController() {
-		dc = new DroneControl();
+//		dc = new DroneControl();
 	}
 
 
