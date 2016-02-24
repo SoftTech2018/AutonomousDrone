@@ -30,7 +30,7 @@ public class GuiController {
 	IDroneControl dc;
 	
 	public GuiController() {
-//		dc = new DroneControl();
+		dc = new DroneControl();
 	}
 
 
@@ -90,7 +90,7 @@ public class GuiController {
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
 	// the OpenCV object that realizes the video capture
-	private VideoCapture capture = new VideoCapture();
+//	private VideoCapture capture = new VideoCapture();
 	// a flag to change the button behavior
 	private boolean cameraActive = false;
 	// a flag to enable/disable greyscale colors
@@ -134,10 +134,11 @@ public class GuiController {
 		if (!this.cameraActive)
 		{
 			// start the video capture
-			this.capture.open(0);
+//			this.capture.open(0);
 
 			// is the video stream available?
-			if (this.capture.isOpened())
+//			if (this.capture.isOpened())
+			if(dc!=null)
 			{
 				this.cameraActive = true;
 
@@ -147,7 +148,8 @@ public class GuiController {
 					@Override
 					public void run()
 					{
-						Image imageToShow = grabFrame();
+//						Image imageToShow = GuiController.this.grabFrame();
+						Image imageToShow = dc.getImage();
 						currentFrame.setImage(imageToShow);
 					}
 				};
@@ -184,7 +186,7 @@ public class GuiController {
 			}
 
 			// release the camera
-			this.capture.release();
+//			this.capture.release();
 			// clean the frame
 			this.currentFrame.setImage(null);
 		}
@@ -202,12 +204,13 @@ public class GuiController {
 		Mat frame = new Mat();
 
 		// check if the capture is open
-		if (this.capture.isOpened())
+//		if (this.capture.isOpened())
+		if(dc!=null)
 		{
 			try
 			{
 				// read the current frame
-				this.capture.read(frame);
+//				this.capture.read(frame);
 
 				// if the frame is not empty, process it
 				if (!frame.empty())
@@ -309,7 +312,7 @@ public class GuiController {
 		}
 	}
 
-	// Skifter knappers enabled tilstand afhængig af dronens tilstand
+	// Skifter knappers enabled tilstand afhï¿½ngig af dronens tilstand
 	private void initButtons(){
 		this.stop_btn.setDisable(!flying);
 		this.left_btn.setDisable(!flying);

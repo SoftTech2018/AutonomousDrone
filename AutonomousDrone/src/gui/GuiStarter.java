@@ -36,16 +36,31 @@ public class GuiStarter extends Application{
 						System.out.println("Key pressed: " + arg0);						
 					}
 					
+//					switch(arg0.getCode()){
+//					case NUMPAD1: controller.flyUp(null); break;
+//					case NUMPAD2: controller.hoover(null); break;
+//					case NUMPAD3: controller.flyDown(null); break;
+//					case NUMPAD4: controller.turnLeft(null); break;
+//					case NUMPAD5: controller.goBack(null); break;
+//					case NUMPAD6: controller.turnRight(null); break;
+//					case NUMPAD7: controller.goLeft(null); break;
+//					case NUMPAD8: controller.goForward(null); break;
+//					case NUMPAD9: controller.goRight(null); break;
+//					case ENTER: controller.takeoff(null); break;
+//					default:
+//						break;
+//					}
+					
 					switch(arg0.getCode()){
-					case NUMPAD1: controller.flyUp(null); break;
-					case NUMPAD2: controller.hoover(null); break;
-					case NUMPAD3: controller.flyDown(null); break;
-					case NUMPAD4: controller.turnLeft(null); break;
-					case NUMPAD5: controller.goBack(null); break;
-					case NUMPAD6: controller.turnRight(null); break;
-					case NUMPAD7: controller.goLeft(null); break;
-					case NUMPAD8: controller.goForward(null); break;
-					case NUMPAD9: controller.goRight(null); break;
+					case W: controller.flyUp(null); break;
+					case SPACE: controller.hoover(null); break;
+					case S: controller.flyDown(null); break;
+					case A: controller.turnLeft(null); break;
+					case DOWN: controller.goBack(null); break;
+					case D: controller.turnRight(null); break;
+					case LEFT: controller.goLeft(null); break;
+					case UP: controller.goForward(null); break;
+					case RIGHT: controller.goRight(null); break;
 					case ENTER: controller.takeoff(null); break;
 					default:
 						break;
@@ -60,7 +75,7 @@ public class GuiStarter extends Application{
 				}				
 			});
 			
-			// Køres når vinduet lukkes - hvad skal der ske hvis vinduet lukkes mens dronen flyver?
+			// Kï¿½res nï¿½r vinduet lukkes - hvad skal der ske hvis vinduet lukkes mens dronen flyver?
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 		          public void handle(WindowEvent we) {
 		        	  if(DEBUG){
