@@ -8,65 +8,58 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
-   <center>
-      <ImageView fx:id="currentFrame" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </BorderPane.margin>
-      </ImageView>
-   </center>
-   <bottom>
-      <Button fx:id="start_btn" mnemonicParsing="false" onAction="#startCamera" text="Start Camera" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets bottom="10.0" left="5.0" right="5.0" top="5.0" />
-         </BorderPane.margin>
-      </Button>
-   </bottom>
-   <right>
-      <SplitPane orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-               <children>
-                  <CheckBox fx:id="grey_checkBox" layoutX="16.0" layoutY="46.0" mnemonicParsing="false" onAction="#colorChange" text="Greyscale" />
-                  <Label layoutX="10.0" layoutY="13.0" text="Frames/Second:" />
-                  <ChoiceBox fx:id="frames_choiceBox" layoutX="104.0" layoutY="9.0" prefHeight="25.0" prefWidth="48.0" />
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
-   </right>
-   <top>
-      <GridPane BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="110.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
+<AnchorPane prefHeight="449.0" prefWidth="561.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <GridPane layoutX="10.0" layoutY="285.0" maxWidth="400.0" minHeight="150.0" prefHeight="90.0" prefWidth="408.0">
          <children>
             <Button fx:id="forward_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goForward" text="Go Forward" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
-            <Button fx:id="left_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#turnLeft" text="Turn Left" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+            <Button fx:id="left_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#turnLeft" text="Turn Left" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
             <Button fx:id="back_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goBack" text="Go Back" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-            <Button fx:id="right_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#turnRight" text="Turn Right" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="1" />
-            <Button fx:id="takeoff_btn" minWidth="85.0" mnemonicParsing="false" onAction="#takeoff" text="Take Off" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
+            <Button fx:id="right_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#turnRight" text="Turn Right" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+            <Button fx:id="takeoff_btn" minWidth="85.0" mnemonicParsing="false" onAction="#takeoff" text="Take Off" GridPane.columnIndex="3" GridPane.halignment="CENTER">
                <GridPane.margin>
-                  <Insets right="10.0" />
+                  <Insets />
                </GridPane.margin>
             </Button>
-            <Button fx:id="strafeLeft_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goLeft" text="Strafe Left" GridPane.halignment="RIGHT" />
-            <Button fx:id="strafeRight_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goRight" text="Strafe Right" GridPane.columnIndex="2" GridPane.halignment="LEFT" />
-            <Button fx:id="up_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#flyUp" text="Fly Up" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-            <Button fx:id="down_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#flyDown" text="Fly Down" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
+            <Button fx:id="strafeLeft_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goLeft" text="Strafe Left" GridPane.halignment="CENTER" />
+            <Button fx:id="strafeRight_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goRight" text="Strafe Right" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+            <Button fx:id="up_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#flyUp" text="Fly Up" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+            <Button fx:id="down_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#flyDown" text="Fly Down" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
             <Button fx:id="stop_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#hoover" text="Stop" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+            <Button fx:id="landdrone_btn" minWidth="85.0" mnemonicParsing="false" text="Land" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+            <Button fx:id="start_btn" mnemonicParsing="false" onAction="#startCamera" text="Start Camera" GridPane.columnIndex="3" GridPane.rowIndex="2" />
          </children>
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="110.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="21.0" minWidth="0.0" prefWidth="0.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="50.0" minWidth="10.0" prefWidth="50.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
       </GridPane>
-   </top>
-</BorderPane>
+      <ImageView fx:id="currentFrame" fitHeight="278.0" fitWidth="361.0" layoutX="10.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true" />
+      <AnchorPane layoutX="376.0" layoutY="9.0" minHeight="0.0" minWidth="0.0" prefHeight="432.0" prefWidth="191.0">
+         <children>
+            <CheckBox fx:id="grey_checkBox" layoutX="10.0" layoutY="57.0" mnemonicParsing="false" onAction="#colorChange" text="Greyscale" />
+            <Label layoutX="10.0" layoutY="13.0" text="Frames/Second:" />
+            <ChoiceBox fx:id="frames_choiceBox" layoutX="129.0" layoutY="8.0" prefHeight="25.0" prefWidth="48.0" />
+            <AnchorPane layoutY="287.0" prefHeight="131.0" prefWidth="191.0">
+               <children>
+                  <Label layoutX="15.0" layoutY="14.0" text="Roll:" />
+                  <Label layoutX="14.0" layoutY="57.0" text="Yaw:" />
+                  <Label layoutX="15.0" layoutY="99.0" text="Pitch:" />
+                  <TextField fx:id="roll_txtfield" layoutX="66.0" layoutY="9.0" prefHeight="31.0" prefWidth="106.0" />
+                  <TextField fx:id="yaw_txtfield" layoutX="66.0" layoutY="52.0" prefHeight="31.0" prefWidth="106.0" />
+                  <TextField fx:id="pitch_txtfield" layoutX="66.0" layoutY="94.0" prefHeight="31.0" prefWidth="106.0" />
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

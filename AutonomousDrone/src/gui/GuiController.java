@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.TextField;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -80,6 +81,10 @@ public class GuiController {
 	// ENTER
 	@FXML
 	private Button takeoff_btn;
+	
+	// ??
+	@FXML
+	private Button landdrone_btn;
 
 	@FXML
 	private ImageView currentFrame;
@@ -103,6 +108,12 @@ public class GuiController {
 	private ObservableList<Integer> frameChoicesList = FXCollections.observableArrayList(15, 30, 60, 120);
 	// Flyver dronen?
 	private boolean flying = false;
+	
+	private TextField roll_txtfield;
+	
+	private TextField yaw_txtfield;
+	
+	private TextField pitch_txtfield;
 
 	@FXML
 	private void initialize(){
@@ -311,6 +322,11 @@ public class GuiController {
 			initButtons();
 		}
 	}
+	
+	@FXML
+	void landdrone(ActionEvent event) {
+		
+	}
 
 	// Skifter knappers enabled tilstand afh�ngig af dronens tilstand
 	private void initButtons(){
@@ -323,6 +339,7 @@ public class GuiController {
 		this.up_btn.setDisable(!flying);
 		this.down_btn.setDisable(!flying);
 		this.back_btn.setDisable(!flying);
+		this.landdrone_btn.setDisable(!flying);
 	}
 
 	@FXML
