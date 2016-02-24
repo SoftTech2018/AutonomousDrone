@@ -81,7 +81,7 @@ public class GuiStarter extends Application{
 		        	  if(DEBUG){
 		        		  System.out.println("Vinduet lukkes.");
 		        	  }
-		        	  controller.landDrone();
+//		        	  controller.land();
 		          }
 		      });
 		} catch(Exception e) {

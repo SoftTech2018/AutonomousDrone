@@ -27,13 +27,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GuiController {
-	
-	IDroneControl dc;
-	
-	public GuiController() {
-		dc = new DroneControl();
-	}
 
+	private IDroneControl dc = new DroneControl();;
 
 	// NUMPAD 7
 	@FXML
@@ -82,6 +77,9 @@ public class GuiController {
 	@FXML
 	private Button takeoff_btn;
 	
+    @FXML
+    private CheckBox cam_chk;
+
 	// ??
 	@FXML
 	private Button landdrone_btn;
@@ -94,8 +92,8 @@ public class GuiController {
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
-	// the OpenCV object that realizes the video capture
-//	private VideoCapture capture = new VideoCapture();
+	// the OpenCV object der henter video fra Webcam
+	private VideoCapture capture = new VideoCapture();
 	// a flag to change the button behavior
 	private boolean cameraActive = false;
 	// a flag to enable/disable greyscale colors
@@ -108,13 +106,15 @@ public class GuiController {
 	private ObservableList<Integer> frameChoicesList = FXCollections.observableArrayList(15, 30, 60, 120);
 	// Flyver dronen?
 	private boolean flying = false;
-	
+	// Skal der hentes video fra webcam?
+	private boolean webcamVideo = true;
+
 	@FXML
 	private TextField roll_txtfield;
-	
+
 	@FXML
 	private TextField yaw_txtfield;
-	
+
 	@FXML
 	private TextField pitch_txtfield;
 
@@ -144,26 +144,76 @@ public class GuiController {
 		if(GuiStarter.DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt! " + event.getSource().toString());
 		}
+		if(webcamVideo){
+			// Video hentes fra webcam
+			startWebcamStream();
 
-		if (!this.cameraActive)
-		{
+		} else {
+			// Video hentes fra dronen
+			startDroneStream();
+		}
+	}
+
+	private void startWebcamStream(){
+		if (!this.cameraActive)	{
 			// start the video capture
-//			this.capture.open(0);
+			this.capture.open(0);
 
 			// is the video stream available?
-//			if (this.capture.isOpened())
-			if(dc!=null)
-			{
+			if (this.capture.isOpened()){
 				this.cameraActive = true;
 
 				// grab a frame every 33 ms (30 frames/sec)
 				frameGrabber = new Runnable() {
-
 					@Override
 					public void run()
 					{
-//						Image imageToShow = GuiController.this.grabFrame();
-						Image imageToShow = dc.getImage();
+						Image imageToShow = grabFrameFromWebcam();
+						currentFrame.setImage(imageToShow);
+					}
+				};
+
+				this.timer = Executors.newSingleThreadScheduledExecutor();
+				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+
+				// update the button content
+				this.start_btn.setText("Stop Camera");
+			}else{
+				// log the error
+				System.err.println("Impossible to open the camera connection...");
+			}
+		}else {
+			// the camera is not active at this point
+			this.cameraActive = false;
+			// update again the button content
+			this.start_btn.setText("Start Camera");
+
+			// stop the timer
+			try{
+				this.timer.shutdown();
+				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
+			}catch (InterruptedException e){
+				// log the exception
+				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
+			}
+
+			// release the camera
+			this.capture.release();
+			// clean the frame
+			this.currentFrame.setImage(null);
+		}
+	}
+
+	private void startDroneStream(){
+		if (!this.cameraActive){
+			if(dc!=null){
+				this.cameraActive = true;
+
+				// grab a frame every 33 ms (30 frames/sec)
+				frameGrabber = new Runnable() {
+					@Override
+					public void run(){
+						Image imageToShow = grabFrame();
 						currentFrame.setImage(imageToShow);
 					}
 				};
@@ -174,33 +224,24 @@ public class GuiController {
 				// update the button content
 				this.start_btn.setText("Stop Camera");
 			}
-			else
-			{
+			else{
 				// log the error
 				System.err.println("Impossible to open the camera connection...");
 			}
-		}
-		else
-		{
+		} else {
 			// the camera is not active at this point
 			this.cameraActive = false;
 			// update again the button content
 			this.start_btn.setText("Start Camera");
 
 			// stop the timer
-			try
-			{
+			try{
 				this.timer.shutdown();
 				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
-			}
-			catch (InterruptedException e)
-			{
+			}catch (InterruptedException e)	{
 				// log the exception
 				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
 			}
-
-			// release the camera
-//			this.capture.release();
 			// clean the frame
 			this.currentFrame.setImage(null);
 		}
@@ -218,13 +259,54 @@ public class GuiController {
 		Mat frame = new Mat();
 
 		// check if the capture is open
-//		if (this.capture.isOpened())
+		//		if (this.capture.isOpened())
 		if(dc!=null)
 		{
 			try
 			{
 				// read the current frame
-//				this.capture.read(frame);
+				//				this.capture.read(frame);
+
+				// if the frame is not empty, process it
+				if (!frame.empty())
+				{
+					if(greyScale){						
+						// convert the image to gray scale
+						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+					}
+
+					// convert the Mat object (OpenCV) to Image (JavaFX)
+					imageToShow = mat2Image(frame);
+				}
+
+			}
+			catch (Exception e)
+			{
+				// log the error
+				System.err.println("Exception during the image elaboration: " + e);
+			}
+		}
+
+		return imageToShow;
+	}
+
+	/**
+	 * Get a frame from the opened video stream (if any)
+	 * 
+	 * @return the {@link Image} to show
+	 */
+	private Image grabFrameFromWebcam(){
+		// init everything
+		Image imageToShow = null;
+		Mat frame = new Mat();
+
+		// check if the capture is open
+		if (this.capture.isOpened())
+		{
+			try
+			{
+				// read the current frame
+				this.capture.read(frame);
 
 				// if the frame is not empty, process it
 				if (!frame.empty())
@@ -325,10 +407,10 @@ public class GuiController {
 			initButtons();
 		}
 	}
-	
+
 	@FXML
 	void landdrone(ActionEvent event) {
-		
+
 	}
 
 	// Skifter knappers enabled tilstand afh�ngig af dronens tilstand
@@ -375,10 +457,17 @@ public class GuiController {
 		return false;
 	}
 
-	public void landDrone() {
-		if(flying){
-			takeoff(null);
+	@FXML
+	void toggleCam(ActionEvent event){
+		if(GuiStarter.DEBUG){
+			System.out.println("Kamera toggles (webcam/dronecam).");
 		}
+		if(cameraActive){
+			// Kameraet kører. Derfor skal det genstartes med nyt input
+			startCamera(null);
+			webcamVideo = !webcamVideo;
+			startCamera(null);
+		} 
 	}
 
 }

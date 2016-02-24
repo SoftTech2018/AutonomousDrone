@@ -12,44 +12,44 @@ import javafx.scene.image.WritableImage;
 
 public class DroneControl implements IDroneControl {
 
-	IARDrone drone;
-	CommandManager cmd;
-	NavDataManager ndm;
-	final int SPEED = 30; /* % */
-	final int MINALT = 1000; /* mm */
-	final int MAXALT = 2500; /* mm */
-	final int DURATION = 10; /* ms */
+	private IARDrone drone;
+	private CommandManager cmd;
+	private NavDataManager ndm;
+	private final int SPEED = 30; /* % */
+	private final int MINALT = 1000; /* mm */
+	private final int MAXALT = 2500; /* mm */
+	private final int DURATION = 10; /* ms */
 	private WritableImage imageOutput;
+	
+	protected final boolean DEBUG = true;
 	
 	public DroneControl() {
 		
 		drone = new ARDrone();
 		drone.start();
 		cmd = drone.getCommandManager();
-		ndm = drone.getNavDataManager();
+//		ndm = drone.getNavDataManager();
 		cmd.setMinAltitude(MINALT);
 		cmd.setMaxAltitude(MAXALT);
 		
 		imageCapture();		
 	}
 	
-	private void imageCapture(){
-		
-//		drone.toggleCamera(); /* skal m�ske bruges? */
-		
+	private void imageCapture(){	
 		drone.getVideoManager().addImageListener(new ImageListener() {			
 			@Override
-			public void imageUpdated(BufferedImage arg0) {
-				javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);				
+			public void imageUpdated(BufferedImage arg0) {		
+				if(DEBUG){
+					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
+				}
+				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	
 			}		
 		});
 	}
 	
 	@Override
 	public Image getImage(){
-		imageCapture();
-		Image output = (Image) imageOutput;
-		return output;
+		return (Image) imageOutput;
 	}
 	
 	/* (non-Javadoc)
@@ -148,5 +148,9 @@ public class DroneControl implements IDroneControl {
 //		cmd.hover();
 	}
 
+	@Override
+	public void toggleCamera(){
+		drone.toggleCamera();
+	}
 
 }

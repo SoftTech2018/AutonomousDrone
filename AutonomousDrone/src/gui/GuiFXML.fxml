@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane prefHeight="449.0" prefWidth="561.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="449.0" prefWidth="561.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
    <children>
       <GridPane layoutX="10.0" layoutY="285.0" maxWidth="400.0" minHeight="150.0" prefHeight="90.0" prefWidth="408.0">
          <children>
@@ -59,6 +59,7 @@
                   <TextField fx:id="pitch_txtfield" layoutX="66.0" layoutY="94.0" prefHeight="31.0" prefWidth="106.0" />
                </children>
             </AnchorPane>
+            <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />
          </children>
       </AnchorPane>
    </children>
