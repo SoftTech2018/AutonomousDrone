@@ -109,10 +109,13 @@ public class GuiController {
 	// Flyver dronen?
 	private boolean flying = false;
 	
+	@FXML
 	private TextField roll_txtfield;
 	
+	@FXML
 	private TextField yaw_txtfield;
 	
+	@FXML
 	private TextField pitch_txtfield;
 
 	@FXML
