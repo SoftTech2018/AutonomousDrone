@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.TextField;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -76,9 +76,9 @@ public class GuiController {
 	// ENTER
 	@FXML
 	private Button takeoff_btn;
-	
-    @FXML
-    private CheckBox cam_chk;
+
+	@FXML
+	private CheckBox cam_chk;
 
 	// ??
 	@FXML
@@ -127,7 +127,7 @@ public class GuiController {
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
 				frameDt = 1000/frameChoicesList.get((Integer) arg2);
 
-				if(GuiStarter.DEBUG){
+				if(GuiStarter.GUI_DEBUG){
 					System.out.println("Debug: GuiController.frames_choiceBox changelistener kaldt! Frames er: " + frameDt);
 				}
 				if(GuiController.this.timer!=null){					
@@ -141,13 +141,12 @@ public class GuiController {
 
 	@FXML
 	void startCamera(ActionEvent event) {
-		if(GuiStarter.DEBUG){
-			System.out.println("Debug: GuiController.startCamera() kaldt! " + event.getSource().toString());
+		if(GuiStarter.GUI_DEBUG){
+			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}
 		if(webcamVideo){
 			// Video hentes fra webcam
 			startWebcamStream();
-
 		} else {
 			// Video hentes fra dronen
 			startDroneStream();
@@ -252,24 +251,20 @@ public class GuiController {
 	 * 
 	 * @return the {@link Image} to show
 	 */
-	private Image grabFrame()
-	{
+	private Image grabFrame(){
 		// init everything
 		Image imageToShow = null;
 		Mat frame = new Mat();
 
 		// check if the capture is open
 		//		if (this.capture.isOpened())
-		if(dc!=null)
-		{
-			try
-			{
+		if(dc!=null){
+			try	{
 				// read the current frame
 				//				this.capture.read(frame);
 
 				// if the frame is not empty, process it
-				if (!frame.empty())
-				{
+				if (!frame.empty())	{
 					if(greyScale){						
 						// convert the image to gray scale
 						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
@@ -279,9 +274,7 @@ public class GuiController {
 					imageToShow = mat2Image(frame);
 				}
 
-			}
-			catch (Exception e)
-			{
+			}catch (Exception e){
 				// log the error
 				System.err.println("Exception during the image elaboration: " + e);
 			}
@@ -301,16 +294,13 @@ public class GuiController {
 		Mat frame = new Mat();
 
 		// check if the capture is open
-		if (this.capture.isOpened())
-		{
-			try
-			{
+		if (this.capture.isOpened()){
+			try	{
 				// read the current frame
 				this.capture.read(frame);
 
 				// if the frame is not empty, process it
-				if (!frame.empty())
-				{
+				if (!frame.empty())	{
 					if(greyScale){						
 						// convert the image to gray scale
 						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
@@ -320,9 +310,7 @@ public class GuiController {
 					imageToShow = mat2Image(frame);
 				}
 
-			}
-			catch (Exception e)
-			{
+			}catch (Exception e){
 				// log the error
 				System.err.println("Exception during the image elaboration: " + e);
 			}
@@ -338,8 +326,7 @@ public class GuiController {
 	 *            the {@link Mat} representing the current frame
 	 * @return the {@link Image} to show
 	 */
-	private Image mat2Image(Mat frame)
-	{
+	private Image mat2Image(Mat frame){
 		// create a temporary buffer
 		MatOfByte buffer = new MatOfByte();
 		// encode the frame in the buffer
@@ -352,7 +339,7 @@ public class GuiController {
 
 	@FXML
 	void colorChange(ActionEvent event) {
-		if(GuiStarter.DEBUG){
+		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.colorChange() kaldt! " + event.getSource().toString());
 		}
 
@@ -388,7 +375,7 @@ public class GuiController {
 	@FXML
 	void takeoff(ActionEvent event) {
 		if(flying){
-			if(GuiStarter.DEBUG){
+			if(GuiStarter.GUI_DEBUG){
 				System.out.println("Dronen lander!");
 			}
 
@@ -397,7 +384,7 @@ public class GuiController {
 			this.takeoff_btn.setText("Take Off");
 			initButtons();
 		} else {
-			if(GuiStarter.DEBUG){
+			if(GuiStarter.GUI_DEBUG){
 				System.out.println("Dronen starter!");
 			}
 
@@ -458,16 +445,22 @@ public class GuiController {
 	}
 
 	@FXML
-	void toggleCam(ActionEvent event){
-		if(GuiStarter.DEBUG){
-			System.out.println("Kamera toggles (webcam/dronecam).");
-		}
+	void togglecam(ActionEvent event){
 		if(cameraActive){
 			// Kameraet kører. Derfor skal det genstartes med nyt input
 			startCamera(null);
 			webcamVideo = !webcamVideo;
 			startCamera(null);
-		} 
+		} else {
+			webcamVideo = !webcamVideo;
+		}
+
+		if(GuiStarter.GUI_DEBUG){
+			if(webcamVideo)
+				System.out.println("Kamera toggles til Webcam.");
+			else
+				System.out.println("Kamera toggles til Dronecam.");
+		}
 	}
 
 }

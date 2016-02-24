@@ -21,25 +21,32 @@ public class DroneControl implements IDroneControl {
 	private final int DURATION = 10; /* ms */
 	private WritableImage imageOutput;
 	
-	protected final boolean DEBUG = true;
+	protected static final boolean DRONE_DEBUG = true;
+	
+	/*
+	 *  DEFINERER TEST-MODE. 
+	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
+	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
+	 */
+	private final boolean TEST_MODE = true;
 	
 	public DroneControl() {
-		
+		if(!TEST_MODE){			
 		drone = new ARDrone();
 		drone.start();
 		cmd = drone.getCommandManager();
-//		ndm = drone.getNavDataManager();
+		ndm = drone.getNavDataManager();
 		cmd.setMinAltitude(MINALT);
-		cmd.setMaxAltitude(MAXALT);
-		
+		cmd.setMaxAltitude(MAXALT);		
 		imageCapture();		
+		}
 	}
 	
 	private void imageCapture(){	
 		drone.getVideoManager().addImageListener(new ImageListener() {			
 			@Override
 			public void imageUpdated(BufferedImage arg0) {		
-				if(DEBUG){
+				if(DRONE_DEBUG){
 					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
 				}
 				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	

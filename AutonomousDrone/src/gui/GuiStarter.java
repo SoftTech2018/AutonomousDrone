@@ -7,20 +7,22 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class GuiStarter extends Application{
 	
-	public static final boolean DEBUG = true;
+	// Udskriver debug-beskeder til konsollen
+	protected static final boolean GUI_DEBUG = true;
 	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
 			
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/GuiFXML.fxml"));
-			BorderPane root = (BorderPane) loader.load();
+			AnchorPane root = (AnchorPane) loader.load();
 			GuiController controller = loader.getController();
 			Scene scene = new Scene(root,600,500);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -32,7 +34,7 @@ public class GuiStarter extends Application{
 			scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
 				@Override
 				public void handle(KeyEvent arg0) {
-					if(GuiStarter.DEBUG){
+					if(GuiStarter.GUI_DEBUG){
 						System.out.println("Key pressed: " + arg0);						
 					}
 					
@@ -78,7 +80,7 @@ public class GuiStarter extends Application{
 			// K�res n�r vinduet lukkes - hvad skal der ske hvis vinduet lukkes mens dronen flyver?
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 		          public void handle(WindowEvent we) {
-		        	  if(DEBUG){
+		        	  if(GUI_DEBUG){
 		        		  System.out.println("Vinduet lukkes.");
 		        	  }
 //		        	  controller.land();
