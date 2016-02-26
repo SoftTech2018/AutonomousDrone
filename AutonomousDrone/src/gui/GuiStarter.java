@@ -40,7 +40,7 @@ public class GuiStarter extends Application{
 					
 //					switch(arg0.getCode()){
 //					case NUMPAD1: controller.flyUp(null); break;
-//					case NUMPAD2: controller.hoover(null); break;
+//					case NUMPAD2: controller.hover(null); break;
 //					case NUMPAD3: controller.flyDown(null); break;
 //					case NUMPAD4: controller.turnLeft(null); break;
 //					case NUMPAD5: controller.goBack(null); break;
@@ -55,7 +55,7 @@ public class GuiStarter extends Application{
 					
 					switch(arg0.getCode()){
 					case W: controller.flyUp(null); break;
-					case SPACE: controller.hoover(null); break;
+					case SPACE: controller.hover(null); break;
 					case S: controller.flyDown(null); break;
 					case A: controller.turnLeft(null); break;
 					case DOWN: controller.goBack(null); break;
@@ -73,7 +73,7 @@ public class GuiStarter extends Application{
 			scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
 				@Override
 				public void handle(KeyEvent event) {
-						controller.hoover(null);				
+						controller.hover(null);				
 				}				
 			});
 			

@@ -29,4 +29,6 @@ public interface IDroneControl {
 	Image getImage();
 
 	void toggleCamera();
+
+	boolean isReady();
 }

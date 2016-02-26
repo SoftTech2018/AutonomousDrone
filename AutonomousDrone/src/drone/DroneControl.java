@@ -160,4 +160,23 @@ public class DroneControl implements IDroneControl {
 		drone.toggleCamera();
 	}
 
+	/**
+	 * Metoden tjekker om dronen er klar til take off
+	 */
+	@Override
+	public boolean isReady() {
+		
+		// TO DO
+		if(cmd==null){
+			if(this.DRONE_DEBUG){
+				System.out.println("Dronen er IKKE klar.");
+			}
+			return false;
+		}
+		
+		if(this.DRONE_DEBUG){
+			System.out.println("Dronen er klar.");
+		}
+		return true;
+	}
 }

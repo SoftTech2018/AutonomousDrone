@@ -82,7 +82,7 @@ public class GuiController {
 
 	// ??
 	@FXML
-	private Button landdrone_btn;
+	private Button changeCam_btn;
 
 	@FXML
 	private ImageView currentFrame;
@@ -91,7 +91,7 @@ public class GuiController {
 	private ChoiceBox<Integer> frames_choiceBox;
 
 	// a timer for acquiring the video stream
-	private ScheduledExecutorService timer;
+	private ScheduledExecutorService timer, droneTimer;
 	// the OpenCV object der henter video fra Webcam
 	private VideoCapture capture = new VideoCapture();
 	// a flag to change the button behavior
@@ -108,6 +108,8 @@ public class GuiController {
 	private boolean flying = false;
 	// Skal der hentes video fra webcam?
 	private boolean webcamVideo = true;
+	// Tæller op indtil der er forbindelse med dronen eller max er nået
+	private int droneTime = 0, droneMaxTime = 20 ;
 
 	@FXML
 	private TextField roll_txtfield;
@@ -137,6 +139,37 @@ public class GuiController {
 				}
 			}
 		});
+		
+		// Tjek om dronen er klar til takeoff
+		this.takeoff_btn.setDisable(true);
+		Runnable droneChecker = new Runnable() {
+			@Override
+			public void run(){
+				droneTime++;
+				if(dc.isReady()){
+					takeoff_btn.setDisable(true);
+					try{
+						droneTimer.shutdown();
+						droneTimer.awaitTermination(33, TimeUnit.MILLISECONDS);
+					}catch (InterruptedException e){
+						System.err.println("Exception in stopping gui.GuiController.droneTimer..." + e);
+					}
+				} 
+				if(droneTime>=droneMaxTime){
+					try{
+						if(GuiStarter.GUI_DEBUG){
+							System.out.println("Dronen kunne ikke kontaktes. Genstart program for at forsøge igen.");
+						}
+						droneTimer.shutdown();
+						droneTimer.awaitTermination(33, TimeUnit.MILLISECONDS);
+					}catch (InterruptedException e){
+						System.err.println("Exception in stopping gui.GuiController.droneTimer..." + e);
+					}
+				}
+			}
+		};
+		this.droneTimer = Executors.newSingleThreadScheduledExecutor();
+		this.droneTimer.scheduleAtFixedRate(droneChecker, 0, 1000, TimeUnit.MILLISECONDS);
 	}
 
 	@FXML
@@ -354,22 +387,22 @@ public class GuiController {
 
 	@FXML
 	void goForward(ActionEvent event) {
-
+		dc.forward();
 	}
 
 	@FXML
 	void turnLeft(ActionEvent event) {
-
+		dc.turnLeft();
 	}
 
 	@FXML
 	void goBack(ActionEvent event) {
-
+		dc.backward();
 	}
 
 	@FXML
 	void turnRight(ActionEvent event) {
-
+		dc.turnRight();
 	}
 
 	@FXML
@@ -397,7 +430,7 @@ public class GuiController {
 
 	@FXML
 	void landdrone(ActionEvent event) {
-
+		dc.land();
 	}
 
 	// Skifter knappers enabled tilstand afh�ngig af dronens tilstand
@@ -411,37 +444,40 @@ public class GuiController {
 		this.up_btn.setDisable(!flying);
 		this.down_btn.setDisable(!flying);
 		this.back_btn.setDisable(!flying);
-		this.landdrone_btn.setDisable(!flying);
+		this.changeCam_btn.setDisable(!flying);
 	}
 
 	@FXML
 	void goLeft(ActionEvent event) {
-
+		dc.left();
 	}
 
 	@FXML
 	void goRight(ActionEvent event) {
-
+		dc.right();
 	}
 
 	@FXML
 	void flyUp(ActionEvent event) {
-
+		dc.up();
 	}
 
 	@FXML
 	void flyDown(ActionEvent event) {
-
+		dc.down();
 	}
 
 	@FXML
-	void hoover(ActionEvent event) {
-
+	void hover(ActionEvent event) {
+		dc.hover();
 	}
-
-	// Metoden tjekker om dronen pt flyver eller ej.
-	private boolean isFlying(){
-		return false;
+	
+	// Skifter mellem dronens 2 kameraer
+	@FXML
+	void changeCam(ActionEvent event){
+		if(!webcamVideo){
+			dc.toggleCamera();
+		}
 	}
 
 	@FXML
@@ -462,5 +498,4 @@ public class GuiController {
 				System.out.println("Kamera toggles til Dronecam.");
 		}
 	}
-
 }

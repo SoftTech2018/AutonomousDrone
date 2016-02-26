@@ -25,8 +25,8 @@
             <Button fx:id="strafeRight_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goRight" text="Strafe Right" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
             <Button fx:id="up_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#flyUp" text="Fly Up" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
             <Button fx:id="down_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#flyDown" text="Fly Down" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-            <Button fx:id="stop_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#hoover" text="Stop" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-            <Button fx:id="landdrone_btn" minWidth="85.0" mnemonicParsing="false" text="Land" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+            <Button fx:id="stop_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#hover" text="Stop" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+            <Button fx:id="changeCam_btn" minWidth="85.0" mnemonicParsing="false" onAction="#changeCam" text="Change Cam" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
             <Button fx:id="start_btn" mnemonicParsing="false" onAction="#startCamera" text="Start Camera" GridPane.columnIndex="3" GridPane.rowIndex="2" />
          </children>
          <columnConstraints>
