@@ -145,9 +145,9 @@ public class GuiController {
 		});
 
 		// Databinding mekanisme til at opdatere GUI
-		//		pitch_label.textProperty().bind(pitch);
-		//		yaw_label.textProperty().bind(yaw);
-		//		roll_label.textProperty().bind(roll);
+				pitch_label.textProperty().bind(pitch);
+				yaw_label.textProperty().bind(yaw);
+				roll_label.textProperty().bind(roll);
 
 		// Tjek om dronen er klar til takeoff
 		this.takeoff_btn.setDisable(true);
@@ -272,6 +272,19 @@ public class GuiController {
 					public void run(){
 						Image imageToShow = grabFrame();
 						currentFrame.setImage(imageToShow);
+						float values[] = GuiController.this.dc.getFlightData();
+						Platform.runLater(new Runnable(){
+
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								pitch.set(Float.toString(values[0]));
+								roll.set(Float.toString(values[1]));
+								yaw.set(Float.toString(values[2]));
+								
+							}
+							
+						});
 					}
 				};
 				this.timer = Executors.newSingleThreadScheduledExecutor();
@@ -525,23 +538,23 @@ public class GuiController {
 		}
 	}
 
-//	// Define a variable to store the property
-//	private StringProperty pitch = new SimpleStringProperty();
-//	private StringProperty yaw = new SimpleStringProperty();
-//	private StringProperty roll = new SimpleStringProperty();
-//
-//	// Define a getter for the property's value
-//	public final String getPitch(){return pitch.get();}
-//	public final String getYaw(){return yaw.get();}
-//	public final String getRoll(){return roll.get();}
-//
-//	// Define a setter for the property's value
-//	public final void setPitch(String value){pitch.set(value);}
-//	public final void setRoll(String value){roll.set(value);}
-//	public final void setYaw(String value){yaw.set(value);}
-//
-//	// Define a getter for the property itself
-//	public StringProperty pitchProperty() {return pitch;}
-//	public StringProperty rollProperty() {return roll;}
-//	public StringProperty yawProperty() {return yaw;}
+	// Define a variable to store the property
+	private StringProperty pitch = new SimpleStringProperty();
+	private StringProperty yaw = new SimpleStringProperty();
+	private StringProperty roll = new SimpleStringProperty();
+
+	// Define a getter for the property's value
+	public final String getPitch(){return pitch.get();}
+	public final String getYaw(){return yaw.get();}
+	public final String getRoll(){return roll.get();}
+
+	// Define a setter for the property's value
+	public final void setPitch(String value){pitch.set(value);}
+	public final void setRoll(String value){roll.set(value);}
+	public final void setYaw(String value){yaw.set(value);}
+
+	// Define a getter for the property itself
+	public StringProperty pitchProperty() {return pitch;}
+	public StringProperty rollProperty() {return roll;}
+	public StringProperty yawProperty() {return yaw;}
 }
