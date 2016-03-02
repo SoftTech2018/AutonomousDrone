@@ -11,6 +11,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
+import billedanalyse.Placeholder;
 import drone.DroneControl;
 import drone.IDroneControl;
 import javafx.application.Platform;
@@ -32,7 +33,8 @@ import javafx.scene.image.ImageView;
 
 public class GuiController {
 
-	private IDroneControl dc = new DroneControl();;
+	private IDroneControl dc = new DroneControl();
+	private Placeholder ph = new Placeholder();
 
 	// NUMPAD 7
 	@FXML
@@ -337,7 +339,13 @@ public class GuiController {
 				if (!frame.empty())	{
 					if(greyScale){						
 						// convert the image to gray scale
-						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+//						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+						frame = ph.resize(frame, 640, 480);
+						frame = ph.edde(frame);
+//						frame = ph.bilat(frame);
+						frame = ph.thresh(frame);
+						frame = ph.canny(frame);
+//						frame = ph.KeyPointsImg(frame);
 					}
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
@@ -373,7 +381,13 @@ public class GuiController {
 				if (!frame.empty())	{
 					if(greyScale){						
 						// convert the image to gray scale
-						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+//						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+						frame = ph.resize(frame, 640, 480);
+						frame = ph.edde(frame);
+//						frame = ph.bilat(frame);
+						frame = ph.thresh(frame);
+						frame = ph.canny(frame);
+//						frame = ph.KeyPointsImg(frame);
 					}
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
