@@ -1,10 +1,13 @@
 package gui;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -333,7 +336,8 @@ public class GuiController {
 		if(dc!=null){
 			try	{
 				// read the current frame
-				imageToShow = dc.getImage();
+//				imageToShow = dc.getImage();
+				frame = bufferedImageToMat(dc.getbufImg());
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
@@ -345,7 +349,7 @@ public class GuiController {
 //						frame = ph.bilat(frame);
 						frame = ph.thresh(frame);
 						frame = ph.canny(frame);
-//						frame = ph.KeyPointsImg(frame);
+						frame = ph.KeyPointsImg(frame);
 					}
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
@@ -419,7 +423,13 @@ public class GuiController {
 		// buffer
 		return new Image(new ByteArrayInputStream(buffer.toArray()));
 	}
-
+	
+	private Mat bufferedImageToMat(BufferedImage bi) {
+		  Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+		  byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+		  mat.put(0, 0, data);
+		  return mat;
+		}
 
 	@FXML
 	void colorChange(ActionEvent event) {
