@@ -15,13 +15,13 @@ public class DroneControl implements IDroneControl {
 	private IARDrone drone;
 	private CommandManager cmd;
 	private NavDataManager ndm;
-	private final int SPEED = 30; /* % */
+	private final int SPEED = 5; /* % */
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 2500; /* mm */
 	private final int DURATION = 10; /* ms */
 	private WritableImage imageOutput;
 	
-	protected static final boolean DRONE_DEBUG = true;
+	protected static final boolean DRONE_DEBUG = false;
 	
 	/*
 	 *  DEFINERER TEST-MODE. 
@@ -56,6 +56,7 @@ public class DroneControl implements IDroneControl {
 	
 	@Override
 	public Image getImage(){
+//		System.out.println("*** Billede hentes til GUI!");
 		return (Image) imageOutput;
 	}
 	

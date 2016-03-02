@@ -35,7 +35,7 @@ public class GuiStarter extends Application{
 				@Override
 				public void handle(KeyEvent arg0) {
 					if(GuiStarter.GUI_DEBUG){
-						System.out.println("Key pressed: " + arg0);						
+						System.out.println("Key pressed: " + arg0.getCode());						
 					}
 					
 //					switch(arg0.getCode()){

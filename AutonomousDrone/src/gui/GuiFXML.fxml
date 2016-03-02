@@ -54,9 +54,9 @@
                   <Label layoutX="15.0" layoutY="14.0" text="Roll:" />
                   <Label layoutX="14.0" layoutY="57.0" text="Yaw:" />
                   <Label layoutX="15.0" layoutY="99.0" text="Pitch:" />
-                  <TextField fx:id="roll_txtfield" layoutX="66.0" layoutY="9.0" prefHeight="31.0" prefWidth="106.0" />
-                  <TextField fx:id="yaw_txtfield" layoutX="66.0" layoutY="52.0" prefHeight="31.0" prefWidth="106.0" />
-                  <TextField fx:id="pitch_txtfield" layoutX="66.0" layoutY="94.0" prefHeight="31.0" prefWidth="106.0" />
+                  <Label fx:id="roll_label" layoutX="96.0" layoutY="14.0" />
+                  <Label fx:id="yaw_label" layoutX="105.0" layoutY="57.0" />
+                  <Label fx:id="pitch_label" layoutX="91.0" layoutY="99.0" />
                </children>
             </AnchorPane>
             <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />

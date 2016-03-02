@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -112,13 +113,13 @@ public class GuiController {
 	private int droneTime = 0, droneMaxTime = 20 ;
 
 	@FXML
-	private TextField roll_txtfield;
+	private Label roll_label;
 
 	@FXML
-	private TextField yaw_txtfield;
+	private Label yaw_label;
 
 	@FXML
-	private TextField pitch_txtfield;
+	private Label pitch_label;
 
 	@FXML
 	private void initialize(){
@@ -139,15 +140,16 @@ public class GuiController {
 				}
 			}
 		});
-		
+
 		// Tjek om dronen er klar til takeoff
 		this.takeoff_btn.setDisable(true);
 		Runnable droneChecker = new Runnable() {
 			@Override
+
 			public void run(){
 				droneTime++;
 				if(dc.isReady()){
-					takeoff_btn.setDisable(true);
+					takeoff_btn.setDisable(false);
 					try{
 						droneTimer.shutdown();
 						droneTimer.awaitTermination(33, TimeUnit.MILLISECONDS);
@@ -295,6 +297,7 @@ public class GuiController {
 			try	{
 				// read the current frame
 				//				this.capture.read(frame);
+				imageToShow = dc.getImage();
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
@@ -413,6 +416,7 @@ public class GuiController {
 			}
 
 			// Land command
+			dc.land();
 			flying = false;
 			this.takeoff_btn.setText("Take Off");
 			initButtons();
@@ -422,6 +426,7 @@ public class GuiController {
 			}
 
 			// take off command
+			dc.takeoff();
 			flying = true;
 			this.takeoff_btn.setText("Land Drone");
 			initButtons();
@@ -471,7 +476,7 @@ public class GuiController {
 	void hover(ActionEvent event) {
 		dc.hover();
 	}
-	
+
 	// Skifter mellem dronens 2 kameraer
 	@FXML
 	void changeCam(ActionEvent event){
