@@ -1,5 +1,7 @@
 package drone;
 
+import java.awt.image.BufferedImage;
+
 import javafx.scene.image.Image;
 
 public interface IDroneControl {
@@ -33,4 +35,6 @@ public interface IDroneControl {
 	boolean isReady();
 
 	float[] getFlightData();
+
+	BufferedImage getbufImg();
 }

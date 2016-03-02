@@ -21,6 +21,7 @@ public class DroneControl implements IDroneControl {
 	private final int MAXALT = 2500; /* mm */
 	private final int DURATION = 10; /* ms */
 	private WritableImage imageOutput;
+	private BufferedImage bufImgOut;
 	private float pitch, yaw, roll;
 
 	protected static final boolean DRONE_DEBUG = false;
@@ -79,6 +80,7 @@ public class DroneControl implements IDroneControl {
 				if(DRONE_DEBUG){
 					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
 				}
+				bufImgOut = arg0;
 				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	
 			}		
 		});
@@ -87,6 +89,11 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public Image getImage(){
 		return (Image) imageOutput;
+	}
+	
+	@Override
+	public BufferedImage getbufImg(){
+		return bufImgOut;
 	}
 
 	/* (non-Javadoc)
