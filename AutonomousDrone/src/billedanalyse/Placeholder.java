@@ -1,5 +1,6 @@
 package billedanalyse;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import org.opencv.core.Core;
@@ -29,20 +30,10 @@ import com.google.zxing.qrcode.QRCodeReader;
 public class Placeholder {
 
 	private MatOfKeyPoint kp;
-	
-	Mat frame_out = new Mat();
-	int iLowH = 160;
-	int iHighH = 190;
 
-	int iLowS = 50; 
-	int iHighS = 255;
+	public Mat KeyPointsImg(Mat frame){
 
-	int iLowV = 0;
-	int iHighV = 255;
-
-	public Mat AkazaKeyPoints(Mat frame){
-
-		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+//		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
 
 		FeatureDetector detect = FeatureDetector.create(FeatureDetector.ORB);
 
@@ -96,7 +87,6 @@ public class Placeholder {
 		Mat erodeelement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, size, point);
 
 		Imgproc.erode(frame_in, frame_out, erodeelement);
-		//		Imgproc.erode(frame_in, frame_out, new Mat());
 
 		return frame_out;
 	}
@@ -112,49 +102,78 @@ public class Placeholder {
 		Mat diluteelement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, size, point);
 
 		Imgproc.dilate(frame_in, frame_out, diluteelement);
-		//		Imgproc.dilate(frame_in, frame_out, new Mat());
 
 		return frame_out;
 	}
 
-	public Mat edde(Mat frame){
-			Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
-			
-			Core.inRange(frame, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), frame_out);
-			
-			frame = frame_out;
-			
-			Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-			Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-			
-			Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-			Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-			return frame;
+	public Mat edde(Mat frame){			
+		Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+		Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+
+		Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+		Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+
+//		int erode_rep = 10;
+//		int dilate_rep = 5;
+//
+//		for(int j = 0;j<dilate_rep;j++){
+//			frame = dilate(frame);
+//		}
+//		for(int i = 0;i<erode_rep;i++){
+//			frame = erode(frame);							
+//		}
+
+		return frame;
+	}
+	
+	public Mat thresh(Mat frame){
+		Mat frame1 = new Mat();
+		Imgproc.threshold(frame, frame1, 170, 255, 0);
+		return frame1;
+	}
+	
+	public Mat bilat(Mat frame){
+		Mat frame1 = new Mat();
+		Imgproc.bilateralFilter(frame, frame1, 50, 80.0, 80.0);
+		return frame;
+	}
+	
+	public Mat canny(Mat frame){
+		frame = toGray(frame);
+//		frame = resize(frame, 320, 240);
+		Imgproc.Canny(frame, frame, 200.0, 200.0*2, 5, false );
+		return frame;
 	}
 
-	//	
-	//	Imgproc.equalizeHist(frame, frame);
+	public Mat showColor(Mat frame){
 		
+		Mat frame_out = new Mat();
+		int iLowH = 160;
+		int iHighH = 190;
+
+		int iLowS = 50; 
+		int iHighS = 255;
+
+		int iLowV = 0;
+		int iHighV = 255;
+
+		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
+
+		Core.inRange(frame, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), frame_out);
+
+		return frame_out;
+	}
+
+	public Mat eq(Mat frame){
+		Imgproc.equalizeHist(frame, frame);
+		return frame;		
+	}
+	
 	public Mat resize(Mat frame,double width, double height){
 		Size size = new Size(width, height);
 		Imgproc.resize(frame, frame, size);
 		return frame;		
 	}
-
-	//	int erode_rep = 10;
-	//	int dilate_rep = 5;
-	//	
-	//	for(int j = 0;j<dilate_rep;j++){
-	//		frame = dilate(frame);
-	//	}
-	//	for(int i = 0;i<erode_rep;i++){
-	//		frame = erode(frame);							
-	//	}
-	//	
-	//	Imgproc.Canny( frame, frame, 100.0, 100.0*2, 3, false );
-	//	Imgproc.bilateralFilter(frame, frame_out, 5, 80.0, 80.0);
-	//	Imgproc.threshold(frame_out, frame, 30, 255, 0);
-	//	frame = frame_out;
 
 	private BufferedImage mat2bufImg(Mat frame){
 		// create a temporary buffer
