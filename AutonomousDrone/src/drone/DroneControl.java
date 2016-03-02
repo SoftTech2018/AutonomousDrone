@@ -22,38 +22,38 @@ public class DroneControl implements IDroneControl {
 	private final int DURATION = 10; /* ms */
 	private WritableImage imageOutput;
 	private float pitch, yaw, roll;
-	
-	protected static final boolean DRONE_DEBUG = true;
-	
+
+	protected static final boolean DRONE_DEBUG = false;
+
 	/*
 	 * DEFINERER OM DRONEN BRUGER .doFor(time)
 	 */
 	public static boolean TIMEMODE = false;
-	
-	
+
+
 	/*
 	 *  DEFINERER TEST-MODE. 
 	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
 	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
 	 */
-	private final boolean TEST_MODE = false;
-	
+	private final boolean TEST_MODE = true;
+
 	public DroneControl() {
 		pitch = 0;
 		yaw = 0;
 		roll = 0;
 		if(!TEST_MODE){			
-		drone = new ARDrone();
-		drone.start();
-		cmd = drone.getCommandManager();
-		ndm = drone.getNavDataManager();
-		cmd.setMinAltitude(MINALT);
-		cmd.setMaxAltitude(MAXALT);		
-		imageCapture();	
-		startNavListener();
+			drone = new ARDrone();
+			drone.start();
+			cmd = drone.getCommandManager();
+			ndm = drone.getNavDataManager();
+			cmd.setMinAltitude(MINALT);
+			cmd.setMaxAltitude(MAXALT);		
+			imageCapture();	
+			startNavListener();
 		}
 	}
-	
+
 	private void startNavListener(){
 		ndm.addAttitudeListener(new AttitudeListener(){
 			@Override
@@ -71,7 +71,7 @@ public class DroneControl implements IDroneControl {
 			public void windCompensation(float arg0, float arg1) {	}
 		});
 	}
-	
+
 	private void imageCapture(){	
 		drone.getVideoManager().addImageListener(new ImageListener() {			
 			@Override
@@ -83,13 +83,12 @@ public class DroneControl implements IDroneControl {
 			}		
 		});
 	}
-	
+
 	@Override
 	public Image getImage(){
-//		System.out.println("*** Billede hentes til GUI!");
 		return (Image) imageOutput;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#land()
 	 */
@@ -100,7 +99,7 @@ public class DroneControl implements IDroneControl {
 		}
 		cmd.landing();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#takeoff()
 	 */
@@ -111,7 +110,7 @@ public class DroneControl implements IDroneControl {
 		}
 		cmd.takeOff();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#hover()
 	 */
@@ -122,7 +121,7 @@ public class DroneControl implements IDroneControl {
 		}
 		cmd.hover();
 	}	
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#up()
 	 */
@@ -136,10 +135,10 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.up(SPEED).doFor(DURATION);			
 		}
-		
-//		cmd.hover();
+
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#down()
 	 */
@@ -153,9 +152,9 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.down(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#forward()
 	 */
@@ -169,9 +168,9 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.forward(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#backward()
 	 */
@@ -185,9 +184,9 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.backward(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#left()
 	 */
@@ -201,9 +200,9 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.goLeft(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#right()
 	 */
@@ -217,9 +216,9 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.goRight(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#turnLeft()
 	 */
@@ -233,9 +232,9 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.spinLeft(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#turnRight()
 	 */
@@ -249,7 +248,7 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.spinRight(SPEED).doFor(DURATION);			
 		}
-//		cmd.hover();
+		//		cmd.hover();
 	}
 
 	@Override
@@ -271,7 +270,7 @@ public class DroneControl implements IDroneControl {
 			}
 			return false;
 		}
-		
+
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Dronen er klar.");
 		}
