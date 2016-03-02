@@ -296,8 +296,13 @@ public class GuiController {
 		if(dc!=null){
 			try	{
 				// read the current frame
-				//				this.capture.read(frame);
 				imageToShow = dc.getImage();
+				
+				// Hent flight data fra dronen og opdater på gui
+				float values[] = dc.getFlightData();
+				pitch_label.setText(Float.toString(values[0]));
+				roll_label.setText(Float.toString(values[1]));
+				yaw_label.setText(Float.toString(values[2]));
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{

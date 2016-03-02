@@ -31,4 +31,6 @@ public interface IDroneControl {
 	void toggleCamera();
 
 	boolean isReady();
+
+	float[] getFlightData();
 }
