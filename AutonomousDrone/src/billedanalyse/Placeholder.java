@@ -2,10 +2,12 @@ package billedanalyse;
 
 import java.awt.image.BufferedImage;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
@@ -27,7 +29,7 @@ import com.google.zxing.qrcode.QRCodeReader;
 public class Placeholder {
 
 	private MatOfKeyPoint kp;
-	private Size resize = new Size(240, 180);
+	
 	Mat frame_out = new Mat();
 	int iLowH = 160;
 	int iHighH = 190;
@@ -83,7 +85,7 @@ public class Placeholder {
 		return frame;
 	}
 
-	private Mat erode(Mat frame_in){
+	public Mat erode(Mat frame_in){
 
 		Mat frame_out = new Mat();
 
@@ -99,7 +101,7 @@ public class Placeholder {
 		return frame_out;
 	}
 
-	private Mat dilate(Mat frame_in){
+	public Mat dilate(Mat frame_in){
 
 		Mat frame_out = new Mat();
 
@@ -115,23 +117,29 @@ public class Placeholder {
 		return frame_out;
 	}
 
-
-	//	Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
-	//	
-	//	Core.inRange(frame, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), frame_out);
-	//	
-	//	frame = frame_out;
-	//	
-	//	Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-	//	Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-	//	
-	//	Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-	//	Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+	public Mat edde(Mat frame){
+			Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
+			
+			Core.inRange(frame, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), frame_out);
+			
+			frame = frame_out;
+			
+			Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+			Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+			
+			Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+			Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+			return frame;
+	}
 
 	//	
 	//	Imgproc.equalizeHist(frame, frame);
-	//	
-	//	Imgproc.resize(frame, frame, resize);
+		
+	public Mat resize(Mat frame,double width, double height){
+		Size size = new Size(width, height);
+		Imgproc.resize(frame, frame, size);
+		return frame;		
+	}
 
 	//	int erode_rep = 10;
 	//	int dilate_rep = 5;
