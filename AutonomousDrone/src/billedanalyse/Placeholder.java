@@ -5,10 +5,15 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDMatch;
+import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfKeyPoint;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -18,6 +23,7 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.video.Video;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
@@ -48,6 +54,81 @@ public class Placeholder {
 		Features2d.drawKeypoints(frame, kp, frame);
 
 		return frame;
+	}
+	
+	private Mat buffImgToMat(BufferedImage in){
+		Mat out;
+        byte[] data;
+        int r, g, b;
+
+        if(in.getType() == BufferedImage.TYPE_INT_RGB)
+        {
+            out = new Mat(240, 320, CvType.CV_8UC1);
+            data = new byte[320 * 240 * (int)out.elemSize()];
+            int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
+            for(int i = 0; i < dataBuff.length; i++)
+            {
+                data[i*3] = (byte) ((dataBuff[i] >> 16) & 0xFF);
+                data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
+                data[i*3 + 2] = (byte) ((dataBuff[i] >> 0) & 0xFF);
+            }
+        }
+        else
+        {
+            out = new Mat(240, 320, CvType.CV_8UC1);
+            data = new byte[320 * 240 * (int)out.elemSize()];
+            int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
+            for(int i = 0; i < dataBuff.length; i++)
+            {
+              r = (byte) ((dataBuff[i] >> 16) & 0xFF);
+              g = (byte) ((dataBuff[i] >> 8) & 0xFF);
+              b = (byte) ((dataBuff[i] >> 0) & 0xFF);
+              data[i] = (byte)((0.21 * r) + (0.71 * g) + (0.07 * b)); //luminosity
+            }
+         }
+         out.put(0, 0, data);
+         return out;
+	}
+	
+	public Mat optFlow(Mat first, Mat second){
+		Mat fOrg = first;
+		Mat sOrg = second;
+		first = buffImgToMat(mat2bufImg(first));
+		second = buffImgToMat(mat2bufImg(second));
+		
+		MatOfPoint fKey = new MatOfPoint();
+		MatOfPoint sKey = new MatOfPoint();
+		
+//		KeyPoint temp1[] = getKeyPoints(first).toArray();
+//		Point fPoints[] = new Point[temp1.length];
+//		for(int i = 0; i<temp1.length; i++){
+//			fPoints[i] = (Point) fPoints[i];
+//		}
+//		
+//		KeyPoint temp2[] = getKeyPoints(first).toArray();
+//		Point sPoints[] = new Point[temp2.length];
+//		for(int i = 0; i<temp2.length; i++){
+//			sPoints[i] = (Point) sPoints[i];
+//		}
+		
+		Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 0.01);
+		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 0.01);
+
+		MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
+		MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());
+		System.out.println("***" + sKey.size() + " : " + fKey.size());
+//		Size size = new Size(3,3);
+		MatOfByte status = new MatOfByte();
+		MatOfFloat err = new MatOfFloat();
+		Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
+		//LK(first, second, fKey, sKey, null, null, size, maxLevel, criteria, flags, minEigThreshold);
+		
+		Point[] fArray = fKeyf.toArray();
+		Point[] sArray = sKeyf.toArray();
+		for(int i=0; i<fArray.length; i++){
+			Imgproc.line(first, fArray[i], sArray[i], new Scalar(255,0,0));			
+		}
+		return second;
 	}
 
 	/**
@@ -84,7 +165,7 @@ public class Placeholder {
 
 	// Identificerer keypoints i et billede
 	private MatOfKeyPoint getKeyPoints(Mat mat){
-		FeatureDetector detect = FeatureDetector.create(FeatureDetector.ORB);
+		FeatureDetector detect = FeatureDetector.create(FeatureDetector.FAST); // Kan være .ORB .FAST eller .HARRIS
 		MatOfKeyPoint kp = new MatOfKeyPoint();
 		detect.detect(mat, kp);
 		return kp;
