@@ -2,14 +2,18 @@ package billedanalyse;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -33,7 +37,7 @@ public class Placeholder {
 
 	public Mat KeyPointsImg(Mat frame){
 
-//		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
+		//		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
 
 		FeatureDetector detect = FeatureDetector.create(FeatureDetector.ORB);
 
@@ -44,6 +48,54 @@ public class Placeholder {
 		Features2d.drawKeypoints(frame, kp, frame);
 
 		return frame;
+	}
+
+	/**
+	 * Created by: Jon Tvermose Nielsen
+	 * Finder matches mellem to billeder og forbinder dem med en streg
+	 * @param first Første billede
+	 * @param second Andet billede
+	 * @return Kombineret billede med streger mellem matches
+	 */
+	public Mat drawMatches(Mat first, Mat second){
+		// DEBUG
+		long startTime = System.nanoTime();
+
+		MatOfKeyPoint fKey = getKeyPoints(first);
+		MatOfKeyPoint sKey = getKeyPoints(second);		
+		Mat f = getDescriptors(first, fKey);
+		Mat s = getDescriptors(second, sKey);
+
+		DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE);
+		MatOfDMatch dmatches = new MatOfDMatch();
+		matcher.match(f, s, dmatches);
+		Mat out = new Mat();
+		Features2d.drawMatches(first, fKey, second, sKey, dmatches, out);
+		//		Features2d.drawMatches(img1, keypoints1, img2, keypoints2, matches1to2, outImg, matchColor, singlePointColor, matchesMask, flags);
+
+		// DEBUG
+		long total = System.nanoTime() - startTime;
+		long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
+		String debug = "Matches fundet på: " + durationInMs + " milisekunder";
+		System.out.println(debug);	
+
+		return out;
+	}
+
+	// Identificerer keypoints i et billede
+	private MatOfKeyPoint getKeyPoints(Mat mat){
+		FeatureDetector detect = FeatureDetector.create(FeatureDetector.ORB);
+		MatOfKeyPoint kp = new MatOfKeyPoint();
+		detect.detect(mat, kp);
+		return kp;
+	}
+
+	// Identificer descriptors i et billede
+	private Mat getDescriptors(Mat mat, MatOfKeyPoint kp){
+		DescriptorExtractor extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
+		Mat descriptors = new Mat();
+		extractor.compute(mat, kp, descriptors);
+		return descriptors;
 	}
 
 	public MatOfKeyPoint getKP(){
@@ -113,40 +165,40 @@ public class Placeholder {
 		Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
 		Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
 
-//		int erode_rep = 10;
-//		int dilate_rep = 5;
-//
-//		for(int j = 0;j<dilate_rep;j++){
-//			frame = dilate(frame);
-//		}
-//		for(int i = 0;i<erode_rep;i++){
-//			frame = erode(frame);							
-//		}
+		//		int erode_rep = 10;
+		//		int dilate_rep = 5;
+		//
+		//		for(int j = 0;j<dilate_rep;j++){
+		//			frame = dilate(frame);
+		//		}
+		//		for(int i = 0;i<erode_rep;i++){
+		//			frame = erode(frame);							
+		//		}
 
 		return frame;
 	}
-	
+
 	public Mat thresh(Mat frame){
 		Mat frame1 = new Mat();
 		Imgproc.threshold(frame, frame1, 170, 255, 0);
 		return frame1;
 	}
-	
+
 	public Mat bilat(Mat frame){
 		Mat frame1 = new Mat();
 		Imgproc.bilateralFilter(frame, frame1, 50, 80.0, 80.0);
 		return frame;
 	}
-	
+
 	public Mat canny(Mat frame){
 		frame = toGray(frame);
-//		frame = resize(frame, 320, 240);
+		//		frame = resize(frame, 320, 240);
 		Imgproc.Canny(frame, frame, 200.0, 200.0*2, 5, false );
 		return frame;
 	}
 
 	public Mat showColor(Mat frame){
-		
+
 		Mat frame_out = new Mat();
 		int iLowH = 160;
 		int iHighH = 190;
@@ -168,7 +220,7 @@ public class Placeholder {
 		Imgproc.equalizeHist(frame, frame);
 		return frame;		
 	}
-	
+
 	public Mat resize(Mat frame,double width, double height){
 		Size size = new Size(width, height);
 		Imgproc.resize(frame, frame, size);

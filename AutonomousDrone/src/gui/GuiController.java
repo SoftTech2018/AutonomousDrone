@@ -364,6 +364,8 @@ public class GuiController {
 
 		return imageToShow;
 	}
+	
+	private Mat firstFrame;
 
 	/**
 	 * Get a frame from the opened video stream (if any)
@@ -374,6 +376,7 @@ public class GuiController {
 		// init everything
 		Image imageToShow = null;
 		Mat frame = new Mat();
+		Mat outFrame  = new Mat();
 
 		// check if the capture is open
 		if (this.capture.isOpened()){
@@ -383,24 +386,32 @@ public class GuiController {
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
-					if(greyScale){						
+					frame = ph.resize(frame, 640, 480);
+					if(firstFrame!=null){
+						outFrame = ph.drawMatches(firstFrame, frame);
+					} else {
+						outFrame = frame;
+					}
+					firstFrame = frame;
+					
+					if(greyScale){
 						// convert the image to gray scale
 //						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
-						frame = ph.resize(frame, 640, 480);
 						frame = ph.edde(frame);
 //						frame = ph.bilat(frame);
 						frame = ph.thresh(frame);
 						frame = ph.canny(frame);
-//						frame = ph.KeyPointsImg(frame);
+						frame = ph.KeyPointsImg(frame);
 					}
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
-					imageToShow = mat2Image(frame);
+					imageToShow = mat2Image(outFrame);
 				}
 
 			}catch (Exception e){
 				// log the error
 				System.err.println("Exception during the image elaboration: " + e);
+				e.printStackTrace();
 			}
 		}
 
