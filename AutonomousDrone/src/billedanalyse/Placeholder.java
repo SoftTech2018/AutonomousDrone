@@ -95,55 +95,43 @@ public class Placeholder {
 		return out;
 	}
 
+	/**
+	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame
+	 * @param first Første frame
+	 * @param second Anden frame - denne frame returnes med resultatet
+	 * @return Mat second - påtegnet resultatet
+	 */
 	public Mat optFlow(Mat first, Mat second){
-		long startTime = System.nanoTime();
-		//		Mat fOrg = first;
-		Mat sOrg = second.clone();
-		//		first = buffImgToMat(mat2bufImg(first));
-		//		second = buffImgToMat(mat2bufImg(second));
+		long startTime = System.nanoTime(); // DEBUG
 
+		// Gem en kopi af det orignale farvebillede der skal vises til sidst
+		Mat sOrg = second.clone();
+
+		// Initier variable der gemmes data i
 		MatOfPoint fKey = new MatOfPoint();
 		MatOfPoint sKey = new MatOfPoint();
-		//		
-		//		KeyPoint temp1[] = getKeyPoints(first).toArray();
-		//		Point fPoints[] = new Point[temp1.length];
-		//		for(int i = 0; i<temp1.length; i++){
-		//			fPoints[i] = (Point) fPoints[i];
-		//		}
-		//		
-		//		KeyPoint temp2[] = getKeyPoints(first).toArray();
-		//		Point sPoints[] = new Point[temp2.length];
-		//		for(int i = 0; i<temp2.length; i++){
-		//			sPoints[i] = (Point) sPoints[i];
-		//		}
 
-		//		Mat one = new Mat();
-		//		Mat two = new Mat();
-		//		System.out.println("Channels: " + second.channels());
-		//		System.out.println("Channels after convert: " + second.channels() + " : " + two.channels());
-		//		return second;
-
+		// Konverter til gråt billede
 		Imgproc.cvtColor(first, first, Imgproc.COLOR_BGR2GRAY);
 		Imgproc.cvtColor(second, second, Imgproc.COLOR_BGR2GRAY);
 
-		//		second.convertTo(second, CvType.CV_8UC1);
-		//		first.convertTo(first, CvType.CV_8UC1);
-
+		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
 		Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 30);
 		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 30);
 
+		// Kør opticalFlowPyrLK
 		MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
 		MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());
-
 		MatOfByte status = new MatOfByte();
 		MatOfFloat err = new MatOfFloat();
 		Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
-		//LK(first, second, fKey, sKey, null, null, size, maxLevel, criteria, flags, minEigThreshold);
 
+		// Tegn vektorer på kopien af originale farvebillede 
 		Point[] fArray = fKeyf.toArray();
 		Point[] sArray = sKeyf.toArray();
+		int thickness = 2;
 		for(int i=0; i<fArray.length; i++){
-			Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0));			
+			Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);		
 		}
 
 		if(BILLED_DEBUG){			
