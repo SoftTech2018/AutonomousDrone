@@ -127,11 +127,14 @@ public class Placeholder {
 		Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
 
 		// Tegn vektorer på kopien af originale farvebillede 
+		byte[] fundet = status.toArray();
 		Point[] fArray = fKeyf.toArray();
 		Point[] sArray = sKeyf.toArray();
 		int thickness = 2;
 		for(int i=0; i<fArray.length; i++){
-			Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);		
+			if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
+				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);						
+			}		
 		}
 
 		if(BILLED_DEBUG){			
