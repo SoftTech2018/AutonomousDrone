@@ -41,6 +41,11 @@ public class Placeholder {
 
 	private MatOfKeyPoint kp;
 
+	/*
+	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
+	 */
+	protected static final boolean BILLED_DEBUG = true;
+
 	public Mat KeyPointsImg(Mat frame){
 
 		//		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
@@ -55,80 +60,101 @@ public class Placeholder {
 
 		return frame;
 	}
-	
+
 	private Mat buffImgToMat(BufferedImage in){
 		Mat out;
-        byte[] data;
-        int r, g, b;
+		byte[] data;
+		int r, g, b;
 
-        if(in.getType() == BufferedImage.TYPE_INT_RGB)
-        {
-            out = new Mat(240, 320, CvType.CV_8UC1);
-            data = new byte[320 * 240 * (int)out.elemSize()];
-            int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
-            for(int i = 0; i < dataBuff.length; i++)
-            {
-                data[i*3] = (byte) ((dataBuff[i] >> 16) & 0xFF);
-                data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
-                data[i*3 + 2] = (byte) ((dataBuff[i] >> 0) & 0xFF);
-            }
-        }
-        else
-        {
-            out = new Mat(240, 320, CvType.CV_8UC1);
-            data = new byte[320 * 240 * (int)out.elemSize()];
-            int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
-            for(int i = 0; i < dataBuff.length; i++)
-            {
-              r = (byte) ((dataBuff[i] >> 16) & 0xFF);
-              g = (byte) ((dataBuff[i] >> 8) & 0xFF);
-              b = (byte) ((dataBuff[i] >> 0) & 0xFF);
-              data[i] = (byte)((0.21 * r) + (0.71 * g) + (0.07 * b)); //luminosity
-            }
-         }
-         out.put(0, 0, data);
-         return out;
+		if(in.getType() == BufferedImage.TYPE_INT_RGB)
+		{
+			out = new Mat(240, 320, CvType.CV_8UC1);
+			data = new byte[320 * 240 * (int)out.elemSize()];
+			int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
+			for(int i = 0; i < dataBuff.length; i++)
+			{
+				data[i*3] = (byte) ((dataBuff[i] >> 16) & 0xFF);
+				data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
+				data[i*3 + 2] = (byte) ((dataBuff[i] >> 0) & 0xFF);
+			}
+		}
+		else
+		{
+			out = new Mat(240, 320, CvType.CV_8UC1);
+			data = new byte[320 * 240 * (int)out.elemSize()];
+			int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
+			for(int i = 0; i < dataBuff.length; i++)
+			{
+				r = (byte) ((dataBuff[i] >> 16) & 0xFF);
+				g = (byte) ((dataBuff[i] >> 8) & 0xFF);
+				b = (byte) ((dataBuff[i] >> 0) & 0xFF);
+				data[i] = (byte)((0.21 * r) + (0.71 * g) + (0.07 * b)); //luminosity
+			}
+		}
+		out.put(0, 0, data);
+		return out;
 	}
-	
+
 	public Mat optFlow(Mat first, Mat second){
-		Mat fOrg = first;
-		Mat sOrg = second;
-		first = buffImgToMat(mat2bufImg(first));
-		second = buffImgToMat(mat2bufImg(second));
-		
+		long startTime = System.nanoTime();
+		//		Mat fOrg = first;
+		Mat sOrg = second.clone();
+		//		first = buffImgToMat(mat2bufImg(first));
+		//		second = buffImgToMat(mat2bufImg(second));
+
 		MatOfPoint fKey = new MatOfPoint();
 		MatOfPoint sKey = new MatOfPoint();
-		
-//		KeyPoint temp1[] = getKeyPoints(first).toArray();
-//		Point fPoints[] = new Point[temp1.length];
-//		for(int i = 0; i<temp1.length; i++){
-//			fPoints[i] = (Point) fPoints[i];
-//		}
-//		
-//		KeyPoint temp2[] = getKeyPoints(first).toArray();
-//		Point sPoints[] = new Point[temp2.length];
-//		for(int i = 0; i<temp2.length; i++){
-//			sPoints[i] = (Point) sPoints[i];
-//		}
-		
-		Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 0.01);
-		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 0.01);
+		//		
+		//		KeyPoint temp1[] = getKeyPoints(first).toArray();
+		//		Point fPoints[] = new Point[temp1.length];
+		//		for(int i = 0; i<temp1.length; i++){
+		//			fPoints[i] = (Point) fPoints[i];
+		//		}
+		//		
+		//		KeyPoint temp2[] = getKeyPoints(first).toArray();
+		//		Point sPoints[] = new Point[temp2.length];
+		//		for(int i = 0; i<temp2.length; i++){
+		//			sPoints[i] = (Point) sPoints[i];
+		//		}
+
+		//		Mat one = new Mat();
+		//		Mat two = new Mat();
+		//		System.out.println("Channels: " + second.channels());
+		//		System.out.println("Channels after convert: " + second.channels() + " : " + two.channels());
+		//		return second;
+
+		Imgproc.cvtColor(first, first, Imgproc.COLOR_BGR2GRAY);
+		Imgproc.cvtColor(second, second, Imgproc.COLOR_BGR2GRAY);
+
+		//		second.convertTo(second, CvType.CV_8UC1);
+		//		first.convertTo(first, CvType.CV_8UC1);
+
+		Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 30);
+		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 30);
 
 		MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
 		MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());
-		System.out.println("***" + sKey.size() + " : " + fKey.size());
-//		Size size = new Size(3,3);
+
 		MatOfByte status = new MatOfByte();
 		MatOfFloat err = new MatOfFloat();
 		Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
 		//LK(first, second, fKey, sKey, null, null, size, maxLevel, criteria, flags, minEigThreshold);
-		
+
 		Point[] fArray = fKeyf.toArray();
 		Point[] sArray = sKeyf.toArray();
 		for(int i=0; i<fArray.length; i++){
-			Imgproc.line(first, fArray[i], sArray[i], new Scalar(255,0,0));			
+			Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0));			
 		}
-		return second;
+
+		if(BILLED_DEBUG){			
+			long total = System.nanoTime() - startTime;
+			long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
+			String debug = "Vektorer fundet på: " + durationInMs + " milisekunder.";
+			debug = debug + " Punkter fundet: " + sKey.size() + " : " + fKey.size();
+			System.out.println(debug);	
+		}
+
+		return sOrg;
 	}
 
 	/**
@@ -154,11 +180,12 @@ public class Placeholder {
 		Features2d.drawMatches(first, fKey, second, sKey, dmatches, out);
 		//		Features2d.drawMatches(img1, keypoints1, img2, keypoints2, matches1to2, outImg, matchColor, singlePointColor, matchesMask, flags);
 
-		// DEBUG
-		long total = System.nanoTime() - startTime;
-		long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
-		String debug = "Matches fundet på: " + durationInMs + " milisekunder";
-		System.out.println(debug);	
+		if(BILLED_DEBUG){
+			long total = System.nanoTime() - startTime;
+			long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
+			String debug = "Matches fundet på: " + durationInMs + " milisekunder";
+			System.out.println(debug);	
+		}
 
 		return out;
 	}

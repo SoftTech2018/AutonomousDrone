@@ -388,12 +388,13 @@ public class GuiController {
 				if (!frame.empty())	{
 					frame = ph.resize(frame, 640, 480);
 					if(firstFrame!=null){
-						outFrame = ph.drawMatches(firstFrame, frame);
-//						outFrame = ph.optFlow(firstFrame, frame);
+//						outFrame = ph.drawMatches(firstFrame, frame);
+						outFrame = ph.optFlow(firstFrame, frame);
 					} else {
 						outFrame = frame;
+//						ph.toGray(outFrame);
 					}
-					firstFrame = frame;
+					firstFrame = outFrame;
 					
 					if(greyScale){
 						// convert the image to gray scale
