@@ -48,7 +48,7 @@ public class GuiController {
 	private Button start_btn;
 	
 	@FXML
-	private ImageView grey_imageView;
+	private ImageView optFlow_imageView;
 
 	// NUMPAD 1
 	@FXML
@@ -60,6 +60,9 @@ public class GuiController {
 
 	@FXML
 	private CheckBox grey_checkBox;
+	
+	@FXML
+	private CheckBox optFlow_checkBox;
 
 	// NUMPAD 6
 	@FXML
@@ -109,7 +112,7 @@ public class GuiController {
 	// a flag to change the button behavior
 	private boolean cameraActive = false;
 	// a flag to enable/disable greyscale colors
-	private boolean greyScale = false;
+	private boolean greyScale = false, optFlow = false;
 	// Antal ms mellem hver frame (33 ms = 30 fps)
 	private int frameDt = 33;
 	// Objekt der bruges til at opdatere billedet på GUI
@@ -220,22 +223,7 @@ public class GuiController {
 					{
 						Image imageToShow[] = grabFrameFromWebcam();
 						currentFrame.setImage(imageToShow[0]);
-						grey_imageView.setImage(imageToShow[1]);
-//						Platform.runLater(new Runnable(){
-//							@Override
-//							public void run() {
-//								float values[] = dc.getFlightData();
-////									pitch.set(Float.toString(values[0]));
-////									roll.set(Float.toString(values[1]));
-////									yaw.set(Float.toString(values[2]));
-//
-//								pitch_label.setText(Float.toString(values[0]));
-//								roll_label.setText(Float.toString(values[1]));
-//								yaw_label.setText(Float.toString(values[2]));
-//								System.out.println("Yaw & pitch opdateres. Venter 1 sek");
-//							}
-//
-//						});
+						optFlow_imageView.setImage(imageToShow[1]);							
 					}
 				};
 
@@ -267,7 +255,7 @@ public class GuiController {
 			this.capture.release();
 			// clean the frame
 			this.currentFrame.setImage(null);
-			this.grey_imageView.setImage(null);
+			this.optFlow_imageView.setImage(null);
 		}
 	}
 
@@ -282,7 +270,7 @@ public class GuiController {
 					public void run(){
 						Image imageToShow[] = grabFrame();
 						currentFrame.setImage(imageToShow[0]);
-						grey_imageView.setImage(imageToShow[1]);
+						optFlow_imageView.setImage(imageToShow[1]);
 						float values[] = GuiController.this.dc.getFlightData();
 						Platform.runLater(new Runnable(){
 
@@ -348,9 +336,11 @@ public class GuiController {
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
-					if(true){ // skal der udføres optical Flow?
+					if(optFlow){ // skal der udføres optical Flow?
 //						outFrame = ph.drawMatches(firstFrame, frame);
 						outFrame = ph.optFlow(frame);
+					} else {
+						outFrame[0] = frame;
 					}
 					
 					if(greyScale){						
@@ -366,7 +356,9 @@ public class GuiController {
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
 					imageToShow[0] = mat2Image(outFrame[0]);
-					imageToShow[1] = mat2Image(outFrame[1]);
+					if(optFlow){
+						imageToShow[1] = mat2Image(outFrame[1]);
+					}
 				}
 
 			}catch (Exception e){
@@ -398,9 +390,10 @@ public class GuiController {
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
 					frame = ph.resize(frame, 640, 480);
-					if(true){ // skal der udføres optical Flow?
-//						outFrame = ph.drawMatches(firstFrame, frame);
+					if(optFlow){ // skal der udføres optical Flow?
 						outFrame = ph.optFlow(frame);
+					} else {
+						outFrame[0] = frame;						
 					}
 					
 					if(greyScale){
@@ -415,9 +408,10 @@ public class GuiController {
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
 					imageToShow[0] = mat2Image(outFrame[0]);
-					imageToShow[1] = mat2Image(outFrame[1]);
+					if(optFlow){
+						imageToShow[1] = mat2Image(outFrame[1]);
+					}
 				}
-
 			}catch (Exception e){
 				// log the error
 				System.err.println("Exception during the image elaboration: " + e);
@@ -457,7 +451,6 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.colorChange() kaldt! " + event.getSource().toString());
 		}
-
 		// Hvis der klikkes på greyScale_checkbox
 		if(event.getSource().equals(grey_checkBox)){
 			if(greyScale)
@@ -561,6 +554,14 @@ public class GuiController {
 	void changeCam(ActionEvent event){
 		if(!webcamVideo){
 			dc.toggleCamera();
+		}
+	}
+	
+	@FXML
+	void setOptFlow(ActionEvent event){
+		optFlow = !optFlow;
+		if(GuiStarter.GUI_DEBUG){
+			System.out.println("Optical Flow er sat til: " + optFlow);
 		}
 	}
 
