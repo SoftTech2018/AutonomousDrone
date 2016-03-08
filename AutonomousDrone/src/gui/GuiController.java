@@ -280,8 +280,9 @@ public class GuiController {
 				frameGrabber = new Runnable() {
 					@Override
 					public void run(){
-						Image imageToShow = grabFrame();
-						currentFrame.setImage(imageToShow);
+						Image imageToShow[] = grabFrame();
+						currentFrame.setImage(imageToShow[0]);
+						grey_imageView.setImage(imageToShow[1]);
 						float values[] = GuiController.this.dc.getFlightData();
 						Platform.runLater(new Runnable(){
 
@@ -331,10 +332,11 @@ public class GuiController {
 	 * 
 	 * @return the {@link Image} to show
 	 */
-	private Image grabFrame(){
+	private Image[] grabFrame(){
 		// init everything
-		Image imageToShow = null;
-		Mat frame = new Mat();
+		Image imageToShow[] = new Image[2];
+		Mat frame= new Mat();
+		Mat outFrame[] = new Mat[2];
 
 		// check if the capture is open
 		//		if (this.capture.isOpened())
@@ -346,6 +348,15 @@ public class GuiController {
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
+					if(firstFrame!=null){
+//						outFrame = ph.drawMatches(firstFrame, frame);
+						outFrame = ph.optFlow(firstFrame, frame);
+					} else {
+						outFrame[0] = frame;
+						outFrame[1] = frame;
+					}
+					firstFrame = outFrame[0];
+					
 					if(greyScale){						
 						// convert the image to gray scale
 //						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
@@ -358,7 +369,8 @@ public class GuiController {
 					}
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
-					imageToShow = mat2Image(frame);
+					imageToShow[0] = mat2Image(outFrame[0]);
+					imageToShow[1] = mat2Image(outFrame[1]);
 				}
 
 			}catch (Exception e){

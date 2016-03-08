@@ -111,9 +111,19 @@ public class Placeholder {
 		MatOfPoint fKey = new MatOfPoint();
 		MatOfPoint sKey = new MatOfPoint();
 
-		// Konverter til gråt billede
-		Imgproc.cvtColor(first, first, Imgproc.COLOR_BGR2GRAY);
-		Imgproc.cvtColor(second, second, Imgproc.COLOR_BGR2GRAY);
+
+		
+		first = this.edde(first);
+		first = this.thresh(first);
+		first = this.canny(first);
+		
+		second = this.edde(second);
+		second = this.thresh(second);
+		second = this.canny(second);
+		
+//		// Konverter til gråt billede
+//		Imgproc.cvtColor(first, first, Imgproc.COLOR_BGR2GRAY);
+//		Imgproc.cvtColor(second, second, Imgproc.COLOR_BGR2GRAY);
 
 		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
 		Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 30);
