@@ -348,14 +348,10 @@ public class GuiController {
 
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
-					if(firstFrame!=null){
+					if(true){ // skal der udføres optical Flow?
 //						outFrame = ph.drawMatches(firstFrame, frame);
-						outFrame = ph.optFlow(firstFrame, frame);
-					} else {
-						outFrame[0] = frame;
-						outFrame[1] = frame;
+						outFrame = ph.optFlow(frame);
 					}
-					firstFrame = outFrame[0];
 					
 					if(greyScale){						
 						// convert the image to gray scale
@@ -381,8 +377,6 @@ public class GuiController {
 
 		return imageToShow;
 	}
-	
-	private Mat firstFrame;
 
 	/**
 	 * Get a frame from the opened video stream (if any)
@@ -404,15 +398,10 @@ public class GuiController {
 				// if the frame is not empty, process it
 				if (!frame.empty())	{
 					frame = ph.resize(frame, 640, 480);
-					if(firstFrame!=null){
+					if(true){ // skal der udføres optical Flow?
 //						outFrame = ph.drawMatches(firstFrame, frame);
-						outFrame = ph.optFlow(firstFrame, frame);
-					} else {
-						outFrame[0] = frame;
-						outFrame[1] = frame;
-//						ph.toGray(outFrame);
+						outFrame = ph.optFlow(frame);
 					}
-					firstFrame = outFrame[0];
 					
 					if(greyScale){
 						// convert the image to gray scale

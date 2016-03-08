@@ -40,6 +40,8 @@ import com.google.zxing.qrcode.QRCodeReader;
 public class Placeholder {
 
 	private MatOfKeyPoint kp;
+	
+	private Mat first;
 
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
@@ -95,27 +97,40 @@ public class Placeholder {
 		return out;
 	}
 
+	private MatOfPoint fKey;
+	
 	/**
 	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame
 	 * @param first Første frame
 	 * @param second Anden frame - denne frame returnes med resultatet
 	 * @return Mat second - påtegnet resultatet
 	 */
-	public Mat[] optFlow(Mat first, Mat second){
+	public Mat[] optFlow(Mat second){
+		Mat out[] = new Mat[2];
+		
+		// Første gang metoden kaldes gemmes billedet og der udføres ingen analyse.
+		if(first==null){
+			first = second;
+			fKey = new MatOfPoint();
+			
+			first = this.edde(first);
+			first = this.thresh(first);
+			first = this.canny(first);
+			
+			Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 10);
+			
+			out[0] = second;
+			out[1] = first;
+			return out;
+		}
+		
 		long startTime = System.nanoTime(); // DEBUG
 
 		// Gem en kopi af det orignale farvebillede der skal vises til sidst
 		Mat sOrg = second.clone();
 
 		// Initier variable der gemmes data i
-		MatOfPoint fKey = new MatOfPoint();
 		MatOfPoint sKey = new MatOfPoint();
-
-
-		
-		first = this.edde(first);
-		first = this.thresh(first);
-		first = this.canny(first);
 		
 		second = this.edde(second);
 		second = this.thresh(second);
@@ -126,12 +141,11 @@ public class Placeholder {
 //		Imgproc.cvtColor(second, second, Imgproc.COLOR_BGR2GRAY);
 
 		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
-		Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 30);
-		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 30);
+		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
 
 		// Kør opticalFlowPyrLK
-		MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
 		MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());
+		MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
 		MatOfByte status = new MatOfByte();
 		MatOfFloat err = new MatOfFloat();
 		Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
@@ -141,9 +155,11 @@ public class Placeholder {
 		Point[] fArray = fKeyf.toArray();
 		Point[] sArray = sKeyf.toArray();
 		int thickness = 2;
+		int antalFundet = 0;
 		for(int i=0; i<fArray.length; i++){
 			if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
-				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);						
+				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);	
+				antalFundet++;
 			}		
 		}
 
@@ -151,13 +167,15 @@ public class Placeholder {
 			long total = System.nanoTime() - startTime;
 			long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
 			String debug = "Vektorer fundet på: " + durationInMs + " milisekunder.";
-			debug = debug + " Punkter fundet: " + sKey.size() + " : " + fKey.size();
+			debug = debug + " Punkter fundet: " + antalFundet + ", ud af: " + sKey.size();
 			System.out.println(debug);	
 		}
 
-		Mat out[] = new Mat[2];
 		out[0] = sOrg;
 		out[1] = second;
+		
+		first = second;
+		fKey = sKey;
 		return out;
 	}
 
