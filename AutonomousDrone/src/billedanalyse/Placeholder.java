@@ -101,7 +101,7 @@ public class Placeholder {
 	 * @param second Anden frame - denne frame returnes med resultatet
 	 * @return Mat second - påtegnet resultatet
 	 */
-	public Mat optFlow(Mat first, Mat second){
+	public Mat[] optFlow(Mat first, Mat second){
 		long startTime = System.nanoTime(); // DEBUG
 
 		// Gem en kopi af det orignale farvebillede der skal vises til sidst
@@ -145,7 +145,10 @@ public class Placeholder {
 			System.out.println(debug);	
 		}
 
-		return sOrg;
+		Mat out[] = new Mat[2];
+		out[0] = sOrg;
+		out[1] = second;
+		return out;
 	}
 
 	/**

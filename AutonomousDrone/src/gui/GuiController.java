@@ -46,6 +46,9 @@ public class GuiController {
 	// START CAMERA BUTTON
 	@FXML
 	private Button start_btn;
+	
+	@FXML
+	private ImageView grey_imageView;
 
 	// NUMPAD 1
 	@FXML
@@ -215,8 +218,9 @@ public class GuiController {
 					@Override
 					public void run()
 					{
-						Image imageToShow = grabFrameFromWebcam();
-						currentFrame.setImage(imageToShow);
+						Image imageToShow[] = grabFrameFromWebcam();
+						currentFrame.setImage(imageToShow[0]);
+						grey_imageView.setImage(imageToShow[1]);
 //						Platform.runLater(new Runnable(){
 //							@Override
 //							public void run() {
@@ -263,6 +267,7 @@ public class GuiController {
 			this.capture.release();
 			// clean the frame
 			this.currentFrame.setImage(null);
+			this.grey_imageView.setImage(null);
 		}
 	}
 
@@ -372,11 +377,11 @@ public class GuiController {
 	 * 
 	 * @return the {@link Image} to show
 	 */
-	private Image grabFrameFromWebcam(){
+	private Image[] grabFrameFromWebcam(){
 		// init everything
-		Image imageToShow = null;
+		Image imageToShow[] = new Image[2];
 		Mat frame = new Mat();
-		Mat outFrame  = new Mat();
+		Mat outFrame[]  = new Mat[2];
 
 		// check if the capture is open
 		if (this.capture.isOpened()){
@@ -391,10 +396,11 @@ public class GuiController {
 //						outFrame = ph.drawMatches(firstFrame, frame);
 						outFrame = ph.optFlow(firstFrame, frame);
 					} else {
-						outFrame = frame;
+						outFrame[0] = frame;
+						outFrame[1] = frame;
 //						ph.toGray(outFrame);
 					}
-					firstFrame = outFrame;
+					firstFrame = outFrame[0];
 					
 					if(greyScale){
 						// convert the image to gray scale
@@ -407,7 +413,8 @@ public class GuiController {
 					}
 
 					// convert the Mat object (OpenCV) to Image (JavaFX)
-					imageToShow = mat2Image(outFrame);
+					imageToShow[0] = mat2Image(outFrame[0]);
+					imageToShow[1] = mat2Image(outFrame[1]);
 				}
 
 			}catch (Exception e){

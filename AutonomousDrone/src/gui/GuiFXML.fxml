@@ -60,6 +60,7 @@
                </children>
             </AnchorPane>
             <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />
+            <ImageView fx:id="grey_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="16.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </AnchorPane>
    </children>
