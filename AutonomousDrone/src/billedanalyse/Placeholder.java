@@ -142,6 +142,12 @@ public class Placeholder {
 
 		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
 		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
+		
+		if(sKey.empty()){
+			System.out.println("******** NUL FEATURES FUNDET! ************** ");
+			out[0] = second;
+			return out;
+		}
 
 		// Kør opticalFlowPyrLK
 		MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());

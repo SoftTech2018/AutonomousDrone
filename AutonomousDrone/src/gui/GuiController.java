@@ -324,49 +324,66 @@ public class GuiController {
 		// init everything
 		Image imageToShow[] = new Image[2];
 		Mat frame= new Mat();
-		Mat outFrame[] = new Mat[2];
 
 		// check if the capture is open
-		//		if (this.capture.isOpened())
 		if(dc!=null){
 			try	{
 				// read the current frame
 //				imageToShow = dc.getImage();
 				frame = bufferedImageToMat(dc.getbufImg());
-
-				// if the frame is not empty, process it
-				if (!frame.empty())	{
-					if(optFlow){ // skal der udføres optical Flow?
-//						outFrame = ph.drawMatches(firstFrame, frame);
-						outFrame = ph.optFlow(frame);
-					} else {
-						outFrame[0] = frame;
-					}
-					
-					if(greyScale){						
-						// convert the image to gray scale
-//						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
-						frame = ph.resize(frame, 640, 480);
-						frame = ph.edde(frame);
-//						frame = ph.bilat(frame);
-						frame = ph.thresh(frame);
-						frame = ph.canny(frame);
-						frame = ph.KeyPointsImg(frame);
-					}
-
-					// convert the Mat object (OpenCV) to Image (JavaFX)
-					imageToShow[0] = mat2Image(outFrame[0]);
-					if(optFlow){
-						imageToShow[1] = mat2Image(outFrame[1]);
-					}
-				}
+				imageToShow = procesFrame(frame);
 
 			}catch (Exception e){
 				// log the error
 				System.err.println("Exception during the image elaboration: " + e);
+				e.printStackTrace();
 			}
 		}
 
+		return imageToShow;
+	}
+
+	private Mat filterMat(Mat mat) {
+		// convert the image to gray scale
+//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
+		mat = ph.resize(mat, 640, 480);
+		mat = ph.edde(mat);
+//		outFrame[0] = ph.bilat(outFrame[0]);
+		mat = ph.thresh(mat);
+		mat = ph.canny(mat);
+		mat = ph.KeyPointsImg(mat);
+		return mat;
+	}
+	
+	
+	/**
+	 * Processer en mat frame med diverse billedbehandling, og returner et JavaFX image array med
+	 * @param frame Mat frame der skal behandles
+	 * @return [0] = originalt billede, [1] = behandlet billede
+	 */
+	private Image[] procesFrame(Mat frame){
+		Image imageToShow[] = new Image[2];
+		Mat outFrame[]  = new Mat[2];
+		// if the frame is not empty, process it
+		if (!frame.empty())	{
+			frame = ph.resize(frame, 640, 480);
+			if(optFlow){ // skal der udføres optical Flow?
+				outFrame = ph.optFlow(frame);
+			} else {
+				outFrame[0] = frame;						
+			}
+			
+			// Enable image filter?
+			if(greyScale){						
+				outFrame[0] = filterMat(outFrame[0]);
+			}
+
+			// convert the Mat object (OpenCV) to Image (JavaFX)
+			imageToShow[0] = mat2Image(outFrame[0]);
+			if(optFlow){
+				imageToShow[1] = mat2Image(outFrame[1]);
+			}
+		}
 		return imageToShow;
 	}
 
@@ -379,39 +396,13 @@ public class GuiController {
 		// init everything
 		Image imageToShow[] = new Image[2];
 		Mat frame = new Mat();
-		Mat outFrame[]  = new Mat[2];
 
 		// check if the capture is open
 		if (this.capture.isOpened()){
 			try	{
 				// read the current frame
 				this.capture.read(frame);
-
-				// if the frame is not empty, process it
-				if (!frame.empty())	{
-					frame = ph.resize(frame, 640, 480);
-					if(optFlow){ // skal der udføres optical Flow?
-						outFrame = ph.optFlow(frame);
-					} else {
-						outFrame[0] = frame;						
-					}
-					
-					if(greyScale){
-						// convert the image to gray scale
-//						Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
-						frame = ph.edde(frame);
-//						frame = ph.bilat(frame);
-						frame = ph.thresh(frame);
-						frame = ph.canny(frame);
-						frame = ph.KeyPointsImg(frame);
-					}
-
-					// convert the Mat object (OpenCV) to Image (JavaFX)
-					imageToShow[0] = mat2Image(outFrame[0]);
-					if(optFlow){
-						imageToShow[1] = mat2Image(outFrame[1]);
-					}
-				}
+				imageToShow = procesFrame(frame);	
 			}catch (Exception e){
 				// log the error
 				System.err.println("Exception during the image elaboration: " + e);
