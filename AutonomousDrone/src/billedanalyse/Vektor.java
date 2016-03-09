@@ -1,28 +1,30 @@
 package billedanalyse;
 
+import org.opencv.core.Point;
+
 public class Vektor {
 	
-	private Punkt x;
-	private Punkt y;
+	private Point x;
+	private Point y;
 	
-	public Vektor(Punkt x, Punkt y){
+	public Vektor(Point x, Point y){
 		this.x = x;
 		this.y = y;
 	}
 
-	public Punkt getX() {
+	public Point getX() {
 		return x;
 	}
 
-	public void setX(Punkt x) {
+	public void setX(Point x) {
 		this.x = x;
 	}
 
-	public Punkt getY() {
+	public Point getY() {
 		return y;
 	}
 
-	public void setY(Punkt y) {
+	public void setY(Point y) {
 		this.y = y;
 	}
 	

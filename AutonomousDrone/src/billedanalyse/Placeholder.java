@@ -2,6 +2,8 @@ package billedanalyse;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
@@ -42,6 +44,10 @@ public class Placeholder {
 	private MatOfKeyPoint kp;
 	
 	private Mat first;
+	
+	private Vektor v;
+	
+	private ArrayList<Vektor> vList;
 
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
@@ -195,9 +201,12 @@ public class Placeholder {
 		Point[] sArray = sKeyf.toArray();
 		int thickness = 2;
 		int antalFundet = 0;
+		vList = new ArrayList<Vektor>();
 		for(int i=0; i<fArray.length; i++){
 			if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
-				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);	
+				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
+				vList.add(new Vektor(fArray[i],sArray[i]));
+				//System.out.println("LISTE STØRRELSE: "+vList.size());
 				antalFundet++;
 			}		
 		}
@@ -407,5 +416,9 @@ public class Placeholder {
 		// buffer
 		return new BufferedImage(frame.width(), frame.height(), java.awt.image.BufferedImage.TYPE_BYTE_INDEXED);
 
+	}
+	
+	public ArrayList<Vektor> getVektorArray(){
+		return vList;
 	}
 }
