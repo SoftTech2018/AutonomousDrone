@@ -100,6 +100,41 @@ public class Placeholder {
 	private MatOfPoint fKey;
 	
 	/**
+	 * Identificer og tegner linjer i billedet vha. Hough Transform
+	 * Se javadoc: http://docs.opencv.org/java/2.4.2/org/opencv/imgproc/Imgproc.html#HoughLines(org.opencv.core.Mat, org.opencv.core.Mat, double, double, int)
+	 * @param mat Billedet der skal analyseres
+	 * @return Det originale billede, med påtegnede linjer
+	 */
+	public Mat houghLines(Mat mat){
+		// Find linjer i billedet
+		double rho = 50; //  Distance resolution of the accumulator in pixels.
+		double theta = Math.PI/180; // Angle resolution of the accumulator in radians.
+		int threshold = 200; // Accumulator threshold parameter. Only those lines are returned that get enough votes (>threshold).
+		Mat lines = new Mat();
+		Imgproc.HoughLinesP(mat, lines, rho, theta, threshold);
+		
+		if(BILLED_DEBUG){
+			System.out.println("Linjer fundet ved HoughLines: " + lines.rows());
+		}
+		
+		int thickness = 3; // Tykkelse på de tegnede linjer
+		Scalar color = new Scalar(255,255,255); // Farven på de tegnede linjer 
+		
+		// Tegn alle linjer
+		for(int l = 0; l < lines.rows(); l++){
+			 double[] vec = lines.get(l, 0);
+	          double x1 = vec[0], 
+	                 y1 = vec[1],
+	                 x2 = vec[2],
+	                 y2 = vec[3];
+	          Point start = new Point(x1, y1);
+	          Point end = new Point(x2, y2);
+	          Imgproc.line(mat, start, end, color, thickness);
+		}
+		return mat;
+	}
+	
+	/**
 	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame
 	 * @param first Første frame
 	 * @param second Anden frame - denne frame returnes med resultatet
@@ -108,7 +143,7 @@ public class Placeholder {
 	public Mat[] optFlow(Mat second){
 		Mat out[] = new Mat[2];
 		
-		// Første gang metoden kaldes gemmes billedet og der udføres ingen analyse.
+		// Første gang metoden kaldes gemmes billedet og der tegnes ingen vektorer.
 		if(first==null){
 			first = second;
 			fKey = new MatOfPoint();
@@ -132,19 +167,17 @@ public class Placeholder {
 		// Initier variable der gemmes data i
 		MatOfPoint sKey = new MatOfPoint();
 		
+		// Behandling af billedet som fremhæver features
 		second = this.edde(second);
 		second = this.thresh(second);
 		second = this.canny(second);
-		
-//		// Konverter til gråt billede
-//		Imgproc.cvtColor(first, first, Imgproc.COLOR_BGR2GRAY);
-//		Imgproc.cvtColor(second, second, Imgproc.COLOR_BGR2GRAY);
 
 		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
 		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
 		
+		// Hvis der ikke findes nogle features er der intet at tegne eller lave optical flow på
 		if(sKey.empty()){
-			System.out.println("******** NUL FEATURES FUNDET! ************** ");
+			System.err.println("******** NUL FEATURES FUNDET! ************** ");
 			out[0] = second;
 			return out;
 		}
@@ -180,6 +213,7 @@ public class Placeholder {
 		out[0] = sOrg;
 		out[1] = second;
 		
+		// Gem det behandlede billede samt data så det kan benyttes næste gang metoden kaldes
 		first = second;
 		fKey = sKey;
 		return out;
@@ -316,7 +350,8 @@ public class Placeholder {
 
 	public Mat thresh(Mat frame){
 		Mat frame1 = new Mat();
-		Imgproc.threshold(frame, frame1, 170, 255, 0);
+//		Imgproc.threshold(frame, frame1, 70, 255, Imgproc.THRESH_BINARY);
+		Imgproc.threshold(frame, frame1, 20, 255, Imgproc.THRESH_TOZERO);
 		return frame1;
 	}
 
