@@ -16,7 +16,9 @@ public class DroneControl implements IDroneControl {
 	private IARDrone drone;
 	private CommandManager cmd;
 	private NavDataManager ndm;
-	private final int SPEED = 10; /* % */
+	
+	//TurnLeft og TurnRight ganges med faktor 8-10, up og down ganges med faktor 5
+	private final int SPEED = 10; /* % */ 
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 2500; /* mm */
 	private final int DURATION = 10; /* ms */
@@ -138,9 +140,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Flyver Op");
 		}
 		if(TIMEMODE){
-			cmd.up(SPEED);
+			cmd.up(SPEED*5);
 		} else {
-			cmd.up(SPEED).doFor(DURATION);			
+			cmd.up(SPEED*5).doFor(DURATION);			
 		}
 
 		//		cmd.hover();
@@ -155,9 +157,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Flyver Ned");
 		}
 		if(TIMEMODE){
-			cmd.down(SPEED);
+			cmd.down(SPEED*5);
 		} else {
-			cmd.down(SPEED).doFor(DURATION);			
+			cmd.down(SPEED*5).doFor(DURATION);			
 		}
 		//		cmd.hover();
 	}
@@ -235,9 +237,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Drejer Venstre");
 		}
 		if(TIMEMODE){
-			cmd.spinLeft(SPEED);
+			cmd.spinLeft(SPEED*8);
 		} else {
-			cmd.spinLeft(SPEED).doFor(DURATION);			
+			cmd.spinLeft(SPEED*8).doFor(DURATION);			
 		}
 		//		cmd.hover();
 	}
@@ -251,9 +253,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Drejer Højre");
 		}
 		if(TIMEMODE){
-			cmd.spinRight(SPEED);
+			cmd.spinRight(SPEED*10);
 		} else {
-			cmd.spinRight(SPEED).doFor(DURATION);			
+			cmd.spinRight(SPEED*10).doFor(DURATION);			
 		}
 		//		cmd.hover();
 	}
