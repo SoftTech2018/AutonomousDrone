@@ -32,5 +32,8 @@ public class Vektor {
 		return Math.sqrt(Math.pow((x.x - y.x),2) + Math.pow((x.y - y.y),2));
 	}
 	
-
+	public double distance(double degrees){
+		return getLength()/Math.sin(degrees);
+	}
+	
 }

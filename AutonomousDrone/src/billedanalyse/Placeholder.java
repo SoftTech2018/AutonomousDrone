@@ -261,6 +261,59 @@ public class Placeholder {
 			return out;
 		}
 	}
+	
+	/**
+	 * Created by: Jon Tvermose Nielsen
+	 * Finder den gennemsnitlige distance fra kamera til vektor i et 6x6 gitter
+	 * @param frame Den frame der skal tegnes på (ændres ikke)
+	 * @param vectors Vektorer der beregnes på
+	 * @param degree Hvor mange grader har dronen bevæget sig
+	 * @return Kopi af frame med påtegnet gitter
+	 */
+	public Mat calcDistances(Mat frame, ArrayList<Vektor> vectors, double degree){
+		Mat distFrame = frame.clone();
+		double sqWidth = distFrame.size().width/6;
+		double sqHeight = distFrame.size().height/6;
+
+		// Tegn firkanterne
+		for(int i=0; i<5; i++){
+			Imgproc.line(distFrame, new Point(sqWidth*(i+1), 0), new Point(sqWidth*(i+1), sqHeight*6), new Scalar(0,0,255), 4);			
+		}
+		for(int i=0; i<5; i++){
+			Imgproc.line(distFrame, new Point(0, sqHeight*(i+1)), new Point(sqWidth*6, sqHeight*(i+1)), new Scalar(0,0,255), 4);			
+		}
+
+		double squares[][] = new double[6][6];
+		int squaresCount[][] = new int[6][6];
+
+		for(int i=0; i<vectors.size();i++){			
+			//find hvilken firkant vektoren hører til
+			double pointX = vectors.get(i).getY().x;
+			double pointY = vectors.get(i).getY().y;
+
+			// Hvis vi er ude over billedets grænser springes til næste punkt
+			if(pointY > sqHeight*6 || pointX > sqWidth*6){
+				continue;
+			}
+
+			int x = (int) (pointX/sqWidth);
+			int y = (int) (pointY/sqHeight);
+			// Beregn distance og adder distancen i den tilsvarende firkant
+			squares[x][y] += vectors.get(i).distance(degree);
+			squaresCount[x][y]++;
+		}
+
+		// Beregn gennemsnitsdistancen i hver firkant
+		for(int i=0; i<6; i++){
+			for(int o=0; o<6; o++){
+				squares[i][o] = squares[i][o] / squaresCount[i][o];
+				if(BILLED_DEBUG){
+					System.out.println("Distance for " + i + "," + o + " : " + squares[i][o] + ", antal: " + squaresCount[i][o]);					
+				}
+			}
+		}
+		return distFrame;
+	}
 
 	/**
 	 * Created by: Jon Tvermose Nielsen
