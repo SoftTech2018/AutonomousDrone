@@ -42,6 +42,12 @@ public class GuiController {
 	// NUMPAD 7
 	@FXML
 	private Button strafeLeft_btn;
+	
+	@FXML
+	private CheckBox objTracking_checkBox;
+	
+	@FXML
+	private ImageView objTrack_imageView;
 
 	// START CAMERA BUTTON
 	@FXML
@@ -123,6 +129,8 @@ public class GuiController {
 	private boolean flying = false;
 	// Skal der hentes video fra webcam?
 	private boolean webcamVideo = true;
+	// trackes der objekter?
+	private boolean objTrack = false;
 	// Tæller op indtil der er forbindelse med dronen eller max er nået
 	private int droneTime = 0, droneMaxTime = 20 ;
 
@@ -198,6 +206,8 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}
+		optFlow_checkBox.setDisable(!cameraActive);
+		objTracking_checkBox.setDisable(!cameraActive);
 		if(webcamVideo){
 			// Video hentes fra webcam
 			startWebcamStream();
@@ -222,8 +232,9 @@ public class GuiController {
 					public void run()
 					{
 						Image imageToShow[] = grabFrameFromWebcam();
-						currentFrame.setImage(imageToShow[0]);
-						optFlow_imageView.setImage(imageToShow[1]);							
+						currentFrame.setImage(imageToShow[0]); // Main billede
+						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
+						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 					}
 				};
 
@@ -256,6 +267,7 @@ public class GuiController {
 			// clean the frame
 			this.currentFrame.setImage(null);
 			this.optFlow_imageView.setImage(null);
+			this.objTrack_imageView.setImage(null);
 		}
 	}
 
@@ -269,20 +281,18 @@ public class GuiController {
 					@Override
 					public void run(){
 						Image imageToShow[] = grabFrame();
-						currentFrame.setImage(imageToShow[0]);
-						optFlow_imageView.setImage(imageToShow[1]);
+						currentFrame.setImage(imageToShow[0]); // Main billede
+						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
+						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						int values[] = GuiController.this.dc.getFlightData();
 						Platform.runLater(new Runnable(){
-
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
 								pitch.set(Float.toString(values[0]));
 								roll.set(Float.toString(values[1]));
-								yaw.set(Float.toString(values[2]));
-								
+								yaw.set(Float.toString(values[2]));		
 							}
-							
 						});
 					}
 				};
@@ -312,6 +322,8 @@ public class GuiController {
 			}
 			// clean the frame
 			this.currentFrame.setImage(null);
+			this.optFlow_imageView.setImage(null);
+			this.objTrack_imageView.setImage(null);
 		}
 	}
 
@@ -362,17 +374,21 @@ public class GuiController {
 	 * @return [0] = originalt billede, [1] = behandlet billede
 	 */
 	private Image[] procesFrame(Mat frame){
-		Image imageToShow[] = new Image[2];
-		Mat outFrame[]  = new Mat[2];
+		Image imageToShow[] = new Image[3];
+		Mat outFrame[] = new Mat[3];
 		// if the frame is not empty, process it
 		if (!frame.empty())	{
 			frame = ph.resize(frame, 640, 480);
 //			frame = ph.gaus(frame); // TESTKODE
-			if(optFlow){ // skal der udføres optical Flow?
-				outFrame = ph.optFlow(frame);
-			} else {
-				outFrame[0] = frame;						
-			}
+//			if(optFlow){ // skal der udføres optical Flow?
+			outFrame = ph.optFlow(frame, optFlow, objTrack);
+//			} else {
+//				outFrame[0] = frame;						
+//			}
+			
+//			if(objTrack){
+//				outFrame[2] = ph.trackObject(frame);
+//			} 
 			
 			// Enable image filter?
 			if(greyScale){						
@@ -383,6 +399,9 @@ public class GuiController {
 			imageToShow[0] = mat2Image(outFrame[0]);
 			if(optFlow){
 				imageToShow[1] = mat2Image(outFrame[1]);
+			}
+			if(objTrack){
+				imageToShow[2] = mat2Image(outFrame[2]);
 			}
 		}
 		return imageToShow;
@@ -554,6 +573,14 @@ public class GuiController {
 		optFlow = !optFlow;
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Optical Flow er sat til: " + optFlow);
+		}
+	}
+	
+	@FXML
+	void setObjectTracking(ActionEvent event){
+		objTrack = !objTrack;
+		if(GuiStarter.GUI_DEBUG){
+			System.out.println("Object Tracking er sat til: " + objTrack);
 		}
 	}
 

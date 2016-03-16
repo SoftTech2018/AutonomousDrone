@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane prefHeight="449.0" prefWidth="561.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
+<AnchorPane prefHeight="583.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
    <children>
-      <GridPane layoutX="10.0" layoutY="285.0" maxWidth="400.0" minHeight="150.0" prefHeight="90.0" prefWidth="408.0">
+      <GridPane layoutX="14.0" layoutY="419.0" maxWidth="400.0" minHeight="150.0" prefHeight="90.0" prefWidth="408.0">
          <children>
             <Button fx:id="forward_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#goForward" text="Go Forward" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
             <Button fx:id="left_btn" disable="true" minWidth="85.0" mnemonicParsing="false" onAction="#turnLeft" text="Turn Left" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
@@ -60,9 +60,11 @@
                </children>
             </AnchorPane>
             <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />
-            <ImageView fx:id="optFlow_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="16.0" layoutY="167.0" pickOnBounds="true" preserveRatio="true" />
             <CheckBox fx:id="optFlow_checkBox" layoutX="10.0" layoutY="126.0" mnemonicParsing="false" onAction="#setOptFlow" text="Optical Flow" />
+            <CheckBox fx:id="objTracking_checkBox" layoutX="10.0" layoutY="159.0" mnemonicParsing="false" onAction="#setObjectTracking" text="Object Tracking" />
          </children>
       </AnchorPane>
+      <ImageView fx:id="optFlow_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="21.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="objTrack_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="205.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />
    </children>
 </AnchorPane>

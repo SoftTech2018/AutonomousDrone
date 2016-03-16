@@ -42,11 +42,11 @@ import com.google.zxing.qrcode.QRCodeReader;
 public class Placeholder {
 
 	private MatOfKeyPoint kp;
-	
+
 	private Mat first;
-	
+
 	private Vektor v;
-	
+
 	private ArrayList<Vektor> vList;
 
 	/*
@@ -104,7 +104,7 @@ public class Placeholder {
 	}
 
 	private MatOfPoint fKey;
-	
+
 	/**
 	 * Identificer og tegner linjer i billedet vha. Hough Transform
 	 * Se javadoc: http://docs.opencv.org/java/2.4.2/org/opencv/imgproc/Imgproc.html#HoughLines(org.opencv.core.Mat, org.opencv.core.Mat, double, double, int)
@@ -118,139 +118,148 @@ public class Placeholder {
 		int threshold = 200; // Accumulator threshold parameter. Only those lines are returned that get enough votes (>threshold).
 		Mat lines = new Mat();
 		Imgproc.HoughLinesP(mat, lines, rho, theta, threshold);
-		
+
 		if(BILLED_DEBUG){
 			System.out.println("Linjer fundet ved HoughLines: " + lines.rows());
 		}
-		
+
 		int thickness = 3; // Tykkelse på de tegnede linjer
 		Scalar color = new Scalar(255,255,255); // Farven på de tegnede linjer 
-		
+
 		// Tegn alle linjer
 		for(int l = 0; l < lines.rows(); l++){
-			 double[] vec = lines.get(l, 0);
-	          double x1 = vec[0], 
-	                 y1 = vec[1],
-	                 x2 = vec[2],
-	                 y2 = vec[3];
-	          Point start = new Point(x1, y1);
-	          Point end = new Point(x2, y2);
-	          Imgproc.line(mat, start, end, color, thickness);
+			double[] vec = lines.get(l, 0);
+			double x1 = vec[0], 
+					y1 = vec[1],
+					x2 = vec[2],
+					y2 = vec[3];
+			Point start = new Point(x1, y1);
+			Point end = new Point(x2, y2);
+			Imgproc.line(mat, start, end, color, thickness);
 		}
 		return mat;
 	}
-	
+
 	/**
 	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame
 	 * @param first Første frame
 	 * @param second Anden frame - denne frame returnes med resultatet
 	 * @return Mat second - påtegnet resultatet
 	 */
-	public Mat[] optFlow(Mat second){
-		Mat out[] = new Mat[2];
-		
-		// Første gang metoden kaldes gemmes billedet og der tegnes ingen vektorer.
-		if(first==null){
+	public Mat[] optFlow(Mat second, boolean optFlow, boolean objTrack){
+		Mat out[] = new Mat[3];
+
+		if(objTrack){
+			out[2] = this.trackObject(second);
+		}
+
+		if(optFlow){
+			// Første gang metoden kaldes gemmes billedet og der tegnes ingen vektorer.
+			if(first==null){
+				first = second;
+				fKey = new MatOfPoint();
+
+				//			first = this.gaus(first);
+				first = this.edde(first);
+				first = this.thresh(first);
+				//			first = this.canny(first);
+				first = this.toGray(first);
+
+				Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 10);
+
+				out[0] = second;
+				out[1] = first;
+				return out;
+			}
+
+			long startTime = System.nanoTime(); // DEBUG
+
+			// Gem en kopi af det orignale farvebillede der skal vises til sidst
+			Mat sOrg = second.clone();
+
+			// Initier variable der gemmes data i
+			MatOfPoint sKey = new MatOfPoint();
+
+			// Behandling af billedet som fremhæver features
+			//		second = this.gaus(second);
+			second = this.edde(second);
+			second = this.thresh(second);
+			//		second = this.canny(second);
+			second = this.toGray(second);
+
+			// Find punkter der er gode at tracke. Gemmes i fKey og sKey
+			Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
+
+			// Hvis der ikke findes nogle features er der intet at tegne eller lave optical flow på
+			if(sKey.empty()){
+				System.err.println("******** NUL FEATURES FUNDET! ************** ");
+				out[0] = second;
+				return out;
+			}
+
+			// Kør opticalFlowPyrLK
+			MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());
+			MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
+			MatOfByte status = new MatOfByte();
+			MatOfFloat err = new MatOfFloat();
+			Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
+
+			// Tegn vektorer på kopien af originale farvebillede 
+			byte[] fundet = status.toArray();
+			Point[] fArray = fKeyf.toArray();
+			Point[] sArray = sKeyf.toArray();
+			int thickness = 2;
+			int antalFundet = 0;
+			vList = new ArrayList<Vektor>();
+			for(int i=0; i<fArray.length; i++){
+				if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
+					Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
+					vList.add(new Vektor(fArray[i],sArray[i]));
+					//System.out.println("LISTE ST�RRELSE: "+vList.size());
+					antalFundet++;
+				}		
+			}
+
+			//		double avg = 0;
+			//		for(int p=0; p<vList.size(); p++){
+			//			avg = avg + vList.get(p).getLength();
+			//		}
+			//		avg = avg/vList.size();
+			//		System.out.println("Længde: " + avg + ", Størrelse: " + vList.size());
+			//		
+			//		int x =0;
+			//		while(x<vList.size()){
+			//			if(vList.get(x).getLength() < avg){
+			//				vList.remove(x);
+			//				x--;
+			//			}
+			//			x++;
+			//		}
+			//		System.out.println("Størrelse2: " + vList.size());
+			//		
+			//		for(int i=0; i<vList.size(); i++){
+			//			Imgproc.line(sOrg, vList.get(i).getX(), vList.get(i).getY(), new Scalar(255,0,0), thickness);
+			//		}
+
+			if(BILLED_DEBUG){			
+				long total = System.nanoTime() - startTime;
+				long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
+				String debug = "Vektorer fundet på: " + durationInMs + " milisekunder.";
+				debug = debug + " Punkter fundet: " + antalFundet + ", ud af: " + sKey.size();
+				System.out.println(debug);	
+			}
+
+			out[0] = sOrg;
+			out[1] = second;
+
+			// Gem det behandlede billede samt data så det kan benyttes næste gang metoden kaldes
 			first = second;
-			fKey = new MatOfPoint();
-			
-//			first = this.gaus(first);
-			first = this.edde(first);
-			first = this.thresh(first);
-//			first = this.canny(first);
-			first = this.toGray(first);
-			
-			Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 10);
-			
-			out[0] = second;
-			out[1] = first;
+			fKey = sKey;
 			return out;
-		}
-		
-		long startTime = System.nanoTime(); // DEBUG
-
-		// Gem en kopi af det orignale farvebillede der skal vises til sidst
-		Mat sOrg = second.clone();
-
-		// Initier variable der gemmes data i
-		MatOfPoint sKey = new MatOfPoint();
-		
-		// Behandling af billedet som fremhæver features
-//		second = this.gaus(second);
-		second = this.edde(second);
-		second = this.thresh(second);
-//		second = this.canny(second);
-		second = this.toGray(second);
-
-		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
-		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
-		
-		// Hvis der ikke findes nogle features er der intet at tegne eller lave optical flow på
-		if(sKey.empty()){
-			System.err.println("******** NUL FEATURES FUNDET! ************** ");
+		} else {
 			out[0] = second;
 			return out;
 		}
-
-		// Kør opticalFlowPyrLK
-		MatOfPoint2f sKeyf = new MatOfPoint2f(sKey.toArray());
-		MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
-		MatOfByte status = new MatOfByte();
-		MatOfFloat err = new MatOfFloat();
-		Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
-
-		// Tegn vektorer på kopien af originale farvebillede 
-		byte[] fundet = status.toArray();
-		Point[] fArray = fKeyf.toArray();
-		Point[] sArray = sKeyf.toArray();
-		int thickness = 2;
-		int antalFundet = 0;
-		vList = new ArrayList<Vektor>();
-		for(int i=0; i<fArray.length; i++){
-			if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
-				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
-				vList.add(new Vektor(fArray[i],sArray[i]));
-				//System.out.println("LISTE ST�RRELSE: "+vList.size());
-				antalFundet++;
-			}		
-		}
-		
-//		double avg = 0;
-//		for(int p=0; p<vList.size(); p++){
-//			avg = avg + vList.get(p).getLength();
-//		}
-//		avg = avg/vList.size();
-//		System.out.println("Længde: " + avg + ", Størrelse: " + vList.size());
-//		
-//		int x =0;
-//		while(x<vList.size()){
-//			if(vList.get(x).getLength() < avg){
-//				vList.remove(x);
-//				x--;
-//			}
-//			x++;
-//		}
-//		System.out.println("Størrelse2: " + vList.size());
-//		
-//		for(int i=0; i<vList.size(); i++){
-//			Imgproc.line(sOrg, vList.get(i).getX(), vList.get(i).getY(), new Scalar(255,0,0), thickness);
-//		}
-
-		if(BILLED_DEBUG){			
-			long total = System.nanoTime() - startTime;
-			long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
-			String debug = "Vektorer fundet på: " + durationInMs + " milisekunder.";
-			debug = debug + " Punkter fundet: " + antalFundet + ", ud af: " + sKey.size();
-			System.out.println(debug);	
-		}
-
-		out[0] = sOrg;
-		out[1] = second;
-		
-		// Gem det behandlede billede samt data så det kan benyttes næste gang metoden kaldes
-		first = second;
-		fKey = sKey;
-		return out;
 	}
 
 	/**
@@ -384,7 +393,7 @@ public class Placeholder {
 
 	public Mat thresh(Mat frame){
 		Mat frame1 = new Mat();
-//		Imgproc.threshold(frame, frame1, 70, 255, Imgproc.THRESH_BINARY);
+		//		Imgproc.threshold(frame, frame1, 70, 255, Imgproc.THRESH_BINARY);
 		Imgproc.threshold(frame, frame1, 20, 255, Imgproc.THRESH_TOZERO);
 		return frame1;
 	}
@@ -394,7 +403,7 @@ public class Placeholder {
 		Imgproc.bilateralFilter(frame, frame1, 50, 80.0, 80.0);
 		return frame1;
 	}
-	
+
 	public Mat gaus(Mat frame){
 		Mat frame1 = new Mat();
 		Imgproc.GaussianBlur(frame, frame1, new Size(33,33), 10.0);
@@ -448,8 +457,14 @@ public class Placeholder {
 		return new BufferedImage(frame.width(), frame.height(), java.awt.image.BufferedImage.TYPE_BYTE_INDEXED);
 
 	}
-	
+
 	public ArrayList<Vektor> getVektorArray(){
 		return vList;
+	}
+
+	public Mat trackObject(Mat frame) {
+		Mat klon = frame.clone();
+		// TODO Auto-generated method stub
+		return klon;
 	}
 }
