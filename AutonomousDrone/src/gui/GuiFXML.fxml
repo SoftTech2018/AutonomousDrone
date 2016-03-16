@@ -62,6 +62,7 @@
             <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />
             <CheckBox fx:id="optFlow_checkBox" layoutX="10.0" layoutY="126.0" mnemonicParsing="false" onAction="#setOptFlow" text="Optical Flow" />
             <CheckBox fx:id="objTracking_checkBox" layoutX="10.0" layoutY="159.0" mnemonicParsing="false" onAction="#setObjectTracking" text="Object Tracking" />
+            <CheckBox fx:id="qr_checkBox" layoutX="11.0" layoutY="189.0" mnemonicParsing="false" onAction="#searchQR" text="QR Scan" />
          </children>
       </AnchorPane>
       <ImageView fx:id="optFlow_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="21.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />

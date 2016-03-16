@@ -15,6 +15,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
 import billedanalyse.Placeholder;
+import billedanalyse.QRCodeScanner;
 import drone.DroneControl;
 import drone.IDroneControl;
 import javafx.application.Platform;
@@ -69,6 +70,9 @@ public class GuiController {
 	
 	@FXML
 	private CheckBox optFlow_checkBox;
+	
+	@FXML
+	private CheckBox qr_checkBox;
 
 	// NUMPAD 6
 	@FXML
@@ -118,7 +122,7 @@ public class GuiController {
 	// a flag to change the button behavior
 	private boolean cameraActive = false;
 	// a flag to enable/disable greyscale colors
-	private boolean greyScale = false, optFlow = false;
+	private boolean greyScale = false, optFlow = false, qr = false;
 	// Antal ms mellem hver frame (33 ms = 30 fps)
 	private int frameDt = 33;
 	// Objekt der bruges til at opdatere billedet på GUI
@@ -367,6 +371,11 @@ public class GuiController {
 		return mat;
 	}
 	
+	private void findQR(Mat frame){
+		QRCodeScanner qrs = new QRCodeScanner();
+		qrs.imageUpdated(ph.mat2bufImg(frame));
+	}
+	
 	
 	/**
 	 * Processer en mat frame med diverse billedbehandling, og returner et JavaFX image array med
@@ -393,6 +402,11 @@ public class GuiController {
 			// Enable image filter?
 			if(greyScale){						
 				outFrame[0] = filterMat(outFrame[0]);
+			}
+			
+			//Enable QR-checkBox?
+			if(qr){
+				findQR(frame);
 			}
 
 			// convert the Mat object (OpenCV) to Image (JavaFX)
@@ -468,6 +482,20 @@ public class GuiController {
 				greyScale = false;
 			else
 				greyScale = true;
+		}
+	}
+	
+	@FXML
+	void searchQR(ActionEvent event){
+		if(GuiStarter.GUI_DEBUG){
+			System.out.println("Debug: GuiController.searhQR() kaldt! " + event.getSource().toString());
+		}
+		// Hvis der klikkes på QR_checkbox
+		if(event.getSource().equals(qr_checkBox)){
+			if(qr)
+				qr = false;
+			else
+				qr = true;
 		}
 	}
 

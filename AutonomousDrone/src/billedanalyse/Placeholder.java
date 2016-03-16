@@ -447,7 +447,7 @@ public class Placeholder {
 		return frame;		
 	}
 
-	private BufferedImage mat2bufImg(Mat frame){
+	public BufferedImage mat2bufImg(Mat frame){
 		// create a temporary buffer
 		MatOfByte buffer = new MatOfByte();
 		// encode the frame in the buffer
