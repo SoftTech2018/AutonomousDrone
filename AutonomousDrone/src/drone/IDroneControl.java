@@ -34,7 +34,7 @@ public interface IDroneControl {
 
 	boolean isReady();
 
-	float[] getFlightData();
+	int[] getFlightData();
 
 	BufferedImage getbufImg();
 }

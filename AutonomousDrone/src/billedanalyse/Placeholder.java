@@ -154,9 +154,11 @@ public class Placeholder {
 			first = second;
 			fKey = new MatOfPoint();
 			
+//			first = this.gaus(first);
 			first = this.edde(first);
 			first = this.thresh(first);
-			first = this.canny(first);
+//			first = this.canny(first);
+			first = this.toGray(first);
 			
 			Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 10);
 			
@@ -174,9 +176,11 @@ public class Placeholder {
 		MatOfPoint sKey = new MatOfPoint();
 		
 		// Behandling af billedet som fremhæver features
+//		second = this.gaus(second);
 		second = this.edde(second);
 		second = this.thresh(second);
-		second = this.canny(second);
+//		second = this.canny(second);
+		second = this.toGray(second);
 
 		// Find punkter der er gode at tracke. Gemmes i fKey og sKey
 		Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
@@ -206,10 +210,31 @@ public class Placeholder {
 			if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
 				Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
 				vList.add(new Vektor(fArray[i],sArray[i]));
-				//System.out.println("LISTE ST�RRELSE: "+vList.size());
+				//System.out.println("LISTE ST�RRELSE: "+vList.size());
 				antalFundet++;
 			}		
 		}
+		
+//		double avg = 0;
+//		for(int p=0; p<vList.size(); p++){
+//			avg = avg + vList.get(p).getLength();
+//		}
+//		avg = avg/vList.size();
+//		System.out.println("Længde: " + avg + ", Størrelse: " + vList.size());
+//		
+//		int x =0;
+//		while(x<vList.size()){
+//			if(vList.get(x).getLength() < avg){
+//				vList.remove(x);
+//				x--;
+//			}
+//			x++;
+//		}
+//		System.out.println("Størrelse2: " + vList.size());
+//		
+//		for(int i=0; i<vList.size(); i++){
+//			Imgproc.line(sOrg, vList.get(i).getX(), vList.get(i).getY(), new Scalar(255,0,0), thickness);
+//		}
 
 		if(BILLED_DEBUG){			
 			long total = System.nanoTime() - startTime;
@@ -360,7 +385,7 @@ public class Placeholder {
 	public Mat thresh(Mat frame){
 		Mat frame1 = new Mat();
 //		Imgproc.threshold(frame, frame1, 70, 255, Imgproc.THRESH_BINARY);
-		Imgproc.threshold(frame, frame1, 120, 255, Imgproc.THRESH_TOZERO);
+		Imgproc.threshold(frame, frame1, 20, 255, Imgproc.THRESH_TOZERO);
 		return frame1;
 	}
 
@@ -372,7 +397,7 @@ public class Placeholder {
 	
 	public Mat gaus(Mat frame){
 		Mat frame1 = new Mat();
-		Imgproc.GaussianBlur(frame, frame1, new Size(13,13), 100.0);
+		Imgproc.GaussianBlur(frame, frame1, new Size(33,33), 10.0);
 		return frame1;
 	}
 

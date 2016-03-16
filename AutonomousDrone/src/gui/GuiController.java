@@ -271,7 +271,7 @@ public class GuiController {
 						Image imageToShow[] = grabFrame();
 						currentFrame.setImage(imageToShow[0]);
 						optFlow_imageView.setImage(imageToShow[1]);
-						float values[] = GuiController.this.dc.getFlightData();
+						int values[] = GuiController.this.dc.getFlightData();
 						Platform.runLater(new Runnable(){
 
 							@Override
@@ -367,6 +367,7 @@ public class GuiController {
 		// if the frame is not empty, process it
 		if (!frame.empty())	{
 			frame = ph.resize(frame, 640, 480);
+//			frame = ph.gaus(frame); // TESTKODE
 			if(optFlow){ // skal der udføres optical Flow?
 				outFrame = ph.optFlow(frame);
 			} else {

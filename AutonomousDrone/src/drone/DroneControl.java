@@ -24,7 +24,7 @@ public class DroneControl implements IDroneControl {
 	private final int DURATION = 10; /* ms */
 	private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
-	private float pitch, yaw, roll;
+	private int pitch, yaw, roll;
 
 	protected static final boolean DRONE_DEBUG = false;
 
@@ -39,7 +39,7 @@ public class DroneControl implements IDroneControl {
 	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
 	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
 	 */
-	private final boolean TEST_MODE = true;
+	private final boolean TEST_MODE = false;
 
 	public DroneControl() {
 		pitch = 0;
@@ -61,14 +61,14 @@ public class DroneControl implements IDroneControl {
 		ndm.addAttitudeListener(new AttitudeListener(){
 			@Override
 			public void attitudeUpdated(float pitch, float roll) {
-				DroneControl.this.pitch = pitch;
-				DroneControl.this.roll = roll;
+				DroneControl.this.pitch = (int) pitch/1000;
+				DroneControl.this.roll = (int) roll/1000;
 			}
 			@Override
 			public void attitudeUpdated(float pitch, float roll, float yaw) {
-				DroneControl.this.pitch = pitch;
-				DroneControl.this.roll = roll;
-				DroneControl.this.yaw = yaw;
+				DroneControl.this.pitch = (int) pitch/1000;
+				DroneControl.this.roll = (int) roll/1000;
+				DroneControl.this.yaw = (int) yaw/1000;
 			}
 			@Override
 			public void windCompensation(float arg0, float arg1) {	}
@@ -287,11 +287,11 @@ public class DroneControl implements IDroneControl {
 	}
 
 	@Override
-	public float[] getFlightData() {
+	public int[] getFlightData() {
 		if(DRONE_DEBUG){
 			System.out.println("Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw);
 		}
-		float out[] = {pitch, roll, yaw};
+		int out[] = {pitch, roll, yaw};
 		return out;
 	}
 }

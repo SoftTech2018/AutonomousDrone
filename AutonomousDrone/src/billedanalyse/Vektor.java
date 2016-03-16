@@ -28,6 +28,9 @@ public class Vektor {
 		this.y = y;
 	}
 	
+	public double getLength(){
+		return Math.sqrt(Math.pow((x.x - y.x),2) + Math.pow((x.y - y.y),2));
+	}
 	
 
 }
