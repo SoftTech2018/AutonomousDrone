@@ -360,14 +360,20 @@ public class Placeholder {
 	public Mat thresh(Mat frame){
 		Mat frame1 = new Mat();
 //		Imgproc.threshold(frame, frame1, 70, 255, Imgproc.THRESH_BINARY);
-		Imgproc.threshold(frame, frame1, 20, 255, Imgproc.THRESH_TOZERO);
+		Imgproc.threshold(frame, frame1, 120, 255, Imgproc.THRESH_TOZERO);
 		return frame1;
 	}
 
 	public Mat bilat(Mat frame){
 		Mat frame1 = new Mat();
 		Imgproc.bilateralFilter(frame, frame1, 50, 80.0, 80.0);
-		return frame;
+		return frame1;
+	}
+	
+	public Mat gaus(Mat frame){
+		Mat frame1 = new Mat();
+		Imgproc.GaussianBlur(frame, frame1, new Size(13,13), 100.0);
+		return frame1;
 	}
 
 	public Mat canny(Mat frame){
