@@ -14,7 +14,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
-import billedanalyse.Placeholder;
+import billedanalyse.BilledAnalyse;
 import billedanalyse.QRCodeScanner;
 import drone.DroneControl;
 import drone.IDroneControl;
@@ -38,7 +38,7 @@ import javafx.scene.image.ImageView;
 public class GuiController {
 
 	private IDroneControl dc = new DroneControl();
-	private Placeholder ph = new Placeholder();
+	private BilledAnalyse ph = new BilledAnalyse();
 
 	// NUMPAD 7
 	@FXML

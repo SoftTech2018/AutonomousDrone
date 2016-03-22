@@ -34,15 +34,12 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 
-public class Placeholder {
+public class BilledAnalyse {
 
 	private MatOfKeyPoint kp;
-
 	private Mat first;
-
-	private Vektor v;
-
 	private ArrayList<Vektor> vList;
+	private MatOfPoint fKey;
 
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
@@ -50,17 +47,11 @@ public class Placeholder {
 	protected static final boolean BILLED_DEBUG = false;
 
 	public Mat KeyPointsImg(Mat frame){
-
 		//		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
-
 		FeatureDetector detect = FeatureDetector.create(FeatureDetector.ORB);
-
 		kp = new MatOfKeyPoint();
-
 		detect.detect(frame, kp);
-
 		Features2d.drawKeypoints(frame, kp, frame);
-
 		return frame;
 	}
 
@@ -97,8 +88,6 @@ public class Placeholder {
 		out.put(0, 0, data);
 		return out;
 	}
-
-	private MatOfPoint fKey;
 
 	/**
 	 * Identificer og tegner linjer i billedet vha. Hough Transform
@@ -210,7 +199,6 @@ public class Placeholder {
 				if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
 					Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
 					vList.add(new Vektor(fArray[i],sArray[i]));
-					//System.out.println("LISTE ST�RRELSE: "+vList.size());
 					antalFundet++;
 				}		
 			}
@@ -252,7 +240,7 @@ public class Placeholder {
 			fKey = sKey;
 
 			this.calcOptMagnitude(vList, sOrg, 3); // TEST KODE
-//			out[0] = this.calcDistances(sOrg, vList, 17); // TEST KODE
+			//			out[0] = this.calcDistances(sOrg, vList, 17); // TEST KODE
 			return out;
 		} else {
 			out[0] = second;
@@ -304,17 +292,17 @@ public class Placeholder {
 					// Tegn firkant hvis objektet er for tæt på
 					if(squares[i][o] > minDist){
 						Imgproc.rectangle(distFrame, new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), color, thickness);
-//						System.err.println("Forhindring fundet i sektor " + i + ":" + o +", dist: " + squares[i][o]);
+						//						System.err.println("Forhindring fundet i sektor " + i + ":" + o +", dist: " + squares[i][o]);
 					}
 				}
-//				if(BILLED_DEBUG){
-//					System.out.println("Distance for " + i + "," + o + " : " + squares[i][o] + ", antal: " + squaresCount[i][o]);					
-//				}
+				//				if(BILLED_DEBUG){
+				//					System.out.println("Distance for " + i + "," + o + " : " + squares[i][o] + ", antal: " + squaresCount[i][o]);					
+				//				}
 			}
 		}
 		return distFrame;
 	}
-	
+
 	/**
 	 * Created by: Jon Tvermose Nielsen
 	 * Finder den gennemsnitlige magnitude for vektorerne i hver firkant i et size * size størrelse billede
@@ -325,10 +313,10 @@ public class Placeholder {
 	 */
 	public double[][] calcOptMagnitude(ArrayList<Vektor> vectors, Mat frame, int size){
 		double out[][] = new double[size][size];
-		
+
 		double sqWidth = frame.size().width/size;
 		double sqHeight = frame.size().height/size;
-		
+
 		int squaresCount[][] = new int[size][size];
 
 		for(int i=0; i<vectors.size();i++){			
@@ -341,12 +329,12 @@ public class Placeholder {
 			} 
 			int x = (int) (pointX/sqWidth);
 			int y = (int) (pointY/sqHeight);
-			
+
 			// Adder længden i den tilsvarende firkant
 			out[x][y] += vectors.get(i).getLength();
 			squaresCount[x][y]++;
 		}
-		
+
 		// Beregn gennemsnitsmagnituden i hver firkant
 		for(int i=0; i<size; i++){
 			for(int o=0; o<size; o++){
@@ -355,7 +343,7 @@ public class Placeholder {
 				}
 			}
 		}
-		
+
 		if(BILLED_DEBUG){
 			System.out.println("***");
 			System.out.println((int) out[0][0] + "\t" + (int) out[1][0] + "\t" + (int) out[2][0]);
@@ -445,32 +433,22 @@ public class Placeholder {
 	}
 
 	public Mat erode(Mat frame_in){
-
 		Mat frame_out = new Mat();
-
 		int erosion_size = 2;
 		Point point = new Point( -1, -1 );
 		Size size = new Size(erosion_size, erosion_size);
-
 		Mat erodeelement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, size, point);
-
 		Imgproc.erode(frame_in, frame_out, erodeelement);
-
 		return frame_out;
 	}
 
 	public Mat dilate(Mat frame_in){
-
 		Mat frame_out = new Mat();
-
 		int dilation_size = 2;
 		Point point = new Point( -1, -1 );
 		Size size = new Size(dilation_size, dilation_size);
-
 		Mat diluteelement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, size, point);
-
 		Imgproc.dilate(frame_in, frame_out, diluteelement);
-
 		return frame_out;
 	}
 
@@ -480,7 +458,6 @@ public class Placeholder {
 
 		Imgproc.dilate( frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
 		Imgproc.erode(frame, frame, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-
 		//		int erode_rep = 10;
 		//		int dilate_rep = 5;
 		//
@@ -490,7 +467,6 @@ public class Placeholder {
 		//		for(int i = 0;i<erode_rep;i++){
 		//			frame = erode(frame);							
 		//		}
-
 		return frame;
 	}
 
@@ -533,9 +509,7 @@ public class Placeholder {
 		int iHighV = 255;
 
 		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
-
 		Core.inRange(frame, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), frame_out);
-
 		return frame_out;
 	}
 
