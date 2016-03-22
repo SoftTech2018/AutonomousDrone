@@ -16,7 +16,7 @@ public class OpgaveAlgoritme {
 	private BilledAnalyse ba = new BilledAnalyse();
 	protected boolean doStop = false;
 	private int searchTime = 60000; // Max søgetid i ms når der ikke kan findes et target. Eks: 60000 = 60 sek.
-	
+	private boolean flying = false;
 	/*
 	 * Markør hvor der kan udskrives debug-beskeder i konsollen.
 	 */
@@ -39,6 +39,9 @@ public class OpgaveAlgoritme {
 					e.printStackTrace();
 				}
 				continue; // start forfra i while-løkke
+			} else {// Dronen er klar til at letter
+				flying = true;
+				dc.takeoff();
 			}
 			// Find de mulige manøvre vi kan foretage os
 			boolean retninger[] = getPossibleManeuvers(); // 0=down, 1=up, 2=goLeft, 3=goRight, 4=forward
@@ -88,6 +91,7 @@ public class OpgaveAlgoritme {
 				} else {
 					// Der kunne ikke findes et mål objekt på 30 sekunder.
 					// TODO Land dronen sikkert
+					flying = false;
 					dc.land();
 				}
 			}
