@@ -43,17 +43,17 @@ public class GuiController {
 	// NUMPAD 7
 	@FXML
 	private Button strafeLeft_btn;
-	
+
 	@FXML
 	private CheckBox objTracking_checkBox;
-	
+
 	@FXML
 	private ImageView objTrack_imageView;
 
 	// START CAMERA BUTTON
 	@FXML
 	private Button start_btn;
-	
+
 	@FXML
 	private ImageView optFlow_imageView;
 
@@ -67,10 +67,10 @@ public class GuiController {
 
 	@FXML
 	private CheckBox grey_checkBox;
-	
+
 	@FXML
 	private CheckBox optFlow_checkBox;
-	
+
 	@FXML
 	private CheckBox qr_checkBox;
 
@@ -128,7 +128,7 @@ public class GuiController {
 	// Objekt der bruges til at opdatere billedet på GUI
 	private Runnable frameGrabber;
 	// Liste af valgmuligheder i GUI til frames per second
-	private ObservableList<Integer> frameChoicesList = FXCollections.observableArrayList(15, 30, 60, 120);
+	private ObservableList<Integer> frameChoicesList = FXCollections.observableArrayList(15, 30);
 	// Flyver dronen?
 	private boolean flying = false;
 	// Skal der hentes video fra webcam?
@@ -155,9 +155,10 @@ public class GuiController {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
 				frameDt = 1000/frameChoicesList.get((Integer) arg2);
+				dc.setFps((int) 1000/frameDt); // sæt dronens kamera til den matchende FPS (min 15, max 30).
 
 				if(GuiStarter.GUI_DEBUG){
-					System.out.println("Debug: GuiController.frames_choiceBox changelistener kaldt! Frames er: " + frameDt);
+					System.out.println("Debug: GuiController.frames_choiceBox changelistener kaldt! Frames er: " + (int) 1000/frameDt);
 				}
 				if(GuiController.this.timer!=null){					
 					GuiController.this.timer.shutdown();
@@ -168,9 +169,9 @@ public class GuiController {
 		});
 
 		// Databinding mekanisme til at opdatere GUI
-				pitch_label.textProperty().bind(pitch);
-				yaw_label.textProperty().bind(yaw);
-				roll_label.textProperty().bind(roll);
+		pitch_label.textProperty().bind(pitch);
+		yaw_label.textProperty().bind(yaw);
+		roll_label.textProperty().bind(roll);
 
 		// Tjek om dronen er klar til takeoff
 		this.takeoff_btn.setDisable(true);
@@ -345,7 +346,7 @@ public class GuiController {
 		if(dc!=null){
 			try	{
 				// read the current frame
-//				imageToShow = dc.getImage();
+				//				imageToShow = dc.getImage();
 				frame = ph.bufferedImageToMat(dc.getbufImg());
 				imageToShow = procesFrame(frame);
 
@@ -361,22 +362,22 @@ public class GuiController {
 
 	private Mat filterMat(Mat mat) {
 		// convert the image to gray scale
-//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
+		//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
 		mat = ph.resize(mat, 640, 480);
 		mat = ph.edde(mat);
-//		outFrame[0] = ph.bilat(outFrame[0]);
+		//		outFrame[0] = ph.bilat(outFrame[0]);
 		mat = ph.thresh(mat);
 		mat = ph.canny(mat);
 		mat = ph.KeyPointsImg(mat);
 		return mat;
 	}
-	
+
 	private void findQR(Mat frame){
 		QRCodeScanner qrs = new QRCodeScanner();
 		qrs.imageUpdated(ph.mat2bufImg(frame));
 	}
-	
-	
+
+
 	/**
 	 * Processer en mat frame med diverse billedbehandling, og returner et JavaFX image array med
 	 * @param frame Mat frame der skal behandles
@@ -388,22 +389,22 @@ public class GuiController {
 		// if the frame is not empty, process it
 		if (!frame.empty())	{
 			frame = ph.resize(frame, 640, 480);
-//			frame = ph.gaus(frame); // TESTKODE
-//			if(optFlow){ // skal der udføres optical Flow?
+			//			frame = ph.gaus(frame); // TESTKODE
+			//			if(optFlow){ // skal der udføres optical Flow?
 			outFrame = ph.optFlow(frame, optFlow, objTrack);
-//			} else {
-//				outFrame[0] = frame;						
-//			}
-			
-//			if(objTrack){
-//				outFrame[2] = ph.trackObject(frame);
-//			} 
-			
+			//			} else {
+			//				outFrame[0] = frame;						
+			//			}
+
+			//			if(objTrack){
+			//				outFrame[2] = ph.trackObject(frame);
+			//			} 
+
 			// Enable image filter?
 			if(greyScale){						
 				outFrame[0] = filterMat(outFrame[0]);
 			}
-			
+
 			//Enable QR-checkBox?
 			if(qr){
 				findQR(frame);
@@ -477,7 +478,7 @@ public class GuiController {
 				greyScale = true;
 		}
 	}
-	
+
 	@FXML
 	void searchQR(ActionEvent event){
 		if(GuiStarter.GUI_DEBUG){
@@ -588,7 +589,7 @@ public class GuiController {
 			dc.toggleCamera();
 		}
 	}
-	
+
 	@FXML
 	void setOptFlow(ActionEvent event){
 		optFlow = !optFlow;
@@ -596,7 +597,7 @@ public class GuiController {
 			System.out.println("Optical Flow er sat til: " + optFlow);
 		}
 	}
-	
+
 	@FXML
 	void setObjectTracking(ActionEvent event){
 		objTrack = !objTrack;

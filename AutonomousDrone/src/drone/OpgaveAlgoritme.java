@@ -7,6 +7,7 @@ import com.google.zxing.Result;
 
 import billedanalyse.BilledAnalyse;
 import billedanalyse.Vektor;
+import de.yadrone.base.command.LEDAnimation;
 
 public class OpgaveAlgoritme {
 
@@ -14,6 +15,12 @@ public class OpgaveAlgoritme {
 	private IDroneControl dc = new DroneControl();
 	private BilledAnalyse ba = new BilledAnalyse();
 	protected boolean doStop = false;
+	private int searchTime = 60000; // Max søgetid i ms når der ikke kan findes et target. Eks: 60000 = 60 sek.
+	
+	/*
+	 * Markør hvor der kan udskrives debug-beskeder i konsollen.
+	 */
+	protected final boolean OPGAVE_DEBUG = true;
 	
 	public OpgaveAlgoritme(){
 		while (!doStop) {
@@ -23,7 +30,9 @@ public class OpgaveAlgoritme {
 				if(dc.getImage()==null){
 					img = false;						
 				}
-				System.err.println("Drone klar: " + dc.isReady()+ ", Billeder modtages: " + img);
+				if(OPGAVE_DEBUG){
+					System.out.println("Drone klar: " + dc.isReady()+ ", Billeder modtages: " + img);					
+				}
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
@@ -79,6 +88,7 @@ public class OpgaveAlgoritme {
 				} else {
 					// Der kunne ikke findes et mål objekt på 30 sekunder.
 					// TODO Land dronen sikkert
+					dc.land();
 				}
 			}
 			
@@ -100,19 +110,26 @@ public class OpgaveAlgoritme {
 	 * Afsøg rummet indtil der findes et target
 	 */
 	private boolean findTarget() {
+		if(OPGAVE_DEBUG){
+			System.out.println("Målsøgning startes.");
+		}
 		int yaw = dc.getFlightData()[2];
 		int degrees = 15;
 		int turns = 0;
 		long targetStartTime = System.currentTimeMillis();
-		while(!targetFound() || (System.currentTimeMillis() - targetStartTime) > 30000){ // Der søges i max 30 sek
+		while(!targetFound() || (System.currentTimeMillis() - targetStartTime) > searchTime){ // Der søges i max 30 sek
+			dc.setLedAnim(LEDAnimation.BLINK_RED, 3, 10); // Blink dronens lys rødt mens der søges
 			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
 				dc.turnLeft();				
 			}
 			turns++;
-			if(turns > 360/degrees){ // Hvis der er drejet en fuld omgang, så flyves til nyt sted og søges på ny
+			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
+				if(OPGAVE_DEBUG){
+					System.out.println("Intet mål fundet. Flytter dronen.");
+				}
 				boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
 				long startTime = System.currentTimeMillis();
-				while((System.currentTimeMillis() - startTime) < 2500){ // Gør noget i 2500 ms
+				while(!targetFound() || (System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
 					if(retninger[4]){
 						dc.forward();
 					} else if(retninger[2]){
@@ -125,10 +142,14 @@ public class OpgaveAlgoritme {
 						dc.down();
 					}
 				}
+				turns = 0;
 			}
 		}
 		if(targetFound()){
 			return true;
+		}
+		if(OPGAVE_DEBUG){
+			System.err.println("Intet mål fundet indenfor tidsinterval. Dronen lander.");			
 		}
 		return false;
 		

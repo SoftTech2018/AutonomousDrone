@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.CommandManager;
+import de.yadrone.base.command.LEDAnimation;
 import de.yadrone.base.navdata.AttitudeListener;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
@@ -106,6 +107,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Lander");
 		}
+		drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_ORANGE, 3, 10);
 		cmd.landing();
 	}
 
@@ -117,6 +119,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Starter");
 		}
+		drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_ORANGE, 3, 10);
 		cmd.takeOff();
 	}
 
@@ -293,5 +296,17 @@ public class DroneControl implements IDroneControl {
 		}
 		int out[] = {pitch, roll, yaw};
 		return out;
+	}
+	
+	@Override
+	public void setFps(int fps){
+		if(cmd!=null){			
+		cmd.setVideoCodecFps(fps);
+		}
+	}
+	
+	@Override
+	public void setLedAnim(LEDAnimation anim, int freq, int dur){
+		drone.getCommandManager().setLedsAnimation(anim, freq, dur);
 	}
 }

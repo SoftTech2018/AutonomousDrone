@@ -2,6 +2,7 @@ package drone;
 
 import java.awt.image.BufferedImage;
 
+import de.yadrone.base.command.LEDAnimation;
 import javafx.scene.image.Image;
 
 public interface IDroneControl {
@@ -37,4 +38,8 @@ public interface IDroneControl {
 	int[] getFlightData();
 
 	BufferedImage getbufImg();
+
+	void setFps(int fps);
+
+	void setLedAnim(LEDAnimation anim, int freq, int dur);
 }
