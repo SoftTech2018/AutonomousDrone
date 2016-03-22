@@ -33,7 +33,7 @@ public class Vektor {
 	}
 	
 	public double distance(double degrees){
-		return getLength()/Math.sin(degrees);
+		return Math.abs(getLength()/Math.sin(degrees));
 	}
 	
 }

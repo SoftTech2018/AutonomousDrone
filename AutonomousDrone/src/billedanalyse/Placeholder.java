@@ -1,14 +1,11 @@
 package billedanalyse;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
-import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDMatch;
@@ -30,14 +27,12 @@ import org.opencv.video.Video;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
-import com.google.zxing.LuminanceSource;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.Reader;
 import com.google.zxing.Result;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
-import com.google.zxing.qrcode.QRCodeReader;
 
 public class Placeholder {
 
@@ -52,7 +47,7 @@ public class Placeholder {
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
 	 */
-	protected static final boolean BILLED_DEBUG = true;
+	protected static final boolean BILLED_DEBUG = false;
 
 	public Mat KeyPointsImg(Mat frame){
 
@@ -255,47 +250,41 @@ public class Placeholder {
 			// Gem det behandlede billede samt data så det kan benyttes næste gang metoden kaldes
 			first = second;
 			fKey = sKey;
+
+			this.calcOptMagnitude(vList, sOrg, 3); // TEST KODE
+//			out[0] = this.calcDistances(sOrg, vList, 17); // TEST KODE
 			return out;
 		} else {
 			out[0] = second;
 			return out;
 		}
 	}
-	
+
 	/**
 	 * Created by: Jon Tvermose Nielsen
 	 * Finder den gennemsnitlige distance fra kamera til vektor i et 6x6 gitter
 	 * @param frame Den frame der skal tegnes på (ændres ikke)
 	 * @param vectors Vektorer der beregnes på
 	 * @param degree Hvor mange grader har dronen bevæget sig
+	 * @param Antal kollonner og rækker billedet deles i
 	 * @return Kopi af frame med påtegnet gitter
 	 */
-	public Mat calcDistances(Mat frame, ArrayList<Vektor> vectors, double degree){
+	public Mat calcDistances(Mat frame, ArrayList<Vektor> vectors, double degree, int size){	
 		Mat distFrame = frame.clone();
-		double sqWidth = distFrame.size().width/6;
-		double sqHeight = distFrame.size().height/6;
+		double sqWidth = distFrame.size().width/size;
+		double sqHeight = distFrame.size().height/size;
 
-		// Tegn firkanterne
-		for(int i=0; i<5; i++){
-			Imgproc.line(distFrame, new Point(sqWidth*(i+1), 0), new Point(sqWidth*(i+1), sqHeight*6), new Scalar(0,0,255), 4);			
-		}
-		for(int i=0; i<5; i++){
-			Imgproc.line(distFrame, new Point(0, sqHeight*(i+1)), new Point(sqWidth*6, sqHeight*(i+1)), new Scalar(0,0,255), 4);			
-		}
+		double squares[][] = new double[size][size];
+		int squaresCount[][] = new int[size][size];
 
-		double squares[][] = new double[6][6];
-		int squaresCount[][] = new int[6][6];
-
-		for(int i=0; i<vectors.size();i++){			
+		for(int i=0; i<vectors.size();i++){	
 			//find hvilken firkant vektoren hører til
 			double pointX = vectors.get(i).getY().x;
 			double pointY = vectors.get(i).getY().y;
-
 			// Hvis vi er ude over billedets grænser springes til næste punkt
-			if(pointY > sqHeight*6 || pointX > sqWidth*6){
+			if(pointY > sqHeight*size || pointX > sqWidth*size){
 				continue;
 			}
-
 			int x = (int) (pointX/sqWidth);
 			int y = (int) (pointY/sqHeight);
 			// Beregn distance og adder distancen i den tilsvarende firkant
@@ -303,16 +292,77 @@ public class Placeholder {
 			squaresCount[x][y]++;
 		}
 
+		double minDist = 30; // Den mindste tilladte distance til et givent objekt
+		Scalar color = new Scalar(0,0,255); // Rød farve til stregen
+		int thickness = 4; // Tykkelse på stregen
+
 		// Beregn gennemsnitsdistancen i hver firkant
-		for(int i=0; i<6; i++){
-			for(int o=0; o<6; o++){
-				squares[i][o] = squares[i][o] / squaresCount[i][o];
-				if(BILLED_DEBUG){
-					System.out.println("Distance for " + i + "," + o + " : " + squares[i][o] + ", antal: " + squaresCount[i][o]);					
+		for(int i=0; i<size; i++){
+			for(int o=0; o<size; o++){
+				if(squaresCount[i][o] > 0){ // Beregn kun gennemsnitsdistance hvis der er noget at beregne på
+					squares[i][o] = squares[i][o] / squaresCount[i][o];		
+					// Tegn firkant hvis objektet er for tæt på
+					if(squares[i][o] > minDist){
+						Imgproc.rectangle(distFrame, new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), color, thickness);
+//						System.err.println("Forhindring fundet i sektor " + i + ":" + o +", dist: " + squares[i][o]);
+					}
 				}
+//				if(BILLED_DEBUG){
+//					System.out.println("Distance for " + i + "," + o + " : " + squares[i][o] + ", antal: " + squaresCount[i][o]);					
+//				}
 			}
 		}
 		return distFrame;
+	}
+	
+	/**
+	 * Created by: Jon Tvermose Nielsen
+	 * Finder den gennemsnitlige magnitude for vektorerne i hver firkant i et size * size størrelse billede
+	 * @param vectors Vektoren der analyseres
+	 * @param frame Billedet der hører til vektorerne
+	 * @param size Antal rækker og kollonner billedet opsplittes i
+	 * @return Array med magnitude værdier for vektorer i billedet
+	 */
+	public double[][] calcOptMagnitude(ArrayList<Vektor> vectors, Mat frame, int size){
+		double out[][] = new double[size][size];
+		
+		double sqWidth = frame.size().width/size;
+		double sqHeight = frame.size().height/size;
+		
+		int squaresCount[][] = new int[size][size];
+
+		for(int i=0; i<vectors.size();i++){			
+			//find hvilken firkant vektoren hører til
+			double pointX = vectors.get(i).getY().x;
+			double pointY = vectors.get(i).getY().y;
+			// Hvis vi er ude over billedets grænser springes til næste punkt
+			if(pointY > sqHeight*size || pointX > sqWidth*size){
+				continue;
+			} 
+			int x = (int) (pointX/sqWidth);
+			int y = (int) (pointY/sqHeight);
+			
+			// Adder længden i den tilsvarende firkant
+			out[x][y] += vectors.get(i).getLength();
+			squaresCount[x][y]++;
+		}
+		
+		// Beregn gennemsnitsmagnituden i hver firkant
+		for(int i=0; i<size; i++){
+			for(int o=0; o<size; o++){
+				if(squaresCount[i][o] > 0){ // Beregn kun gennemsnitsdistance hvis der er noget at beregne på
+					out[i][o] = out[i][o] / squaresCount[i][o];
+				}
+			}
+		}
+		
+		if(BILLED_DEBUG){
+			System.out.println("***");
+			System.out.println((int) out[0][0] + "\t" + (int) out[1][0] + "\t" + (int) out[2][0]);
+			System.out.println((int) out[0][1] + "\t" + (int) out[1][1] + "\t" + (int) out[2][1]);
+			System.out.println((int) out[0][2] + "\t" + (int) out[1][2] + "\t" + (int) out[2][2]);
+		}
+		return out;
 	}
 
 	/**
