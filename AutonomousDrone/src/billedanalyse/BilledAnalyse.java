@@ -1,6 +1,7 @@
 package billedanalyse;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -544,4 +545,11 @@ public class BilledAnalyse {
 		// TODO Auto-generated method stub
 		return klon;
 	}
+	
+	public Mat bufferedImageToMat(BufferedImage bi) {
+		  Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+		  byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+		  mat.put(0, 0, data);
+		  return mat;
+		}
 }
