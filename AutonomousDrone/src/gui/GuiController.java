@@ -7,12 +7,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.VideoWriter;
 
 import billedanalyse.BilledAnalyse;
 import billedanalyse.QRCodeScanner;
@@ -37,6 +40,8 @@ import javafx.scene.image.ImageView;
 
 public class GuiController {
 
+	private final boolean recordVideo = false; // Testkode - sæt til true for at optage en videostream.
+
 	private IDroneControl dc = new DroneControl();
 	private BilledAnalyse ph = new BilledAnalyse();
 
@@ -46,6 +51,9 @@ public class GuiController {
 
 	@FXML
 	private CheckBox objTracking_checkBox;
+
+	@FXML
+	private CheckBox testVideo_checkBox;
 
 	@FXML
 	private ImageView objTrack_imageView;
@@ -137,6 +145,8 @@ public class GuiController {
 	private boolean objTrack = false;
 	// Tæller op indtil der er forbindelse med dronen eller max er nået
 	private int droneTime = 0, droneMaxTime = 20 ;
+	// Analyserer vi test-video?
+	private boolean useTestVideo = false;
 
 	@FXML
 	private Label roll_label;
@@ -147,8 +157,13 @@ public class GuiController {
 	@FXML
 	private Label pitch_label;
 
+	// Bruges til at gemme en videosekvens
+	private VideoWriter outVideo;
+	// Bruges til at læse fra en videosekvens
+	private VideoCapture testStream;
+
 	@FXML
-	private void initialize(){
+	private void initialize(){		
 		frames_choiceBox.setValue(30);
 		frames_choiceBox.setItems(frameChoicesList);
 		frames_choiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
@@ -213,12 +228,73 @@ public class GuiController {
 		}
 		optFlow_checkBox.setDisable(!cameraActive);
 		objTracking_checkBox.setDisable(!cameraActive);
-		if(webcamVideo){
-			// Video hentes fra webcam
-			startWebcamStream();
+		testVideo_checkBox.setDisable(!cameraActive);
+		if(useTestVideo){
+			startTestVideoStream();
+		} else{
+			if(webcamVideo){
+				// Video hentes fra webcam
+				startWebcamStream();
+			} else {
+				// Video hentes fra dronen
+				startDroneStream();
+			}
+		}
+	}
+
+	private void startTestVideoStream(){
+		if (!this.cameraActive){
+			testStream = new VideoCapture(".\\outVideo.avi");
+			double fps = testStream.get(5);
+			frameDt = (int) (1000/fps);
+			this.cameraActive = true;
+
+			// grab a frame every 33 ms (30 frames/sec)
+			frameGrabber = new Runnable() {
+				@Override
+				public void run(){
+					Mat frame = new Mat();
+					testStream.read(frame);
+					if(frame.empty()){
+						timer.shutdown();
+						System.err.println("Test video er slut.");
+						Platform.runLater(new Runnable(){
+							@Override
+							public void run() {
+								GuiController.this.startCamera(null);
+							}	
+						});
+					} else {
+						Image imageToShow[] = GuiController.this.procesFrame(frame);
+						currentFrame.setImage(imageToShow[0]); // Main billede
+						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
+						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
+					}
+				}
+			};
+			this.timer = Executors.newSingleThreadScheduledExecutor();
+			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+
+			// update the button content
+			this.start_btn.setText("Stop Camera");
 		} else {
-			// Video hentes fra dronen
-			startDroneStream();
+			// the camera is not active at this point
+			this.cameraActive = false;
+			// update again the button content
+			this.start_btn.setText("Start Camera");
+
+			// stop the timer
+			try{
+				this.timer.shutdown();
+				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
+			}catch (InterruptedException e)	{
+				// log the exception
+				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
+			}
+			// clean the frame
+			this.currentFrame.setImage(null);
+			this.optFlow_imageView.setImage(null);
+			this.objTrack_imageView.setImage(null);
 		}
 	}
 
@@ -246,6 +322,12 @@ public class GuiController {
 				this.timer = Executors.newSingleThreadScheduledExecutor();
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
+				if(recordVideo){	 // TESTKODE
+					int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
+					Size frameSize = new Size(640,480);
+					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
+				}
+
 				// update the button content
 				this.start_btn.setText("Stop Camera");
 			}else{
@@ -258,6 +340,9 @@ public class GuiController {
 			// update again the button content
 			this.start_btn.setText("Start Camera");
 
+			if(recordVideo){// TESTKODE	
+				outVideo.release(); 			
+			}
 			// stop the timer
 			try{
 				this.timer.shutdown();
@@ -437,6 +522,10 @@ public class GuiController {
 			try	{
 				// read the current frame
 				this.capture.read(frame);
+
+				if(recordVideo){
+					this.recordVideo(frame); // TESTKODE
+				}
 				imageToShow = procesFrame(frame);	
 			}catch (Exception e){
 				// log the error
@@ -622,6 +711,24 @@ public class GuiController {
 				System.out.println("Kamera toggles til Webcam.");
 			else
 				System.out.println("Kamera toggles til Dronecam.");
+		}
+	}
+
+	@FXML
+	void setTestVideo(ActionEvent event){
+		useTestVideo = !useTestVideo;
+		if(GuiStarter.GUI_DEBUG){
+			System.err.println("Debug: Benytter testvideo: " + useTestVideo);
+		}
+	}
+
+
+	private void recordVideo(Mat frame){
+		if(frame.empty()){
+			System.out.println("Tom frame :(");
+		} else {
+			System.out.println("Skriver til video-fil");
+			outVideo.write(frame);				
 		}
 	}
 
