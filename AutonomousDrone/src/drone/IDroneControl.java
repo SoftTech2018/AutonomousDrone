@@ -29,7 +29,7 @@ public interface IDroneControl {
 
 	void turnRight();
 
-	Image getImage();
+//	Image getImage();
 
 	void toggleCamera();
 

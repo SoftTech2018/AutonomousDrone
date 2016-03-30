@@ -1,19 +1,14 @@
 package gui;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
 
@@ -35,7 +30,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -44,8 +38,8 @@ public class GuiController {
 	private final boolean recordVideo = false; // Sæt til true for at optage en videostream.
 
 	private IDroneControl dc = new DroneControl();
-	private BilledAnalyse ph = new BilledAnalyse();
-	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ph);
+	private BilledAnalyse ba = new BilledAnalyse();
+	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
 
 	private Thread opgThread;
 
@@ -246,6 +240,7 @@ public class GuiController {
 			// Skynet starter
 			startOpgaveAlgoritme();
 		} else { 
+			startOpgAlgo.setDisable(!cameraActive);
 			if(useTestVideo){
 				startTestVideoStream();
 			} else{
@@ -533,7 +528,7 @@ public class GuiController {
 			try	{
 				// read the current frame
 				//				imageToShow = dc.getImage();
-				frame = ph.bufferedImageToMat(dc.getbufImg());
+				frame = ba.bufferedImageToMat(dc.getbufImg());
 				if(recordVideo){
 					this.recordVideo(frame); // TESTKODE
 				}
@@ -547,18 +542,6 @@ public class GuiController {
 		}
 
 		return imageToShow;
-	}
-
-	private Mat filterMat(Mat mat) {
-		// convert the image to gray scale
-		//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
-		mat = ph.resize(mat, 640, 480);
-		mat = ph.edde(mat);
-		//		outFrame[0] = ph.bilat(outFrame[0]);
-		mat = ph.thresh(mat);
-		mat = ph.canny(mat);
-		mat = ph.KeyPointsImg(mat);
-		return mat;
 	}
 
 	private void findQR(Mat frame){
@@ -578,10 +561,10 @@ public class GuiController {
 		Mat outFrame[] = new Mat[3];
 		// if the frame is not empty, process it
 		if (!frame.empty())	{
-			frame = ph.resize(frame, 640, 480);
+			frame = ba.resize(frame, 640, 480);
 			//			frame = ph.gaus(frame); // TESTKODE
 			//			if(optFlow){ // skal der udføres optical Flow?
-			outFrame = ph.optFlow(frame, optFlow, objTrack);
+			outFrame = ba.optFlow(frame, optFlow, objTrack);
 			//			} else {
 			//				outFrame[0] = frame;						
 			//			}
@@ -592,7 +575,7 @@ public class GuiController {
 
 			// Enable image filter?
 			if(greyScale){						
-				outFrame[0] = filterMat(outFrame[0]);
+				outFrame[0] = ba.filterMat(outFrame[0]);
 			}
 
 			//Enable QR-checkBox?

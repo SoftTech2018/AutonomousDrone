@@ -547,6 +547,18 @@ public class BilledAnalyse {
 //		System.err.println("VEKTOR ARRAY HENTES. STØRRELSE ER: " + vList.size());
 		return vList;
 	}
+	
+	public Mat filterMat(Mat mat) {
+		// convert the image to gray scale
+		//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
+		mat = resize(mat, 640, 480);
+		mat = edde(mat);
+		//		outFrame[0] = ph.bilat(outFrame[0]);
+		mat = thresh(mat);
+		mat = canny(mat);
+		mat = KeyPointsImg(mat);
+		return mat;
+	}
 
 	public Mat trackObject(Mat frame) {
 		Mat klon = frame.clone();

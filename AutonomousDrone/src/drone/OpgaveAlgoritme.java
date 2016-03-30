@@ -51,8 +51,8 @@ public class OpgaveAlgoritme implements Runnable {
 					break;
 				}
 				// Hvis dronen ikke er klar og videostream ikke er tilgængeligt, venter vi 500 ms mere
-				if(!dc.isReady() || (img = dc.getImage() == null)){
-					if(dc.getImage()==null){
+				if(!dc.isReady() || (img = dc.getbufImg() == null)){
+					if(dc.getbufImg()==null){
 						img = false;						
 					}
 					if(OPGAVE_DEBUG){
