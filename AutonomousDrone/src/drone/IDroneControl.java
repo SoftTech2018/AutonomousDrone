@@ -42,4 +42,6 @@ public interface IDroneControl {
 	void setFps(int fps);
 
 	void setLedAnim(LEDAnimation anim, int freq, int dur);
+
+	void setTimeMode(boolean timeMode);
 }

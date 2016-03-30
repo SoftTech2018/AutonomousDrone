@@ -13,6 +13,19 @@ import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 
 public class DroneControl implements IDroneControl {
+	
+	// Skal debug beskeder udskrives?
+	protected static final boolean DRONE_DEBUG = false;
+
+	//DEFINERER OM DRONEN BRUGER .doFor(time)
+	private boolean timeMode = false;
+
+	/*
+	 *  DEFINERER TEST-MODE. 
+	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
+	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
+	 */
+	private final boolean TEST_MODE = true;
 
 	private IARDrone drone;
 	private CommandManager cmd;
@@ -26,21 +39,6 @@ public class DroneControl implements IDroneControl {
 	private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll;
-
-	protected static final boolean DRONE_DEBUG = false;
-
-	/*
-	 * DEFINERER OM DRONEN BRUGER .doFor(time)
-	 */
-	public static boolean TIMEMODE = false;
-
-
-	/*
-	 *  DEFINERER TEST-MODE. 
-	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
-	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
-	 */
-	private final boolean TEST_MODE = true;
 
 	public DroneControl() {
 		pitch = 0;
@@ -134,6 +132,11 @@ public class DroneControl implements IDroneControl {
 		}
 		cmd.hover();
 	}	
+	
+	@Override
+	public void setTimeMode(boolean timeMode){
+		this.timeMode = timeMode;
+	}
 
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#up()
@@ -143,7 +146,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Op");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.up(SPEED*5);
 		} else {
 			cmd.up(SPEED*5).doFor(DURATION);			
@@ -160,7 +163,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Ned");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.down(SPEED*5);
 		} else {
 			cmd.down(SPEED*5).doFor(DURATION);			
@@ -176,7 +179,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Fremad");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.forward(SPEED);
 		} else {
 			cmd.forward(SPEED).doFor(DURATION);			
@@ -192,7 +195,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Baglæns");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.backward(SPEED);
 		} else {
 			cmd.backward(SPEED).doFor(DURATION);			
@@ -208,7 +211,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Venstre");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.goLeft(SPEED);
 		} else {
 			cmd.goLeft(SPEED).doFor(DURATION);			
@@ -224,7 +227,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Højre");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.goRight(SPEED);
 		} else {
 			cmd.goRight(SPEED).doFor(DURATION);			
@@ -240,7 +243,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Drejer Venstre");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.spinLeft(SPEED*8);
 		} else {
 			cmd.spinLeft(SPEED*8).doFor(DURATION);			
@@ -256,7 +259,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Drejer Højre");
 		}
-		if(TIMEMODE){
+		if(timeMode){
 			cmd.spinRight(SPEED*10);
 		} else {
 			cmd.spinRight(SPEED*10).doFor(DURATION);			

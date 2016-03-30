@@ -58,7 +58,7 @@
                   <Label fx:id="yaw_label" layoutX="105.0" layoutY="57.0" />
                   <Label fx:id="pitch_label" layoutX="91.0" layoutY="99.0" />
                   <Label layoutX="19.0" layoutY="132.0" text="QR:" />
-                  <Label fx:id="qr_label" layoutX="88.0" layoutY="132.0" />
+                   <Label fx:id="qr_label" layoutX="88.0" layoutY="132.0" />
                </children>
             </AnchorPane>
             <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />
@@ -70,5 +70,6 @@
       </AnchorPane>
       <ImageView fx:id="optFlow_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="21.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="objTrack_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="205.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />
+      <Button fx:id="startOpgAlgo" layoutX="394.0" layoutY="533.0" mnemonicParsing="false" onAction="#startCamera" text="Start Skynet" />
    </children>
 </AnchorPane>

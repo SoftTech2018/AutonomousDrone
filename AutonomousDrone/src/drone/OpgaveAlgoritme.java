@@ -5,24 +5,21 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import com.google.zxing.Result;
-
 import billedanalyse.BilledAnalyse;
-import billedanalyse.Vektor;
 import de.yadrone.base.command.LEDAnimation;
 
 public class OpgaveAlgoritme implements Runnable {
 
-	private Result object;
-	private IDroneControl dc;
-	private BilledAnalyse ba;
-	protected boolean doStop = false;
-	private int searchTime = 30000; // Max søgetid i ms når der ikke kan findes et target. Eks: 60000 = 60 sek.
-	private boolean flying = false;
 	/*
 	 * Markør hvor der kan udskrives debug-beskeder i konsollen.
 	 */
 	protected final boolean OPGAVE_DEBUG = true;
+	private int searchTime = 30000; // Max søgetid i ms når der ikke kan findes et target. Eks: 60000 = 60 sek.
+
+	private IDroneControl dc;
+	private BilledAnalyse ba;
+	protected boolean doStop = false;
+	private boolean flying = false;
 	private Mat[] frames = new Mat[3];
 	private boolean firstFrame = true;
 
@@ -32,45 +29,60 @@ public class OpgaveAlgoritme implements Runnable {
 	}
 
 	public Mat[] getFrames(){
-//		System.err.println("Henter frames");
 		return frames;
 	}
 
+	/**
+	 * WARNING - USE AT OWN RISK
+	 * This method will put SKYNET online
+	 * WARNING - USE AT OWN RISK
+	 */
 	public void startOpgaveAlgoritme(){
+		dc.setTimeMode(true);
 		while (!doStop) {
+			if(Thread.interrupted()){
+				destroy();
+				break;
+			}
 			boolean img = false;
 			while(!flying){
+				if(Thread.interrupted()){
+					destroy();
+					break;
+				}
 				// Hvis dronen ikke er klar og videostream ikke er tilgængeligt, venter vi 500 ms mere
 				if(!dc.isReady() || (img = dc.getImage() == null)){
 					if(dc.getImage()==null){
 						img = false;						
 					}
 					if(OPGAVE_DEBUG){
-						System.err.println("Drone klar: " + dc.isReady()+ ", Billeder modtages: " + img);					
+						System.out.println("Drone klar: " + dc.isReady()+ ", Billeder modtages: " + img);					
 					}
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						destroy();
+						break;
 					}
 					continue; // start forfra i while-løkke
 				} else {// Dronen er klar til at letter
 					flying = true;
-//					dc.takeoff();
+					dc.takeoff();
 					if(OPGAVE_DEBUG){
 						System.err.println("*** Dronen letter og starter opgaveløsning ***");
 					}
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						destroy();
+						break;
 					}
 				}
 			}
 			// Find de mulige manøvre vi kan foretage os
 			boolean retninger[] = getPossibleManeuvers(); // 0=down, 1=up, 2=goLeft, 3=goRight, 4=forward
 			if(!retninger[4]){
-//				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
+				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
 			}
 
 			// Find de objekter vi leder efter
@@ -87,27 +99,27 @@ public class OpgaveAlgoritme implements Runnable {
 			}
 			if(x != -1 && y != -1){ // Der findes et mål, så det finder vi da..
 				if(x==0){ // målet ligger til venstre for os
-//					dc.turnLeft();
+					dc.turnLeft();
 				} else if (x==1){ // målet er foran os
 					switch(y){
 					case 0: 
 						if(retninger[1]){
-//							dc.up();							
+							dc.up();							
 						}
 						break;
 					case 1:
 						if(retninger[4]){
-//							dc.forward();
+							dc.forward();
 						}
 						break;
 					case 2: 
 						if(retninger[0]){
-//							dc.down();
+							dc.down();
 						}
 						break;
 					}
 				} else if(x==2){ // målet er til højre for os
-//					dc.turnRight();
+					dc.turnRight();
 				}
 			} else {// Intet mål-objekt fundet, vi starter målsøgningen				
 				if (findTarget()){
@@ -116,22 +128,11 @@ public class OpgaveAlgoritme implements Runnable {
 					// Der kunne ikke findes et mål objekt på 30 sekunder.
 					// TODO Land dronen sikkert
 					flying = false;
-//					dc.land();
+					dc.land();
 				}
-			}
-
-			try {
-				if (object == null) { //Indsæt objekt listener her
-
-				}
-			}
-			catch(Exception exc)
-			{
-				exc.printStackTrace();
 			}
 		}
-
-
+		dc.setTimeMode(false);
 	}
 
 	/**
@@ -146,19 +147,22 @@ public class OpgaveAlgoritme implements Runnable {
 		int turns = 0;
 		long targetStartTime = System.currentTimeMillis();
 		while(!targetFound() || (System.currentTimeMillis() - targetStartTime) > searchTime){ // Der søges i max 30 sek
+			if(Thread.interrupted()){
+				destroy();
+				break;
+			}
 			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 5); // Blink dronens lys orange mens der søges
 			yaw = dc.getFlightData()[2];
 			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
+				if(Thread.interrupted()){
+					destroy();
+					break;
+				}
 				if(OPGAVE_DEBUG){
 					System.err.println("Intet mål fundet. Drejer dronen.");
-//					try {
-//						Thread.sleep(50);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
 				}
 				getPossibleManeuvers();
-//				dc.turnLeft(100);				
+				dc.turnLeft();				
 			}
 			turns++;
 			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
@@ -168,16 +172,20 @@ public class OpgaveAlgoritme implements Runnable {
 				boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
 				long startTime = System.currentTimeMillis();
 				while(!targetFound() || (System.currentTimeMillis() - startTime) > 5000){ // Gør noget i 5000 ms eller indtil et mål findes
+					if(Thread.interrupted()){
+						destroy();
+						break;
+					}
 					if(retninger[4]){
-//						dc.forward();
+						dc.forward();
 					} else if(retninger[2]){
-//						dc.turnLeft();
+						dc.turnLeft();
 					} else if(retninger[3]){
-//						dc.turnRight();
+						dc.turnRight();
 					} else if(retninger[1]){
-//						dc.up();
+						dc.up();
 					} else if(retninger[0]){
-//						dc.down();
+						dc.down();
 					}
 				}
 				turns = 0;
@@ -193,16 +201,28 @@ public class OpgaveAlgoritme implements Runnable {
 
 	}
 
+	/**
+	 * Hvis opgaven afbrydes af brugeren kaldes denne metode. Dronen lander øjeblikkeligt.
+	 */
+	private void destroy() {
+		doStop = true;
+		flying = true;
+		System.err.println("*** SKYNET DESTROYED");
+		dc.land();
+		dc.setTimeMode(false);
+		return;
+	}
+
 	private boolean targetFound(){
-//		boolean targets[][] = getTargets(); // 3x3 array
-//		// Hvor er mål objektet i dronens synsfelt
-//		for(int i=0; i<3; i++){
-//			for(int o=0; o<3; o++){
-//				if(targets[i][o]){
-//					return true;
-//				}
-//			}
-//		}
+		//		boolean targets[][] = getTargets(); // 3x3 array
+		//		// Hvor er mål objektet i dronens synsfelt
+		//		for(int i=0; i<3; i++){
+		//			for(int o=0; o<3; o++){
+		//				if(targets[i][o]){
+		//					return true;
+		//				}
+		//			}
+		//		}
 		return false;
 	}
 
@@ -304,6 +324,7 @@ public class OpgaveAlgoritme implements Runnable {
 
 	@Override
 	public void run() {
+		System.err.println("*** WARNING - SKYNET IS ONLINE");
 		this.startOpgaveAlgoritme();		
 	}
 }

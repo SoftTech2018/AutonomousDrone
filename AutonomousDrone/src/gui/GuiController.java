@@ -41,10 +41,13 @@ import javafx.scene.image.ImageView;
 
 public class GuiController {
 
-	private final boolean recordVideo = false; // Testkode - sæt til true for at optage en videostream.
+	private final boolean recordVideo = false; // Sæt til true for at optage en videostream.
 
 	private IDroneControl dc = new DroneControl();
 	private BilledAnalyse ph = new BilledAnalyse();
+	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ph);
+
+	private Thread opgThread;
 
 	// NUMPAD 7
 	@FXML
@@ -62,6 +65,9 @@ public class GuiController {
 	// START CAMERA BUTTON
 	@FXML
 	private Button start_btn;
+	
+	@FXML
+	 private Label qr_label;
 
 	@FXML
 	private ImageView optFlow_imageView;
@@ -117,15 +123,21 @@ public class GuiController {
 	// ??
 	@FXML
 	private Button changeCam_btn;
-	
-	@FXML
-	private Label qr_label;
 
 	@FXML
 	private ImageView currentFrame;
 
 	@FXML
 	private ChoiceBox<Integer> frames_choiceBox;
+
+	@FXML
+	private Label roll_label;
+
+	@FXML
+	private Label yaw_label;
+
+	@FXML
+	private Label pitch_label;
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer, droneTimer;
@@ -149,27 +161,19 @@ public class GuiController {
 	private boolean objTrack = false;
 	// Tæller op indtil der er forbindelse med dronen eller max er nået
 	private int droneTime = 0, droneMaxTime = 20 ;
-	// Analyserer vi test-video?
-	private boolean useTestVideo = false;
-
-	@FXML
-	private Label roll_label;
-
-	@FXML
-	private Label yaw_label;
-
-	@FXML
-	private Label pitch_label;
-
 	// Bruges til at gemme en videosekvens
 	private VideoWriter outVideo;
 	// Bruges til at læse fra en videosekvens
 	private VideoCapture testStream;
+	// Analyserer vi test-video?
+	private boolean useTestVideo = false; 
 
 	@FXML
 	private void initialize(){		
 		frames_choiceBox.setValue(30);
 		frames_choiceBox.setItems(frameChoicesList);
+
+		// Håndterer når man skifter FPS - også selvom kameraet kører allerede
 		frames_choiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
@@ -226,23 +230,32 @@ public class GuiController {
 	}
 
 	@FXML
+	private Button startOpgAlgo;
+
+	@FXML
 	void startCamera(ActionEvent event) {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}
+
 		optFlow_checkBox.setDisable(!cameraActive);
 		objTracking_checkBox.setDisable(!cameraActive);
 		testVideo_checkBox.setDisable(!cameraActive);
-		if(useTestVideo){
-			startTestVideoStream();
-		} else{
-			if(webcamVideo){
-				// Video hentes fra webcam
-				startWebcamStream();
-				//				startOpgaveAlgoritme();
-			} else {
-				// Video hentes fra dronen
-				startDroneStream();
+
+		if(event.getSource().equals(startOpgAlgo)){
+			// Skynet starter
+			startOpgaveAlgoritme();
+		} else { 
+			if(useTestVideo){
+				startTestVideoStream();
+			} else{
+				if(webcamVideo){
+					// Video hentes fra webcam
+					startWebcamStream();
+				} else {
+					// Video hentes fra dronen
+					startDroneStream();
+				}
 			}
 		}
 	}
@@ -303,22 +316,30 @@ public class GuiController {
 		}
 	}
 
-	private OpgaveAlgoritme opg;
-
 	private void startOpgaveAlgoritme(){
-		if(opg==null){
-			opg = new OpgaveAlgoritme(dc, ph);
-			Thread t = new Thread(opg);
-			t.start();
-		}
+		grey_checkBox.setDisable(!cameraActive);
+		optFlow_checkBox.setDisable(!cameraActive);
+		qr_checkBox.setDisable(!cameraActive);
+		start_btn.setDisable(!cameraActive);
+		changeCam_btn.setDisable(!cameraActive);
+		cam_chk.setDisable(!cameraActive);
+		optFlow_checkBox.setDisable(!cameraActive);
+		objTracking_checkBox.setDisable(!cameraActive);
+		testVideo_checkBox.setDisable(!cameraActive);
+		frames_choiceBox.setDisable(!cameraActive);
+
 		if (!this.cameraActive)	{
+			System.err.println("*** WARNING - SKYNET COMING ONLINE!");
 			this.cameraActive = true;
 
-			// grab a frame every 33 ms (30 frames/sec)
+			// Start opgaveAlgoritmen i en seperat tråd
+			opgThread = new Thread(opg);
+			opgThread.start();
+
+			// Opdater GUI'en så det matcher med det antal FPS man har valgt
 			frameGrabber = new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run(){
 					//					opg.getPossibleManeuvers();
 					Mat frames[] = opg.getFrames();
 					if(frames[0]!=null){	
@@ -343,14 +364,17 @@ public class GuiController {
 			}
 
 			// update the button content
-			this.start_btn.setText("Stop Camera");
-		}else {
-			// the camera is not active at this point
-			this.cameraActive = false;
-			// update again the button content
-			this.start_btn.setText("Start Camera");
+			this.startOpgAlgo.setText("Stop Skynet");
+		} else {
+			// Forsøg at stoppe opgavealgoritmen ASAP
+			System.err.println("*** TRYING TO DESTROY SKYNET");
+			opgThread.interrupt();
 
-			if(recordVideo){// TESTKODE	
+			this.cameraActive = false;
+			this.startOpgAlgo.setText("Start Skynet");
+
+			// Hvis vi optager video stopper vi optageren.
+			if(recordVideo){
 				outVideo.release(); 			
 			}
 			// stop the timer
@@ -465,7 +489,7 @@ public class GuiController {
 					Size frameSize = new Size(640,480);
 					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
 				}
-				
+
 				// update the button content
 				this.start_btn.setText("Stop Camera");
 			}
@@ -798,6 +822,7 @@ public class GuiController {
 	@FXML
 	void setTestVideo(ActionEvent event){
 		useTestVideo = !useTestVideo;
+		startOpgAlgo.setDisable(useTestVideo);
 		if(GuiStarter.GUI_DEBUG){
 			System.err.println("Debug: Benytter testvideo: " + useTestVideo);
 		}
