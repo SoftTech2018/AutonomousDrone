@@ -316,7 +316,7 @@ public class GuiController {
 				@Override
 				public void run()
 				{
-					opg.getPossibleManeuvers();
+//					opg.getPossibleManeuvers();
 					Mat frames[] = opg.getFrames();
 					if(frames[0]!=null){	
 						currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede

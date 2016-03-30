@@ -157,7 +157,7 @@ public class OpgaveAlgoritme implements Runnable {
 //						e.printStackTrace();
 //					}
 				}
-//				getPossibleManeuvers();
+				getPossibleManeuvers();
 //				dc.turnLeft(100);				
 			}
 			turns++;
