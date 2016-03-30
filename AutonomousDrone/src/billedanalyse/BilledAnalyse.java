@@ -544,7 +544,7 @@ public class BilledAnalyse {
 	}
 
 	public ArrayList<Vektor> getVektorArray(){
-		System.err.println("VEKTOR ARRAY HENTES. STØRRELSE ER: " + vList.size());
+//		System.err.println("VEKTOR ARRAY HENTES. STØRRELSE ER: " + vList.size());
 		return vList;
 	}
 

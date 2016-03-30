@@ -235,7 +235,7 @@ public class GuiController {
 		} else{
 			if(webcamVideo){
 				// Video hentes fra webcam
-//				startWebcamStream();
+				//				startWebcamStream();
 				startOpgaveAlgoritme();
 			} else {
 				// Video hentes fra dronen
@@ -299,7 +299,7 @@ public class GuiController {
 			this.objTrack_imageView.setImage(null);
 		}
 	}
-	
+
 	private OpgaveAlgoritme opg;
 
 	private void startOpgaveAlgoritme(){
@@ -317,9 +317,15 @@ public class GuiController {
 				public void run()
 				{
 					Mat frames[] = opg.getFrames();
-					currentFrame.setImage(GuiController.this.mat2Image(frames[0].clone())); // Main billede
-					optFlow_imageView.setImage(GuiController.this.mat2Image(frames[1].clone()));	// Optical Flow
-//					objTrack_imageView.setImage(GuiController.this.mat2Image(frames[2].clone())); // Objeckt Tracking
+					if(frames[0]!=null){						
+						currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede
+					}
+					if(frames[1]!=null){
+						optFlow_imageView.setImage(GuiController.this.mat2Image(frames[1]));	// Optical Flow					
+					}
+					if(frames[2]!=null){
+						objTrack_imageView.setImage(GuiController.this.mat2Image(frames[2])); // Objeckt Tracking						
+					}
 				}
 			};
 

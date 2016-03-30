@@ -32,6 +32,7 @@ public class OpgaveAlgoritme implements Runnable {
 	}
 
 	public Mat[] getFrames(){
+//		System.err.println("Henter frames");
 		return frames;
 	}
 
@@ -150,7 +151,13 @@ public class OpgaveAlgoritme implements Runnable {
 			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
 				if(OPGAVE_DEBUG){
 					System.err.println("Intet mål fundet. Drejer dronen.");
+//					try {
+//						Thread.sleep(50);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
 				}
+				getPossibleManeuvers();
 //				dc.turnLeft(100);				
 			}
 			turns++;
@@ -238,22 +245,22 @@ public class OpgaveAlgoritme implements Runnable {
 
 		// Mulige manøvre
 		boolean retninger[] = {true,true,true,true,true};// down, up, goLeft, goRight, forward
-//		double sqWidth = frame.size().width/size;
-//		double sqHeight = frame.size().height/size;
-//		// Tegn røde og grønne firkanter der symboliserer mulige manøvre
-//		Scalar red = new Scalar(0,0,255); // Rød farve til stregen
-//		Scalar green = new Scalar(0,255,0); // Grøn farve 
-//		int thickness = 4; // Tykkelse på stregen
-//		for(int i=0; i<size; i++){
-//			for(int o=0; o<size; o++){
-//				// Tegn firkant hvis objektet er for tæt på
-//				if(magnitudes[i][o] >= threshold){
-//					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), red, thickness);
-//				} else {
-//					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), green, thickness);
-//				}
-//			}
-//		}
+		double sqWidth = frame.size().width/size;
+		double sqHeight = frame.size().height/size;
+		// Tegn røde og grønne firkanter der symboliserer mulige manøvre
+		Scalar red = new Scalar(0,0,255); // Rød farve til stregen
+		Scalar green = new Scalar(0,255,0); // Grøn farve 
+		int thickness = 2; // Tykkelse på stregen
+		for(int i=0; i<size; i++){
+			for(int o=0; o<size; o++){
+				// Tegn firkant hvis objektet er for tæt på
+				if(magnitudes[i][o] >= threshold){
+					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1)-2, sqHeight*(o+1)-2), red, thickness);
+				} else {
+					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1)-2, sqHeight*(o+1)-2), green, thickness);
+				}
+			}
+		}
 
 		if(magnitudes[0][0] > threshold){
 			x = x - vStep;

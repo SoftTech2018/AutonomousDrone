@@ -96,6 +96,7 @@ public class DroneControl implements IDroneControl {
 	
 	@Override
 	public BufferedImage getbufImg(){
+		System.err.println("*** Billede hentet fra DroneControl.");
 		return bufImgOut;
 	}
 
