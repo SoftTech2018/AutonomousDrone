@@ -157,7 +157,7 @@ public class OpgaveAlgoritme implements Runnable {
 //						e.printStackTrace();
 //					}
 				}
-				getPossibleManeuvers();
+//				getPossibleManeuvers();
 //				dc.turnLeft(100);				
 			}
 			turns++;
@@ -225,7 +225,7 @@ public class OpgaveAlgoritme implements Runnable {
 	 * Find de mulige manøvremuligheder for dronen. False betyder at vi ikke kan flyve i den retning
 	 * @return Array med mulige retninger: down, up, goLeft, goRight, forward
 	 */
-	private boolean[] getPossibleManeuvers(){
+	public boolean[] getPossibleManeuvers(){
 		int size = 3;
 		double threshold = 15;
 		Mat frame = ba.bufferedImageToMat(dc.getbufImg());

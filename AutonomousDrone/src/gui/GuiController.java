@@ -316,10 +316,11 @@ public class GuiController {
 				@Override
 				public void run()
 				{
+					opg.getPossibleManeuvers();
 					Mat frames[] = opg.getFrames();
-					if(frames[0]!=null){						
+					if(frames[0]!=null){	
 						currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede
-					}
+					} 
 					if(frames[1]!=null){
 						optFlow_imageView.setImage(GuiController.this.mat2Image(frames[1]));	// Optical Flow					
 					}
