@@ -235,8 +235,8 @@ public class GuiController {
 		} else{
 			if(webcamVideo){
 				// Video hentes fra webcam
-				//				startWebcamStream();
-				startOpgaveAlgoritme();
+				startWebcamStream();
+				//				startOpgaveAlgoritme();
 			} else {
 				// Video hentes fra dronen
 				startDroneStream();
@@ -316,7 +316,7 @@ public class GuiController {
 				@Override
 				public void run()
 				{
-//					opg.getPossibleManeuvers();
+					//					opg.getPossibleManeuvers();
 					Mat frames[] = opg.getFrames();
 					if(frames[0]!=null){	
 						currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede
@@ -457,6 +457,12 @@ public class GuiController {
 				this.timer = Executors.newSingleThreadScheduledExecutor();
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
+				if(recordVideo){	 // TESTKODE
+					int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
+					Size frameSize = new Size(640,480);
+					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
+				}
+				
 				// update the button content
 				this.start_btn.setText("Stop Camera");
 			}
@@ -501,6 +507,9 @@ public class GuiController {
 				// read the current frame
 				//				imageToShow = dc.getImage();
 				frame = ph.bufferedImageToMat(dc.getbufImg());
+				if(recordVideo){
+					this.recordVideo(frame); // TESTKODE
+				}
 				imageToShow = procesFrame(frame);
 
 			}catch (Exception e){
