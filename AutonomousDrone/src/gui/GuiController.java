@@ -21,6 +21,7 @@ import billedanalyse.BilledAnalyse;
 import billedanalyse.QRCodeScanner;
 import drone.DroneControl;
 import drone.IDroneControl;
+import drone.OpgaveAlgoritme;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -235,6 +236,7 @@ public class GuiController {
 			if(webcamVideo){
 				// Video hentes fra webcam
 				startWebcamStream();
+//				startOpgaveAlgoritme();
 			} else {
 				// Video hentes fra dronen
 				startDroneStream();
@@ -295,6 +297,65 @@ public class GuiController {
 			this.currentFrame.setImage(null);
 			this.optFlow_imageView.setImage(null);
 			this.objTrack_imageView.setImage(null);
+		}
+	}
+	
+	private OpgaveAlgoritme opg;
+
+	private void startOpgaveAlgoritme(){
+		if(opg==null){
+			opg = new OpgaveAlgoritme(dc, ph);
+			Thread t = new Thread(opg);
+			t.start();
+		}
+		if (!this.cameraActive)	{
+			this.cameraActive = true;
+
+			// grab a frame every 33 ms (30 frames/sec)
+			frameGrabber = new Runnable() {
+				@Override
+				public void run()
+				{
+					Mat frames[] = opg.getFrames();
+					currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede
+					optFlow_imageView.setImage(GuiController.this.mat2Image(frames[1]));	// Optical Flow
+//					objTrack_imageView.setImage(GuiController.this.mat2Image(frames[2])); // Objeckt Tracking
+				}
+			};
+
+			this.timer = Executors.newSingleThreadScheduledExecutor();
+			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+
+			if(recordVideo){	 // TESTKODE
+				int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
+				Size frameSize = new Size(640,480);
+				outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
+			}
+
+			// update the button content
+			this.start_btn.setText("Stop Camera");
+		}else {
+			// the camera is not active at this point
+			this.cameraActive = false;
+			// update again the button content
+			this.start_btn.setText("Start Camera");
+
+			if(recordVideo){// TESTKODE	
+				outVideo.release(); 			
+			}
+			// stop the timer
+			try{
+				this.timer.shutdown();
+				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
+			}catch (InterruptedException e){
+				// log the exception
+				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
+			}
+
+			// clean the frame
+			this.currentFrame.setImage(null);
+//			this.optFlow_imageView.setImage(null);
+//			this.objTrack_imageView.setImage(null);
 		}
 	}
 

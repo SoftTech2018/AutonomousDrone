@@ -315,6 +315,9 @@ public class BilledAnalyse {
 	public double[][] calcOptMagnitude(ArrayList<Vektor> vectors, Mat frame, int size){
 		double out[][] = new double[size][size];
 
+		if(vectors==null || frame==null){
+			return out;
+		}
 		double sqWidth = frame.size().width/size;
 		double sqHeight = frame.size().height/size;
 
