@@ -23,7 +23,8 @@ public class OpgaveAlgoritme implements Runnable {
 	 * Markør hvor der kan udskrives debug-beskeder i konsollen.
 	 */
 	protected final boolean OPGAVE_DEBUG = true;
-	private Mat[] frames;
+	private Mat[] frames = new Mat[3];
+	private boolean firstFrame = true;
 
 	public OpgaveAlgoritme(IDroneControl dc, BilledAnalyse ba){
 		this.dc = dc;
@@ -54,7 +55,7 @@ public class OpgaveAlgoritme implements Runnable {
 					continue; // start forfra i while-løkke
 				} else {// Dronen er klar til at letter
 					flying = true;
-					dc.takeoff();
+//					dc.takeoff();
 					if(OPGAVE_DEBUG){
 						System.err.println("*** Dronen letter og starter opgaveløsning ***");
 					}
@@ -68,7 +69,7 @@ public class OpgaveAlgoritme implements Runnable {
 			// Find de mulige manøvre vi kan foretage os
 			boolean retninger[] = getPossibleManeuvers(); // 0=down, 1=up, 2=goLeft, 3=goRight, 4=forward
 			if(!retninger[4]){
-				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
+//				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
 			}
 
 			// Find de objekter vi leder efter
@@ -85,27 +86,27 @@ public class OpgaveAlgoritme implements Runnable {
 			}
 			if(x != -1 && y != -1){ // Der findes et mål, så det finder vi da..
 				if(x==0){ // målet ligger til venstre for os
-					dc.turnLeft();
+//					dc.turnLeft();
 				} else if (x==1){ // målet er foran os
 					switch(y){
 					case 0: 
 						if(retninger[1]){
-							dc.up();							
+//							dc.up();							
 						}
 						break;
 					case 1:
 						if(retninger[4]){
-							dc.forward();
+//							dc.forward();
 						}
 						break;
 					case 2: 
 						if(retninger[0]){
-							dc.down();
+//							dc.down();
 						}
 						break;
 					}
 				} else if(x==2){ // målet er til højre for os
-					dc.turnRight();
+//					dc.turnRight();
 				}
 			} else {// Intet mål-objekt fundet, vi starter målsøgningen				
 				if (findTarget()){
@@ -114,7 +115,7 @@ public class OpgaveAlgoritme implements Runnable {
 					// Der kunne ikke findes et mål objekt på 30 sekunder.
 					// TODO Land dronen sikkert
 					flying = false;
-					dc.land();
+//					dc.land();
 				}
 			}
 
@@ -140,17 +141,17 @@ public class OpgaveAlgoritme implements Runnable {
 			System.err.println("Målsøgning startes.");
 		}
 		int yaw = 0;
-		yaw = dc.getFlightData()[2];
 		int degrees = 15;
 		int turns = 0;
 		long targetStartTime = System.currentTimeMillis();
 		while(!targetFound() || (System.currentTimeMillis() - targetStartTime) > searchTime){ // Der søges i max 30 sek
-			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 10); // Blink dronens lys orange mens der søges
+			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 5); // Blink dronens lys orange mens der søges
+			yaw = dc.getFlightData()[2];
 			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
 				if(OPGAVE_DEBUG){
 					System.err.println("Intet mål fundet. Drejer dronen.");
 				}
-				dc.turnLeft();				
+//				dc.turnLeft(100);				
 			}
 			turns++;
 			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
@@ -159,17 +160,17 @@ public class OpgaveAlgoritme implements Runnable {
 				}
 				boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
 				long startTime = System.currentTimeMillis();
-				while(!targetFound() || (System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
+				while(!targetFound() || (System.currentTimeMillis() - startTime) > 5000){ // Gør noget i 5000 ms eller indtil et mål findes
 					if(retninger[4]){
-						dc.forward();
+//						dc.forward();
 					} else if(retninger[2]){
-						dc.turnLeft();
+//						dc.turnLeft();
 					} else if(retninger[3]){
-						dc.turnRight();
+//						dc.turnRight();
 					} else if(retninger[1]){
-						dc.up();
+//						dc.up();
 					} else if(retninger[0]){
-						dc.down();
+//						dc.down();
 					}
 				}
 				turns = 0;
@@ -186,15 +187,15 @@ public class OpgaveAlgoritme implements Runnable {
 	}
 
 	private boolean targetFound(){
-		boolean targets[][] = getTargets(); // 3x3 array
-		// Hvor er mål objektet i dronens synsfelt
-		for(int i=0; i<3; i++){
-			for(int o=0; o<3; o++){
-				if(targets[i][o]){
-					return true;
-				}
-			}
-		}
+//		boolean targets[][] = getTargets(); // 3x3 array
+//		// Hvor er mål objektet i dronens synsfelt
+//		for(int i=0; i<3; i++){
+//			for(int o=0; o<3; o++){
+//				if(targets[i][o]){
+//					return true;
+//				}
+//			}
+//		}
 		return false;
 	}
 
@@ -219,9 +220,13 @@ public class OpgaveAlgoritme implements Runnable {
 	 */
 	private boolean[] getPossibleManeuvers(){
 		int size = 3;
-		double threshold = 50;
+		double threshold = 15;
 		Mat frame = ba.bufferedImageToMat(dc.getbufImg());
 		frames = ba.optFlow(frame, true, false);
+		if(firstFrame){
+			firstFrame = false;
+			return new boolean[5];
+		}
 		double magnitudes[][] = ba.calcOptMagnitude(ba.getVektorArray(), frame, size);
 
 		Point center = new Point(frame.size().width/2, frame.size().height/2);
@@ -233,23 +238,22 @@ public class OpgaveAlgoritme implements Runnable {
 
 		// Mulige manøvre
 		boolean retninger[] = {true,true,true,true,true};// down, up, goLeft, goRight, forward
-		double sqWidth = frame.size().width/size;
-		double sqHeight = frame.size().height/size;
-
-		// Tegn røde og grønne firkanter der symboliserer mulige manøvre
-		Scalar red = new Scalar(0,0,255); // Rød farve til stregen
-		Scalar green = new Scalar(0,255,0); // Grøn farve 
-		int thickness = 4; // Tykkelse på stregen
-		for(int i=0; i<size; i++){
-			for(int o=0; o<size; o++){
-				// Tegn firkant hvis objektet er for tæt på
-				if(magnitudes[i][o] >= threshold){
-					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), red, thickness);
-				} else {
-					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), green, thickness);
-				}
-			}
-		}
+//		double sqWidth = frame.size().width/size;
+//		double sqHeight = frame.size().height/size;
+//		// Tegn røde og grønne firkanter der symboliserer mulige manøvre
+//		Scalar red = new Scalar(0,0,255); // Rød farve til stregen
+//		Scalar green = new Scalar(0,255,0); // Grøn farve 
+//		int thickness = 4; // Tykkelse på stregen
+//		for(int i=0; i<size; i++){
+//			for(int o=0; o<size; o++){
+//				// Tegn firkant hvis objektet er for tæt på
+//				if(magnitudes[i][o] >= threshold){
+//					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), red, thickness);
+//				} else {
+//					Imgproc.rectangle(frames[0], new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), green, thickness);
+//				}
+//			}
+//		}
 
 		if(magnitudes[0][0] > threshold){
 			x = x - vStep;

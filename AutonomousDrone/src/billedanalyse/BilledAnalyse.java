@@ -240,8 +240,9 @@ public class BilledAnalyse {
 			first = second;
 			fKey = sKey;
 
-			this.calcOptMagnitude(vList, sOrg, 3); // TEST KODE
-			//			out[0] = this.calcDistances(sOrg, vList, 17); // TEST KODE
+			//			this.calcOptMagnitude(vList, sOrg, 3); // TEST KODE
+			//			out[0] = this.calcDistances(sOrg, vList, 17, 6); // TEST KODE
+
 			return out;
 		} else {
 			out[0] = second;
@@ -344,6 +345,9 @@ public class BilledAnalyse {
 			for(int o=0; o<size; o++){
 				if(squaresCount[i][o] > 0){ // Beregn kun gennemsnitsdistance hvis der er noget at beregne på
 					out[i][o] = out[i][o] / squaresCount[i][o];
+//					if(out[i][o] > 20){						
+//						Imgproc.rectangle(frame, new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), new Scalar(0,0,255), 4);
+//					}
 				}
 			}
 		}
@@ -540,6 +544,7 @@ public class BilledAnalyse {
 	}
 
 	public ArrayList<Vektor> getVektorArray(){
+		System.err.println("VEKTOR ARRAY HENTES. STØRRELSE ER: " + vList.size());
 		return vList;
 	}
 
