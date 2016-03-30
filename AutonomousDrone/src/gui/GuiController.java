@@ -527,7 +527,7 @@ public class GuiController {
 
 	private void findQR(Mat frame){
 		QRCodeScanner qrs = new QRCodeScanner();
-		qrs.imageUpdated(ph.mat2bufImg(frame));
+		qrs.imageUpdated(frame);
 	}
 
 
