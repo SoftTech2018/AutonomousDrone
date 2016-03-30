@@ -19,9 +19,11 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import gui.GuiController;
+
 public class QRCodeScanner
 {
-
+	
 	public void imageUpdated(Mat frame)
 	{
 		Image image = toBufferedImage(frame);
@@ -32,7 +34,6 @@ public class QRCodeScanner
 //		hints.put(DecodeHintType.TRY_HARDER, null);
 		try {
 			Result result = qrReader.decode(bitmap);
-
 			System.out.println("QR Code data is: "+result.getText());
 		} catch (NotFoundException e) {
 			// TODO Auto-generated catch block

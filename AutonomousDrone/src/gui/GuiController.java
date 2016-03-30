@@ -117,6 +117,9 @@ public class GuiController {
 	// ??
 	@FXML
 	private Button changeCam_btn;
+	
+	@FXML
+	private Label qr_label;
 
 	@FXML
 	private ImageView currentFrame;
@@ -537,6 +540,7 @@ public class GuiController {
 	private void findQR(Mat frame){
 		QRCodeScanner qrs = new QRCodeScanner();
 		qrs.imageUpdated(frame);
+		qr_label.setText("hej");
 	}
 
 
