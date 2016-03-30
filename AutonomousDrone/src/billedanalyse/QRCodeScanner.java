@@ -1,93 +1,57 @@
 package billedanalyse;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.imageio.ImageIO;
 
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.FormatException;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.ReaderException;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import de.yadrone.base.video.ImageListener;
-
-public class QRCodeScanner implements ImageListener
+public class QRCodeScanner
 {
-	private ArrayList<TagListener> listener = new ArrayList<TagListener>();
-	
-	private Result scanResult;
-	
-	private long imageCount = 0;
-	
-	public void imageUpdated(BufferedImage image)
+
+	public void imageUpdated(Image image)
 	{
-		if ((++imageCount % 2) == 0)
-			return;
 		
-		// try to detect QR code
-		LuminanceSource source = new BufferedImageLuminanceSource(image);
-		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-
-		// decode the barcode (if only QR codes are used, the QRCodeReader might be a better choice)
-		QRCodeReader reader = new QRCodeReader();
-//		MultiFormatReader reader = new MultiFormatReader();
-
-		double theta = Double.NaN;
-		try
-		{
-			scanResult = reader.decode(bitmap);
-
-			ResultPoint[] points = scanResult.getResultPoints();
-			ResultPoint a = points[1]; // top-left
-			ResultPoint b = points[2]; // top-right
+		LuminanceSource ls = new BufferedImageLuminanceSource((BufferedImage)image);
+		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(ls));
+		QRCodeReader qrReader = new QRCodeReader();	
+		Map<DecodeHintType, Void> hints = new TreeMap<>(); 
+		hints.put(DecodeHintType.TRY_HARDER, null);
+		try {
+			Result result = qrReader.decode(bitmap, hints);
 			
-			// Find the degree of the rotation (needed e.g. for auto control)
-
-			double z = Math.abs(a.getX() - b.getX());
-			double x = Math.abs(a.getY() - b.getY());
-			theta = Math.atan(x / z); // degree in rad (+- PI/2)
-
-			theta = theta * (180 / Math.PI); // convert to degree
-
-			if ((b.getX() < a.getX()) && (b.getY() > a.getY()))
-			{ // code turned more than 90� clockwise
-				theta = 180 - theta;
-			}
-			else if ((b.getX() < a.getX()) && (b.getY() < a.getY()))
-			{ // code turned more than 180� clockwise
-				theta = 180 + theta;
-			}
-			else if ((b.getX() > a.getX()) && (b.getY() < a.getY()))
-			{ // code turned more than 270 clockwise
-				theta = 360 - theta;
-			}
-		} 
-		catch (ReaderException e) 
-		{
-			// no code found.
-			scanResult = null;
+			System.out.println("QR Code data is: "+result.getText());
+		} catch (NotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("--------");
+		} catch (ChecksumException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("--------");
+		} catch (FormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("--------");
 		}
-		
-		// inform all listener
-		for (int i=0; i < listener.size(); i++)
-		{
-			listener.get(i).onTag(scanResult, (float)theta);
-		}
-	}
-
-	public void addListener(TagListener listener)
-	{
-		this.listener.add(listener);
-	}
-	
-	public void removeListener(TagListener listener)
-	{
-		this.listener.remove(listener);
+		qrReader.reset();
 	}
 }
