@@ -43,13 +43,13 @@ public class OpgaveAlgoritme implements Runnable {
 		while (!doStop) {
 			if(Thread.interrupted()){
 				destroy();
-				break;
+				return;
 			}
 			boolean img = false;
 			while(!flying){
 				if(Thread.interrupted()){
 					destroy();
-					break;
+					return;
 				}
 				// Hvis dronen ikke er klar og videostream ikke er tilgængeligt, venter vi 500 ms mere
 				if(!dc.isReady() || (img = dc.getbufImg() == null)){
@@ -63,7 +63,7 @@ public class OpgaveAlgoritme implements Runnable {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
 						destroy();
-						break;
+						return;
 					}
 					continue; // start forfra i while-løkke
 				} else {// Dronen er klar til at letter
@@ -78,7 +78,7 @@ public class OpgaveAlgoritme implements Runnable {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						destroy();
-						break;
+						return;
 					}
 				}
 			}
@@ -161,7 +161,7 @@ public class OpgaveAlgoritme implements Runnable {
 		while(!targetFound() || (System.currentTimeMillis() - targetStartTime) > searchTime){ // Der søges i max 30 sek
 			if(Thread.interrupted()){
 				destroy();
-				break;
+				return false;
 			}
 			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 5); // Blink dronens lys orange mens der søges
 			yaw = dc.getFlightData()[2];
@@ -169,7 +169,7 @@ public class OpgaveAlgoritme implements Runnable {
 			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
 				if(Thread.interrupted()){
 					destroy();
-					break;
+					return false;
 				}
 				if(OPGAVE_DEBUG){
 					System.err.println("Intet mål fundet. Drejer dronen.");
@@ -189,7 +189,7 @@ public class OpgaveAlgoritme implements Runnable {
 				while(!targetFound() || (System.currentTimeMillis() - startTime) > 5000){ // Gør noget i 5000 ms eller indtil et mål findes
 					if(Thread.interrupted()){
 						destroy();
-						break;
+						return false;
 					}
 					if(retninger[4]){
 						Log.writeLog("FLYVER FREMAD");
