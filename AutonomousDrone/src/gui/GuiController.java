@@ -13,6 +13,7 @@ import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
 
 import billedanalyse.BilledAnalyse;
+import billedanalyse.IBilledAnalyse;
 import billedanalyse.QRCodeScanner;
 import drone.DroneControl;
 import drone.IDroneControl;
@@ -35,12 +36,11 @@ import javafx.scene.image.ImageView;
 
 public class GuiController {
 
-	private final boolean recordVideo = false; // Sæt til true for at optage en videostream.
+	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
 
 	private IDroneControl dc = new DroneControl();
-	private BilledAnalyse ba = new BilledAnalyse();
+	private IBilledAnalyse ba = new BilledAnalyse();
 	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
-
 	private Thread opgThread;
 
 	// NUMPAD 7
@@ -352,7 +352,7 @@ public class GuiController {
 			this.timer = Executors.newSingleThreadScheduledExecutor();
 			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
-			if(recordVideo){	 // TESTKODE
+			if(RECORDVIDEO){	 // TESTKODE
 				int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
 				Size frameSize = new Size(640,480);
 				outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
@@ -369,7 +369,7 @@ public class GuiController {
 			this.startOpgAlgo.setText("Start Skynet");
 
 			// Hvis vi optager video stopper vi optageren.
-			if(recordVideo){
+			if(RECORDVIDEO){
 				outVideo.release(); 			
 			}
 			// stop the timer
@@ -412,7 +412,7 @@ public class GuiController {
 				this.timer = Executors.newSingleThreadScheduledExecutor();
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
-				if(recordVideo){	 // TESTKODE
+				if(RECORDVIDEO){	 // TESTKODE
 					int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
 					Size frameSize = new Size(640,480);
 					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
@@ -430,7 +430,7 @@ public class GuiController {
 			// update again the button content
 			this.start_btn.setText("Start Camera");
 
-			if(recordVideo){// TESTKODE	
+			if(RECORDVIDEO){// TESTKODE	
 				outVideo.release(); 			
 			}
 			// stop the timer
@@ -479,7 +479,7 @@ public class GuiController {
 				this.timer = Executors.newSingleThreadScheduledExecutor();
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
-				if(recordVideo){	 // TESTKODE
+				if(RECORDVIDEO){	 // TESTKODE
 					int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
 					Size frameSize = new Size(640,480);
 					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
@@ -529,7 +529,7 @@ public class GuiController {
 				// read the current frame
 				//				imageToShow = dc.getImage();
 				frame = ba.bufferedImageToMat(dc.getbufImg());
-				if(recordVideo){
+				if(RECORDVIDEO){
 					this.recordVideo(frame); // TESTKODE
 				}
 				imageToShow = procesFrame(frame);
@@ -611,7 +611,7 @@ public class GuiController {
 				// read the current frame
 				this.capture.read(frame);
 
-				if(recordVideo){
+				if(RECORDVIDEO){
 					this.recordVideo(frame); // TESTKODE
 				}
 				imageToShow = procesFrame(frame);	

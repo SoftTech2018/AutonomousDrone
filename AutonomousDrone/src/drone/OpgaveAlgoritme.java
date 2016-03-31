@@ -5,7 +5,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import billedanalyse.BilledAnalyse;
+import billedanalyse.IBilledAnalyse;
 import de.yadrone.base.command.LEDAnimation;
 
 public class OpgaveAlgoritme implements Runnable {
@@ -17,13 +17,13 @@ public class OpgaveAlgoritme implements Runnable {
 	private int searchTime = 30000; // Max søgetid i ms når der ikke kan findes et target. Eks: 60000 = 60 sek.
 
 	private IDroneControl dc;
-	private BilledAnalyse ba;
+	private IBilledAnalyse ba;
 	protected boolean doStop = false;
 	private boolean flying = false;
 	private Mat[] frames = new Mat[3];
 	private boolean firstFrame = true;
 
-	public OpgaveAlgoritme(IDroneControl dc, BilledAnalyse ba){
+	public OpgaveAlgoritme(IDroneControl dc, IBilledAnalyse ba){
 		this.dc = dc;
 		this.ba = ba;
 	}
@@ -66,6 +66,7 @@ public class OpgaveAlgoritme implements Runnable {
 					}
 					continue; // start forfra i while-løkke
 				} else {// Dronen er klar til at letter
+					System.err.println("*** WARNING - SKYNET IS ONLINE");
 					flying = true;
 					dc.takeoff();
 					if(OPGAVE_DEBUG){
@@ -254,7 +255,7 @@ public class OpgaveAlgoritme implements Runnable {
 			firstFrame = false;
 			return new boolean[5];
 		}
-		double magnitudes[][] = ba.calcOptMagnitude(ba.getVektorArray(), frame, size);
+		double magnitudes[][] = ba.calcOptMagnitude(size);
 
 		Point center = new Point(frame.size().width/2, frame.size().height/2);
 		double x = center.x;
@@ -324,7 +325,6 @@ public class OpgaveAlgoritme implements Runnable {
 
 	@Override
 	public void run() {
-		System.err.println("*** WARNING - SKYNET IS ONLINE");
 		this.startOpgaveAlgoritme();		
 	}
 }
