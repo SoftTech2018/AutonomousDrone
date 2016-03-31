@@ -50,40 +50,6 @@ public class BilledAnalyse implements IBilledAnalyse {
 		this.opFlow = new OpticalFlow(bm);
 	}
 
-	private Mat buffImgToMat(BufferedImage in){
-		Mat out;
-		byte[] data;
-		int r, g, b;
-
-		if(in.getType() == BufferedImage.TYPE_INT_RGB)
-		{
-			out = new Mat(240, 320, CvType.CV_8UC1);
-			data = new byte[320 * 240 * (int)out.elemSize()];
-			int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
-			for(int i = 0; i < dataBuff.length; i++)
-			{
-				data[i*3] = (byte) ((dataBuff[i] >> 16) & 0xFF);
-				data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
-				data[i*3 + 2] = (byte) ((dataBuff[i] >> 0) & 0xFF);
-			}
-		}
-		else
-		{
-			out = new Mat(240, 320, CvType.CV_8UC1);
-			data = new byte[320 * 240 * (int)out.elemSize()];
-			int[] dataBuff = in.getRGB(0, 0, 320, 240, null, 0, 320);
-			for(int i = 0; i < dataBuff.length; i++)
-			{
-				r = (byte) ((dataBuff[i] >> 16) & 0xFF);
-				g = (byte) ((dataBuff[i] >> 8) & 0xFF);
-				b = (byte) ((dataBuff[i] >> 0) & 0xFF);
-				data[i] = (byte)((0.21 * r) + (0.71 * g) + (0.07 * b)); //luminosity
-			}
-		}
-		out.put(0, 0, data);
-		return out;
-	}
-
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#calcDistances(org.opencv.core.Mat, double, int)
 	 */
@@ -147,11 +113,11 @@ public class BilledAnalyse implements IBilledAnalyse {
 		ArrayList<Vektor> vectors;
 		Mat frame;
 
-		// Hvis der ikke er kørt Optical Flow endnu returnerer vi kun 0'er.
+		// Hvis der ikke er kørt Optical Flow endnu returnerer vi høje tal der er større end threshold.
 		if((vectors = opFlow.getVektorArray())==null || (frame = opFlow.getFrame())==null){
 			for(int i=0; i<size; i++){
 				for(int o=0; o<size; o++){
-					out[i][o] = 0;
+					out[i][o] = Integer.MAX_VALUE;
 				}
 			}
 			return out;
@@ -207,10 +173,10 @@ public class BilledAnalyse implements IBilledAnalyse {
 		// DEBUG
 		long startTime = System.nanoTime();
 
-		MatOfKeyPoint fKey = getKeyPoints(first);
-		MatOfKeyPoint sKey = getKeyPoints(second);		
-		Mat f = getDescriptors(first, fKey);
-		Mat s = getDescriptors(second, sKey);
+		MatOfKeyPoint fKey = bm.getKeyPoints(first);
+		MatOfKeyPoint sKey = bm.getKeyPoints(second);		
+		Mat f = bm.getDescriptors(first, fKey);
+		Mat s = bm.getDescriptors(second, sKey);
 
 		DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE);
 		MatOfDMatch dmatches = new MatOfDMatch();
@@ -227,22 +193,6 @@ public class BilledAnalyse implements IBilledAnalyse {
 		}
 
 		return out;
-	}
-
-	// Identificerer keypoints i et billede
-	private MatOfKeyPoint getKeyPoints(Mat mat){
-		FeatureDetector detect = FeatureDetector.create(FeatureDetector.FAST); // Kan være .ORB .FAST eller .HARRIS
-		MatOfKeyPoint kp = new MatOfKeyPoint();
-		detect.detect(mat, kp);
-		return kp;
-	}
-
-	// Identificer descriptors i et billede
-	private Mat getDescriptors(Mat mat, MatOfKeyPoint kp){
-		DescriptorExtractor extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
-		Mat descriptors = new Mat();
-		extractor.compute(mat, kp, descriptors);
-		return descriptors;
 	}
 
 	/* (non-Javadoc)

@@ -9,11 +9,16 @@ import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+/**
+ * Hjælpeklasse der indeholder en række metoder til at manipulere billeder
+ *
+ */
 public class BilledManipulation {
 	
 	private MatOfKeyPoint kp;
@@ -184,6 +189,22 @@ public class BilledManipulation {
 		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
 		Core.inRange(frame, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), frame_out);
 		return frame_out;
+	}
+	
+	// Identificerer keypoints i et billede
+	protected MatOfKeyPoint getKeyPoints(Mat mat){
+		FeatureDetector detect = FeatureDetector.create(FeatureDetector.FAST); // Kan være .ORB .FAST eller .HARRIS
+		MatOfKeyPoint kp = new MatOfKeyPoint();
+		detect.detect(mat, kp);
+		return kp;
+	}
+
+	// Identificer descriptors i et billede
+	protected Mat getDescriptors(Mat mat, MatOfKeyPoint kp){
+		DescriptorExtractor extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
+		Mat descriptors = new Mat();
+		extractor.compute(mat, kp, descriptors);
+		return descriptors;
 	}
 
 }
