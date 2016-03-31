@@ -7,6 +7,7 @@ import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.IBilledAnalyse;
 import de.yadrone.base.command.LEDAnimation;
+import diverse.Log;
 
 public class OpgaveAlgoritme implements Runnable {
 
@@ -37,6 +38,7 @@ public class OpgaveAlgoritme implements Runnable {
 	 * WARNING - USE AT OWN RISK
 	 */
 	public void startOpgaveAlgoritme(){
+		Log.writeLog("*** OpgaveAlgoritmen startes. ***");
 		dc.setTimeMode(true);
 		while (!doStop) {
 			if(Thread.interrupted()){
@@ -66,6 +68,7 @@ public class OpgaveAlgoritme implements Runnable {
 					continue; // start forfra i while-løkke
 				} else {// Dronen er klar til at letter
 					System.err.println("*** WARNING - SKYNET IS ONLINE");
+					Log.writeLog("*Dronen letter autonomt.");
 					flying = true;
 					dc.takeoff();
 					if(OPGAVE_DEBUG){
@@ -82,6 +85,7 @@ public class OpgaveAlgoritme implements Runnable {
 			// Find de mulige manøvre vi kan foretage os
 			boolean retninger[] = getPossibleManeuvers(); // 0=down, 1=up, 2=goLeft, 3=goRight, 4=forward
 			if(!retninger[4]){
+				Log.writeLog("Dronen kan ikke flyve forlæns. Hover.");
 				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
 			}
 
@@ -94,31 +98,37 @@ public class OpgaveAlgoritme implements Runnable {
 					if(targets[i][o]){
 						x = i;
 						y = o;
+						Log.writeLog("**Mål fundet i: " + x + "," + y);
 					}
 				}
 			}
-			if(x != -1 && y != -1){ // Der findes et mål, så det finder vi da..
+			if(x != -1 && y != -1){ // Der findes et mål, så det finder vi da.
 				if(x==0){ // målet ligger til venstre for os
+					Log.writeLog("DREJER VENSTRE");
 					dc.turnLeft();
 				} else if (x==1){ // målet er foran os
 					switch(y){
 					case 0: 
 						if(retninger[1]){
+							Log.writeLog("FLYVER OP");
 							dc.up();							
 						}
 						break;
 					case 1:
 						if(retninger[4]){
+							Log.writeLog("FLYVER FREMAD");
 							dc.forward();
 						}
 						break;
 					case 2: 
 						if(retninger[0]){
+							Log.writeLog("FLYVER NED");
 							dc.down();
 						}
 						break;
 					}
 				} else if(x==2){ // målet er til højre for os
+					Log.writeLog("DREJER HØJRE");
 					dc.turnRight();
 				}
 			} else {// Intet mål-objekt fundet, vi starter målsøgningen				
@@ -133,6 +143,7 @@ public class OpgaveAlgoritme implements Runnable {
 			}
 		}
 		dc.setTimeMode(false);
+		Log.writeLog("*** OpgaveAlgoritme afsluttes.");
 	}
 
 	/**
@@ -142,6 +153,7 @@ public class OpgaveAlgoritme implements Runnable {
 		if(OPGAVE_DEBUG){
 			System.err.println("Målsøgning startes.");
 		}
+		Log.writeLog("** Målsøgning startes.");
 		int yaw = 0;
 		int degrees = 15;
 		int turns = 0;
@@ -153,6 +165,7 @@ public class OpgaveAlgoritme implements Runnable {
 			}
 			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 5); // Blink dronens lys orange mens der søges
 			yaw = dc.getFlightData()[2];
+			Log.writeLog("Yaw er: " + yaw);
 			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
 				if(Thread.interrupted()){
 					destroy();
@@ -162,13 +175,15 @@ public class OpgaveAlgoritme implements Runnable {
 					System.err.println("Intet mål fundet. Drejer dronen.");
 				}
 				getPossibleManeuvers();
-				dc.turnLeft();				
+				dc.turnLeft();	
+				Log.writeLog("DREJER VENSTRE");
 			}
 			turns++;
 			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
 				if(OPGAVE_DEBUG){
-					System.err.println("Intet mål fundet. Flytter dronen.");
+					System.err.println("* Intet mål fundet. Flytter dronen.");
 				}
+				Log.writeLog("Intet mål fundet. Flytter dronen.");
 				boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
 				long startTime = System.currentTimeMillis();
 				while(!targetFound() || (System.currentTimeMillis() - startTime) > 5000){ // Gør noget i 5000 ms eller indtil et mål findes
@@ -177,14 +192,19 @@ public class OpgaveAlgoritme implements Runnable {
 						break;
 					}
 					if(retninger[4]){
+						Log.writeLog("FLYVER FREMAD");
 						dc.forward();
 					} else if(retninger[2]){
+						Log.writeLog("DREJER VENSTRE");
 						dc.turnLeft();
 					} else if(retninger[3]){
+						Log.writeLog("DREJER HØJRE");
 						dc.turnRight();
 					} else if(retninger[1]){
+						Log.writeLog("FLYVER OP");
 						dc.up();
 					} else if(retninger[0]){
+						Log.writeLog("FLYVER NED");
 						dc.down();
 					}
 				}
@@ -192,13 +212,14 @@ public class OpgaveAlgoritme implements Runnable {
 			}
 		}
 		if(targetFound()){
+			Log.writeLog("** Målsøgning afsluttes. Mål fundet.");
 			return true;
 		}
 		if(OPGAVE_DEBUG){
 			System.err.println("Intet mål fundet indenfor tidsinterval. Dronen lander.");			
 		}
+		Log.writeLog("** Målsøgning afsluttes. Mål IKKE fundet.");
 		return false;
-
 	}
 
 	/**
@@ -208,6 +229,7 @@ public class OpgaveAlgoritme implements Runnable {
 		doStop = true;
 		flying = true;
 		System.err.println("*** SKYNET DESTROYED");
+		Log.writeLog("*** OpgaveAlgoritme afsluttes. Dronen forsøger at lande.");
 		try {			
 			dc.land();
 			dc.setTimeMode(false);
