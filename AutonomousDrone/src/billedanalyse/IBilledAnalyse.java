@@ -57,4 +57,6 @@ public interface IBilledAnalyse {
 
 	ArrayList<Vektor> getVektorArray();
 
+	Mat trackObject(Mat frame);
+
 }

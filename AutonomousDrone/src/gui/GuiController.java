@@ -59,9 +59,9 @@ public class GuiController {
 	// START CAMERA BUTTON
 	@FXML
 	private Button start_btn;
-	
+
 	@FXML
-	 private Label qr_label;
+	private Label qr_label;
 
 	@FXML
 	private ImageView optFlow_imageView;
@@ -562,9 +562,15 @@ public class GuiController {
 		// if the frame is not empty, process it
 		if (!frame.empty())	{
 			frame = ba.resize(frame, 640, 480);
+			outFrame[0] = frame;
 			//			frame = ph.gaus(frame); // TESTKODE
-			//			if(optFlow){ // skal der udføres optical Flow?
-			outFrame = ba.optFlow(frame, optFlow, objTrack);
+			if(optFlow){ // skal der udføres optical Flow?{							
+				outFrame = ba.optFlow(frame, optFlow, objTrack);
+			}
+			if(objTrack){
+				outFrame[2] = ba.trackObject(frame);
+			}
+//			outFrame[0] = ba.trackObject(frame);
 			//			} else {
 			//				outFrame[0] = frame;						
 			//			}

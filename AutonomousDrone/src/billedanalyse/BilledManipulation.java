@@ -22,6 +22,13 @@ import org.opencv.imgproc.Imgproc;
 public class BilledManipulation {
 	
 	private MatOfKeyPoint kp;
+	private FeatureDetector detect;
+	private DescriptorExtractor extractor;
+	
+	public BilledManipulation(){
+		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
+		extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
+	}
 	
 	public MatOfKeyPoint getKP(){
 		return kp;
@@ -193,7 +200,6 @@ public class BilledManipulation {
 	
 	// Identificerer keypoints i et billede
 	protected MatOfKeyPoint getKeyPoints(Mat mat){
-		FeatureDetector detect = FeatureDetector.create(FeatureDetector.FAST); // Kan være .ORB .FAST eller .HARRIS
 		MatOfKeyPoint kp = new MatOfKeyPoint();
 		detect.detect(mat, kp);
 		return kp;
@@ -201,7 +207,6 @@ public class BilledManipulation {
 
 	// Identificer descriptors i et billede
 	protected Mat getDescriptors(Mat mat, MatOfKeyPoint kp){
-		DescriptorExtractor extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
 		Mat descriptors = new Mat();
 		extractor.compute(mat, kp, descriptors);
 		return descriptors;
