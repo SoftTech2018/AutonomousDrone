@@ -96,9 +96,15 @@ public class BilledManipulation {
 		Imgproc.GaussianBlur(frame, frame1, new Size(33,33), 10.0);
 		return frame1;
 	}
+	
+	public Mat medianBlur(Mat frame){
+		Mat out = new Mat();
+		Imgproc.medianBlur(frame, out, 9);
+		return out;
+	}
 
 	public Mat canny(Mat frame){
-		frame = toGray(frame);
+//		
 		//		frame = resize(frame, 320, 240);
 		Imgproc.Canny(frame, frame, 200.0, 200.0*2, 5, false );
 		return frame;
@@ -129,7 +135,8 @@ public class BilledManipulation {
 	public Mat filterMat(Mat mat) {
 		// convert the image to gray scale
 		//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
-		mat = resize(mat, 640, 480);
+//		mat = resize(mat, 640, 480);
+		mat = toGray(mat);
 		mat = edde(mat);
 		//		outFrame[0] = ph.bilat(outFrame[0]);
 		mat = thresh(mat);
@@ -165,7 +172,7 @@ public class BilledManipulation {
 			System.out.println("Linjer fundet ved HoughLines: " + lines.rows());
 		}
 
-		int thickness = 3; // Tykkelse på de tegnede linjer
+		int thickness = 2; // Tykkelse på de tegnede linjer
 		Scalar color = new Scalar(255,255,255); // Farven på de tegnede linjer 
 
 		// Tegn alle linjer

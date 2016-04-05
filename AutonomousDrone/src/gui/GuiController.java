@@ -39,9 +39,9 @@ public class GuiController {
 	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
 
 	private IDroneControl dc = new DroneControl();
-	private IBilledAnalyse ba = new BilledAnalyse();
+	private IBilledAnalyse ba = new BilledAnalyse(dc);
 	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
-	private Thread opgThread;
+	private Thread opgThread, baThread;
 
 	// NUMPAD 7
 	@FXML
@@ -235,11 +235,16 @@ public class GuiController {
 		optFlow_checkBox.setDisable(!cameraActive);
 		objTracking_checkBox.setDisable(!cameraActive);
 		testVideo_checkBox.setDisable(!cameraActive);
+		
+		// Hvis kameraet er inaktivt, skal det aktiveres. Ergo startes en tråd med billedanalyse
+		if(!cameraActive){
+			baThread = new Thread((BilledAnalyse) ba);
+			baThread.start();
+		} else { // Kameraet slukkes, billedanalyse stoppes.
+			baThread.interrupt();
+		}
 
-		if(event.getSource().equals(startOpgAlgo)){
-			// Skynet starter
-			startOpgaveAlgoritme();
-		} else { 
+		if(event == null || !event.getSource().equals(startOpgAlgo)){
 			startOpgAlgo.setDisable(!cameraActive);
 			if(useTestVideo){
 				startTestVideoStream();
@@ -252,6 +257,9 @@ public class GuiController {
 					startDroneStream();
 				}
 			}
+		} else if(event.getSource().equals(startOpgAlgo)){
+			// Skynet starter
+			startOpgaveAlgoritme();
 		}
 	}
 
@@ -278,7 +286,7 @@ public class GuiController {
 							}	
 						});
 					} else {
-						Image imageToShow[] = GuiController.this.procesFrame(frame);
+						Image imageToShow[] = ba.getImages();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -326,6 +334,12 @@ public class GuiController {
 		if (!this.cameraActive)	{
 			System.err.println("*** WARNING - SKYNET COMING ONLINE!");
 			this.cameraActive = true;
+			
+//			// Indstil billedanalyse uanset brugerens valg
+//			ba.setWebCam(false); // Billeder fra dronen bruges
+//			ba.setOpticalFlow(true); // Der udføres optical flow
+//			ba.setObjTrack(true); // Der udføres objekt tracking
+//			ba.setGreyScale(false); // Der konverteres ikke til greyscale
 
 			// Start opgaveAlgoritmen i en seperat tråd
 			opgThread = new Thread(opg);
@@ -336,16 +350,10 @@ public class GuiController {
 				@Override
 				public void run(){
 					//					opg.getPossibleManeuvers();
-					Mat frames[] = opg.getFrames();
-					if(frames[0]!=null){	
-						currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede
-					} 
-					if(frames[1]!=null){
-						optFlow_imageView.setImage(GuiController.this.mat2Image(frames[1]));	// Optical Flow					
-					}
-					if(frames[2]!=null){
-						objTrack_imageView.setImage(GuiController.this.mat2Image(frames[2])); // Objeckt Tracking						
-					}
+					Image imageToShow[] = ba.getImages();
+					currentFrame.setImage(imageToShow[0]); // Main billede
+					optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
+					objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 				}
 			};
 
@@ -367,6 +375,12 @@ public class GuiController {
 
 			this.cameraActive = false;
 			this.startOpgAlgo.setText("Start Skynet");
+			
+//			// Indstil billedanalyse tilbage til brugerens valg
+//			ba.setWebCam(webcamVideo); // Billeder fra dronen bruges
+//			ba.setOpticalFlow(optFlow); // Der udføres optical flow
+//			ba.setObjTrack(objTrack); // Der udføres objekt tracking
+//			ba.setGreyScale(greyScale); // Der konverteres ikke til greyscale
 
 			// Hvis vi optager video stopper vi optageren.
 			if(RECORDVIDEO){
@@ -400,9 +414,25 @@ public class GuiController {
 				// grab a frame every 33 ms (30 frames/sec)
 				frameGrabber = new Runnable() {
 					@Override
-					public void run()
-					{
-						Image imageToShow[] = grabFrameFromWebcam();
+					public void run(){
+						// Brug webkameraet
+						Mat frame = new Mat();
+						if (GuiController.this.capture.isOpened()){
+							try	{
+								// read the current frame
+								GuiController.this.capture.read(frame);
+								ba.setImg(frame);
+								
+								if(RECORDVIDEO){
+									GuiController.this.recordVideo(frame); // TESTKODE
+								}
+							}catch (Exception e){
+								// log the error
+								System.err.println("Exception during the image elaboration: " + e);
+								e.printStackTrace();
+							}
+						}
+						Image imageToShow[] = ba.getImages();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -460,7 +490,7 @@ public class GuiController {
 				frameGrabber = new Runnable() {
 					@Override
 					public void run(){
-						Image imageToShow[] = grabFrame();
+						Image imageToShow[] = ba.getImages();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -513,139 +543,12 @@ public class GuiController {
 		}
 	}
 
-	/**
-	 * Get a frame from the opened video stream (if any)
-	 * 
-	 * @return the {@link Image} to show
-	 */
-	private Image[] grabFrame(){
-		// init everything
-		Image imageToShow[] = new Image[2];
-		Mat frame= new Mat();
 
-		// check if the capture is open
-		if(dc!=null){
-			try	{
-				// read the current frame
-				//				imageToShow = dc.getImage();
-				frame = ba.bufferedImageToMat(dc.getbufImg());
-				if(RECORDVIDEO){
-					this.recordVideo(frame); // TESTKODE
-				}
-				imageToShow = procesFrame(frame);
-
-			}catch (Exception e){
-				// log the error
-				System.err.println("Exception during the image elaboration: " + e);
-				e.printStackTrace();
-			}
-		}
-
-		return imageToShow;
-	}
 
 	private void findQR(Mat frame){
 		QRCodeScanner qrs = new QRCodeScanner();
 		qrs.imageUpdated(frame);
 		qr_label.setText("hej");
-	}
-
-
-	/**
-	 * Processer en mat frame med diverse billedbehandling, og returner et JavaFX image array med
-	 * @param frame Mat frame der skal behandles
-	 * @return [0] = originalt billede, [1] = behandlet billede
-	 */
-	private Image[] procesFrame(Mat frame){
-		Image imageToShow[] = new Image[3];
-		Mat outFrame[] = new Mat[3];
-		// if the frame is not empty, process it
-		if (!frame.empty())	{
-			frame = ba.resize(frame, 640, 480);
-			outFrame[0] = frame;
-			//			frame = ph.gaus(frame); // TESTKODE
-			if(optFlow){ // skal der udføres optical Flow?{							
-				outFrame = ba.optFlow(frame, optFlow, objTrack);
-			}
-			if(objTrack){
-				outFrame[2] = ba.trackObject(frame);
-			}
-//			outFrame[0] = ba.trackObject(frame);
-			//			} else {
-			//				outFrame[0] = frame;						
-			//			}
-
-			//			if(objTrack){
-			//				outFrame[2] = ph.trackObject(frame);
-			//			} 
-
-			// Enable image filter?
-			if(greyScale){						
-				outFrame[0] = ba.filterMat(outFrame[0]);
-			}
-
-			//Enable QR-checkBox?
-			if(qr){
-				findQR(frame);
-			}
-
-			// convert the Mat object (OpenCV) to Image (JavaFX)
-			imageToShow[0] = mat2Image(outFrame[0]);
-			if(optFlow){
-				imageToShow[1] = mat2Image(outFrame[1]);
-			}
-			if(objTrack){
-				imageToShow[2] = mat2Image(outFrame[2]);
-			}
-		}
-		return imageToShow;
-	}
-
-	/**
-	 * Get a frame from the opened video stream (if any)
-	 * 
-	 * @return the {@link Image} to show
-	 */
-	private Image[] grabFrameFromWebcam(){
-		// init everything
-		Image imageToShow[] = new Image[2];
-		Mat frame = new Mat();
-
-		// check if the capture is open
-		if (this.capture.isOpened()){
-			try	{
-				// read the current frame
-				this.capture.read(frame);
-
-				if(RECORDVIDEO){
-					this.recordVideo(frame); // TESTKODE
-				}
-				imageToShow = procesFrame(frame);	
-			}catch (Exception e){
-				// log the error
-				System.err.println("Exception during the image elaboration: " + e);
-				e.printStackTrace();
-			}
-		}
-
-		return imageToShow;
-	}
-
-	/**
-	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX
-	 * 
-	 * @param frame
-	 *            the {@link Mat} representing the current frame
-	 * @return the {@link Image} to show
-	 */
-	private Image mat2Image(Mat frame){
-		// create a temporary buffer
-		MatOfByte buffer = new MatOfByte();
-		// encode the frame in the buffer
-		Imgcodecs.imencode(".png", frame, buffer);
-		// build and return an Image created from the image encoded in the
-		// buffer
-		return new Image(new ByteArrayInputStream(buffer.toArray()));
 	}
 
 	@FXML
@@ -654,12 +557,8 @@ public class GuiController {
 			System.out.println("Debug: GuiController.colorChange() kaldt! " + event.getSource().toString());
 		}
 		// Hvis der klikkes på greyScale_checkbox
-		if(event.getSource().equals(grey_checkBox)){
-			if(greyScale)
-				greyScale = false;
-			else
-				greyScale = true;
-		}
+		greyScale = !greyScale;
+		ba.setGreyScale(greyScale);
 	}
 
 	@FXML
@@ -779,6 +678,7 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Optical Flow er sat til: " + optFlow);
 		}
+		ba.setOpticalFlow(optFlow);
 	}
 
 	@FXML
@@ -787,6 +687,7 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Object Tracking er sat til: " + objTrack);
 		}
+		ba.setObjTrack(objTrack);
 	}
 
 	@FXML
@@ -806,6 +707,7 @@ public class GuiController {
 			else
 				System.out.println("Kamera toggles til Dronecam.");
 		}
+		ba.setWebCam(webcamVideo);
 	}
 
 	@FXML

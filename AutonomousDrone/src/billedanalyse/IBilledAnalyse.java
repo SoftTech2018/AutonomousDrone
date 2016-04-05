@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
 
+import javafx.scene.image.Image;
+
 public interface IBilledAnalyse {
 
 	/**
@@ -41,7 +43,6 @@ public interface IBilledAnalyse {
 
 	Mat bufferedImageToMat(BufferedImage bi);
 
-	Mat resize(Mat frame, int i, int j);
 
 	/**
 	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame. 
@@ -51,12 +52,24 @@ public interface IBilledAnalyse {
 	 * @param objTrack Hvorvidt der skal trackes objekter
 	 * @return Mat frame - påtegnet resultatet (vektorer)
 	 */
-	Mat[] optFlow(Mat frame, boolean optFlow, boolean objTrack);
 
-	Mat filterMat(Mat mat);
 
 	ArrayList<Vektor> getVektorArray();
 
-	Mat trackObject(Mat frame);
+	Image[] getImages();
+
+	void setImg(Mat frame);
+
+	void setObjTrack(boolean objTrack);
+
+	void setGreyScale(boolean greyScale);
+
+	void setWebCam(boolean webcam);
+
+	void setOpticalFlow(boolean opticalFlow);
+
+	Mat getMatFrame();
+
+	void setImage(Mat frame);
 
 }

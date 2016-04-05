@@ -2,6 +2,7 @@ package billedanalyse;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,13 +17,16 @@ import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.DMatch;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfKeyPoint;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.Features2d;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import com.google.zxing.BinaryBitmap;
@@ -35,7 +39,11 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 
-public class BilledAnalyse implements IBilledAnalyse {
+import drone.DroneControl;
+import drone.IDroneControl;
+import javafx.scene.image.Image;
+
+public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
@@ -45,9 +53,22 @@ public class BilledAnalyse implements IBilledAnalyse {
 	private BilledManipulation bm;
 	private OpticalFlow opFlow;
 	private DescriptorMatcher matcher;
+	private IDroneControl dc;
 
-	public BilledAnalyse(){
+	private Mat objectImage;
+	private Mat objectDescriptors;
+	private MatOfKeyPoint fKey;
+	private Image[] imageToShow;
+	private Mat[] frames;
+	private boolean objTrack, greyScale, webcam = true, opticalFlow;
+	private Mat webcamFrame;
+	private Mat matFrame;
+
+	public BilledAnalyse(IDroneControl dc){
+		this.dc = dc;
 		this.bm = new BilledManipulation();
+		imageToShow = new Image[3];
+		frames = new Mat[3];
 		this.opFlow = new OpticalFlow(bm);
 		this.matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
 	}
@@ -209,7 +230,7 @@ public class BilledAnalyse implements IBilledAnalyse {
 	 * @see billedanalyse.IBilledAnalyse#qrread(org.opencv.core.Mat)
 	 */
 	@Override
-	public void qrread(Mat frame){		
+	public void qrread(Mat frame){	
 		BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
 				new BufferedImageLuminanceSource(bm.mat2bufImg(frame))));
 		Reader reader = new QRCodeMultiReader();
@@ -240,10 +261,14 @@ public class BilledAnalyse implements IBilledAnalyse {
 		return mat;
 	}
 
+	@Override
+	public Mat getMatFrame(){
+		return matFrame;
+	}
+
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#resize(org.opencv.core.Mat, int, int)
 	 */
-	@Override
 	public Mat resize(Mat frame, int i, int j) {
 		return bm.resize(frame, i, j);
 	}
@@ -251,18 +276,10 @@ public class BilledAnalyse implements IBilledAnalyse {
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#optFlow(org.opencv.core.Mat, boolean, boolean)
 	 */
-	@Override
 	public Mat[] optFlow(Mat frame, boolean optFlow, boolean objTrack) {
-		return opFlow.optFlow(frame, optFlow, objTrack);
+		return null; //opFlow.optFlow(frame, optFlow, objTrack);
 	}
 
-	/* (non-Javadoc)
-	 * @see billedanalyse.IBilledAnalyse#filterMat(org.opencv.core.Mat)
-	 */
-	@Override
-	public Mat filterMat(Mat mat) {
-		return bm.filterMat(mat);
-	}
 
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#getVektorArray()
@@ -272,80 +289,88 @@ public class BilledAnalyse implements IBilledAnalyse {
 		return opFlow.getVektorArray();
 	}
 
-	private BufferedImage img;
-	private Mat first;
-	private Mat f;
-	private MatOfKeyPoint fKey;
-
-	@Override
-	public Mat trackObject(Mat frame){
+	private Mat trackObject(){
 		Mat out = new Mat();
-		frame.copyTo(out);
+		this.opFlow.getFrame().copyTo(out);;
 		try {
-			if(img==null){
+			if(objectImage==null){
 				try {
-					img = ImageIO.read(new File(".\\test.png"));
-					first = bufferedImageToMat(img);
-					first = bm.toGray(first);
-//					first = bm.gaus(first);
-//					first = bm.canny(first);
-//					first = bm.edde(first);
-					first = bm.thresh(first);
-//					first = bm.houghLines(first);
-					first = bm.eq(first);
-//					first = bm.filterMat(first);
+					BufferedImage img = ImageIO.read(new File(".\\test.png"));
+					objectImage = bufferedImageToMat(img);
+					//					first = bm.gaus(first);
+					objectImage = bm.edde(objectImage);
+					objectImage = bm.thresh(objectImage);
+					objectImage = bm.toGray(objectImage);
+					objectImage = bm.medianBlur(objectImage);
+					objectImage = bm.canny(objectImage);
+					//					first = bm.eq(first);
+					//					first = bm.houghLines(first);
+					//					first = bm.filterMat(first);
 					//													first = bm.houghLines(first);
 					//									first = bm.canny(first);
-					fKey = bm.getKeyPoints(first);
-					f = bm.getDescriptors(first, fKey);
+
+					fKey = bm.getKeyPoints(objectImage);
+					objectDescriptors = bm.getDescriptors(objectImage, fKey);
 				} catch (IOException e) {
 					e.printStackTrace();
-					return frame;
+					return out;
 				}
 			} 
-//						first.copyTo(out); // Billede af object der trackes vises hvis der ikke er nok matches.
-//						for(int i =0; i < fKey.toList().size(); i++){	
-//							Point p = fKey.toList().get(i).pt;
-//							Imgproc.circle(out, p, 4, new Scalar(255,255,255));
-//						}
-//			System.err.println(f.size().toString());
+			//				first.copyTo(out); // Billede af object der trackes vises hvis der ikke er nok matches.
+			//						for(int i =0; i < fKey.toList().size(); i++){	
+			//							Point p = fKey.toList().get(i).pt;
+			//							Imgproc.circle(out, p, 4, new Scalar(255,255,255));
+			//						}
+			//			System.err.println(fKey.toList().size());
+			//
+			//			if(true)
+			//				return out;
 
 
 			long startTime = System.nanoTime();
-
-			out = bm.toGray(out);
-//			out = bm.canny(out);
-//			out = bm.edde(out);
-			out = bm.thresh(out);
-//			out = bm.gaus(out);
-			out = bm.eq(out);
-			//		out = bm.houghLines(out);
+			//			Mat image32S = new Mat();
+			//out.convertTo(image32S, CvType.CV_32SC1);
+			//			List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+			//			Imgproc.findContours(image32S, contours, new Mat(), Imgproc.RETR_FLOODFILL, Imgproc.CHAIN_APPROX_SIMPLE);
+			//			for (int i = 0; i < contours.size(); i++) {
+			//			    Imgproc.drawContours(out, contours, 0, new Scalar(255, 255, 255), 10);
+			//			}
+			//			if(true)
+			//				return out;
+			//			out = bm.toGray(out);
+			out = bm.medianBlur(out);
+			//			out = bm.thresh(out);
+			//			out = bm.gaus(out);
+			//			out = bm.edde(out);
+			out = bm.canny(out);
+			//			out = bm.eq(out);
+			//			out = bm.houghLines(out);
 
 			MatOfKeyPoint sKey = bm.getKeyPoints(out);		
 			Mat s = bm.getDescriptors(out, sKey);
 			if(s.empty()){
 				return out;
 			}
-//			System.out.println(s.size().toString());
-			
-			MatOfDMatch dmatches = new MatOfDMatch();
-			matcher.match(f, s, dmatches);
+			//			System.out.println(s.size().toString());
+
+			//			MatOfDMatch dmatches = new MatOfDMatch();
+			//			matcher.match(f, s, dmatches);
 			List<MatOfDMatch> matchesList = new ArrayList<MatOfDMatch>();
-			matcher.knnMatch(f, s, matchesList, 2);
+			matcher.knnMatch(objectDescriptors, s, matchesList, 2);
 
 			// ratio test
 			LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
 			for (Iterator<MatOfDMatch> iterator = matchesList.iterator(); iterator.hasNext();) {
 				MatOfDMatch matOfDMatch = (MatOfDMatch) iterator.next();
 				if (matOfDMatch.toArray()[0].distance / matOfDMatch.toArray()[1].distance < 0.9) {
-//				if (matOfDMatch.toArray()[0].distance < 0.7*matOfDMatch.toArray()[1].distance) {
+					//				if (matOfDMatch.toArray()[0].distance < 0.7*matOfDMatch.toArray()[1].distance) {
 					good_matches.add(matOfDMatch.toArray()[0]);	            	
 				}
 			}
 			if(BilledAnalyse.BILLED_DEBUG){				
 				System.err.println("Antal good_matches: " + good_matches.toArray().length);
 			}
-			if(good_matches.toArray().length < 10){
+			if(good_matches.toArray().length < 50){
 				return out;
 			}
 
@@ -404,11 +429,11 @@ public class BilledAnalyse implements IBilledAnalyse {
 					Point pt2 = sKey.toList().get(best_matches.get(i).trainIdx).pt;
 					centroidX += pt2.x;
 					centroidY += pt2.y;
-					Imgproc.circle(frame, pt2, 2, new Scalar(0,255,0)); // TODO erstat evt frame med out
+					Imgproc.circle(out, pt2, 2, new Scalar(0,255,0)); // TODO erstat evt frame med out
 				}
 				Point p1 = new Point(centroidX/best_matches.size()-50, centroidY/best_matches.size()-50);
 				Point p2 = new Point(centroidX/best_matches.size()+50, centroidY/best_matches.size()+50);
-				Imgproc.rectangle(frame, p1, p2, new Scalar(255,0,0)); // TODO erstat evt frame med out
+				Imgproc.rectangle(out, p1, p2, new Scalar(255,0,0), 5); // TODO erstat evt frame med out
 			} 
 
 			if(BilledAnalyse.BILLED_DEBUG){
@@ -418,9 +443,123 @@ public class BilledAnalyse implements IBilledAnalyse {
 				System.out.println(debug);	
 			}
 		} catch (Exception e){
-			return frame;
+			return out;
 		}
 
 		return out;
+	}
+
+	@Override
+	public void setObjTrack(boolean objTrack){
+		this.objTrack = objTrack;
+	}
+
+	@Override
+	public void setGreyScale(boolean greyScale){
+		this.greyScale = greyScale;
+	}
+
+	@Override
+	public void setWebCam(boolean webcam){
+		this.webcam = webcam;
+	}
+
+	@Override
+	public void setOpticalFlow(boolean opticalFlow){
+		this.opticalFlow = opticalFlow;
+	}
+
+	@Override
+	public Image[] getImages(){
+		return this.imageToShow;
+	}
+
+	@Override
+	public void run() {
+		System.err.println("*** BilledAnalyse starter.");
+		Mat img;
+		boolean interrupted = false;
+		while(!Thread.interrupted() || interrupted){
+			try {
+				if(webcam){	
+					if(webcamFrame==null){		
+						continue;
+					}
+					img = this.webcamFrame;
+				} else {
+					img = this.bufferedImageToMat(dc.getbufImg());				
+				}
+				img = resize(img, 640, 480);
+				matFrame = img;
+				frames[0] = img;
+				if(opticalFlow){ // opticalFlow boolean
+					frames[1] = this.opFlow.optFlow(img, true);
+				}
+				if(objTrack){
+					frames[2] = this.trackObject();
+				} 
+				//			outFrame[0] = ba.trackObject(frame);
+				//			} else {
+				//				outFrame[0] = frame;						
+				//			}
+
+				//			if(objTrack){
+				//				outFrame[2] = ph.trackObject(frame);
+				//			} 
+
+				// Enable image filter?
+				if(greyScale){						
+					frames[0] = bm.filterMat(frames[0]);
+				}
+
+				//Enable QR-checkBox?
+				//			if(qr){
+				//				findQR(frames);
+				//			}
+
+				// convert the Mat object (OpenCV) to Image (JavaFX)
+				for(int i=0; i<frames.length;i++){
+					if(frames[i] != null){
+						imageToShow[i] = this.mat2Image(frames[i]);
+					}
+				}
+			} catch (NullPointerException e){
+				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
+				try {
+					// Intet billede modtaget. Vent 50 ms og tjek igen.
+					Thread.sleep(50);
+				} catch (InterruptedException e1) {
+					interrupted = true;
+				}
+			}
+		}
+		System.err.println("*** BilledAnalyse stopper.");
+	}
+
+	/**
+	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX
+	 * 
+	 * @param frame
+	 *            the {@link Mat} representing the current frame
+	 * @return the {@link Image} to show
+	 */
+	public Image mat2Image(Mat frame){
+		// create a temporary buffer
+		MatOfByte buffer = new MatOfByte();
+		// encode the frame in the buffer
+		Imgcodecs.imencode(".png", frame, buffer);
+		// build and return an Image created from the image encoded in the
+		// buffer
+		return new Image(new ByteArrayInputStream(buffer.toArray()));
+	}
+
+	@Override
+	public void setImg(Mat frame) {
+		this.webcamFrame = frame;
+	}
+
+	@Override 
+	public void setImage(Mat frame){
+		this.imageToShow[0] = this.mat2Image(frame);
 	}
 }

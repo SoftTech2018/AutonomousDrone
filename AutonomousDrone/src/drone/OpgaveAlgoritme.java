@@ -21,15 +21,10 @@ public class OpgaveAlgoritme implements Runnable {
 	private IBilledAnalyse ba;
 	protected boolean doStop = false;
 	private boolean flying = false;
-	private Mat[] frames = new Mat[3];
 
 	public OpgaveAlgoritme(IDroneControl dc, IBilledAnalyse ba){
 		this.dc = dc;
 		this.ba = ba;
-	}
-
-	public Mat[] getFrames(){
-		return frames;
 	}
 
 	/**
@@ -37,7 +32,7 @@ public class OpgaveAlgoritme implements Runnable {
 	 * This method will attempt to start SKYNET
 	 * WARNING - USE AT OWN RISK
 	 */
-	public void startOpgaveAlgoritme(){
+	public void startOpgaveAlgoritme() {
 		Log.writeLog("*** OpgaveAlgoritmen startes. ***");
 		dc.setTimeMode(true);
 		while (!doStop) {
@@ -52,8 +47,8 @@ public class OpgaveAlgoritme implements Runnable {
 					return;
 				}
 				// Hvis dronen ikke er klar og videostream ikke er tilgængeligt, venter vi 500 ms mere
-				if(!dc.isReady() || (img = dc.getbufImg() == null)){
-					if(dc.getbufImg()==null){
+				if(!dc.isReady() || (img = ba.getImages() == null)){
+					if(ba.getImages()==null){
 						img = false;						
 					}
 					if(OPGAVE_DEBUG){
@@ -276,15 +271,16 @@ public class OpgaveAlgoritme implements Runnable {
 		int size = 3;
 		double threshold = 15; // TODO Bestemmer hvor stor magnituden i en firkant må være
 
-		Mat frame = ba.bufferedImageToMat(dc.getbufImg()); // Hent billede fra drone og konverter til Mat
-		frames = ba.optFlow(frame, true, false); // Kør Optical Flow
+		Mat frame = new Mat();
+		frame = ba.getMatFrame();
+
 		double magnitudes[][] = ba.calcOptMagnitude(size); // Beregn Magnituden (baseret på Optical Flow vektorer)
 
-		Point center = new Point(frame.size().width/2, frame.size().height/2);
+		Point center = new Point(640/2, 480/2);
 		double x = center.x;
 		double y = center.y;
-		double hStep = frame.size().height/size;
-		double vStep = frame.size().width/size;
+		double hStep = 480/size;
+		double vStep = 640/size;
 
 		// Mulige manøvre
 		boolean retninger[] = {false,false,false,false,false};// down, up, goLeft, goRight, forward
@@ -297,12 +293,13 @@ public class OpgaveAlgoritme implements Runnable {
 			for(int o=0; o<size; o++){
 				// Tegn rød firkant hvis objektet er for tæt på, ellers tegn grøn firkant
 				if(magnitudes[i][o] >= threshold){
-					Imgproc.rectangle(frames[0], new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), red, thickness);
+					Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), red, thickness);
 				} else {
-					Imgproc.rectangle(frames[0], new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), green, thickness);
+					Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), green, thickness);
 				}
 			}
 		}
+		ba.setImage(frame); // Opdater billedet i BA så det nytegnede billede vises på GUI
 
 		if(magnitudes[0][0] < threshold){
 			x = x - vStep;
@@ -338,7 +335,9 @@ public class OpgaveAlgoritme implements Runnable {
 		if(magnitudes[2][2] < threshold){
 			x = x + vStep;
 			y = y + hStep;
-		}		
+		}	
+		
+		
 
 		//		Vektor dir = new Vektor(center, new Point(x,y)); // Kan benyttes hvis man ønsker en vektorrepræsentation
 		return retninger;				

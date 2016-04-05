@@ -34,54 +34,45 @@ public class OpticalFlow {
 		return klon;
 	}
 	
-	public Mat[] optFlow(Mat second, boolean optFlow, boolean objTrack){
-		Mat out[] = new Mat[3];
-
-		if(objTrack){
-			out[2] = this.trackObject(second);
-		}
-
+	public Mat optFlow(Mat second, boolean optFlow){
 		if(optFlow){
 			// Første gang metoden kaldes gemmes billedet og der tegnes ingen vektorer.
 			if(first==null){
-				first = second;
+				first = new Mat();
+				second.copyTo(first);
 				fKey = new MatOfPoint();
 
 				//			first = this.gaus(first);
 				first = bm.edde(first);
 				first = bm.thresh(first);
-				//			first = this.canny(first);
 				first = bm.toGray(first);
+//				first = bm.canny(first);
 
 				Imgproc.goodFeaturesToTrack(first, fKey, 400, 0.01, 10);
 
-				out[0] = second;
-				out[1] = first;
-				return out;
+				return first;
 			}
+			Mat out = new Mat();
+			second.copyTo(out);
 
 			long startTime = System.nanoTime(); // DEBUG
-
-			// Gem en kopi af det orignale farvebillede der skal vises til sidst
-			Mat sOrg = second.clone();
 
 			// Initier variable der gemmes data i
 			MatOfPoint sKey = new MatOfPoint();
 
 			// Behandling af billedet som fremhæver features
 			//		second = this.gaus(second);
-			second = bm.edde(second);
-			second = bm.thresh(second);
-			//		second = this.canny(second);
-			second = bm.toGray(second);
+			out = bm.edde(out);
+			out = bm.thresh(out);
+			out = bm.toGray(out);
+//			out = bm.canny(out);
 
 			// Find punkter der er gode at tracke. Gemmes i fKey og sKey
-			Imgproc.goodFeaturesToTrack(second, sKey, 400, 0.01, 10);
+			Imgproc.goodFeaturesToTrack(out, sKey, 400, 0.01, 10);
 
 			// Hvis der ikke findes nogle features er der intet at tegne eller lave optical flow på
 			if(sKey.empty()){
 				System.err.println("******** NUL FEATURES FUNDET! ************** ");
-				out[0] = second;
 				return out;
 			}
 
@@ -90,7 +81,11 @@ public class OpticalFlow {
 			MatOfPoint2f fKeyf = new MatOfPoint2f(fKey.toArray());
 			MatOfByte status = new MatOfByte();
 			MatOfFloat err = new MatOfFloat();
-			Video.calcOpticalFlowPyrLK(first, second, fKeyf, sKeyf, status, err );
+			Video.calcOpticalFlowPyrLK(first, out, fKeyf, sKeyf, status, err );
+			
+			// Gem det behandlede billede samt data så det kan benyttes næste gang metoden kaldes
+			out.copyTo(first);
+			fKey = sKey;
 
 			// Tegn vektorer på kopien af originale farvebillede 
 			byte[] fundet = status.toArray();
@@ -101,7 +96,7 @@ public class OpticalFlow {
 			vList = new ArrayList<Vektor>();
 			for(int i=0; i<fArray.length; i++){
 				if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
-					Imgproc.line(sOrg, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
+					Imgproc.line(out, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
 					vList.add(new Vektor(fArray[i],sArray[i]));
 					antalFundet++;
 				}		
@@ -136,20 +131,14 @@ public class OpticalFlow {
 				System.out.println(debug);	
 			}
 
-			out[0] = sOrg;
-			out[1] = second;
-
-			// Gem det behandlede billede samt data så det kan benyttes næste gang metoden kaldes
-			first = second;
-			fKey = sKey;
+			
 
 			//			this.calcOptMagnitude(vList, sOrg, 3); // TEST KODE
 			//			out[0] = this.calcDistances(sOrg, vList, 17, 6); // TEST KODE
 
 			return out;
 		} else {
-			out[0] = second;
-			return out;
+			return second;
 		}
 	}
 
