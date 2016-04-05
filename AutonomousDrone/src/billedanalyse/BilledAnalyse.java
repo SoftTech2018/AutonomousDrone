@@ -303,8 +303,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					objectImage = bm.toGray(objectImage);
 					objectImage = bm.medianBlur(objectImage);
 					objectImage = bm.canny(objectImage);
-					//					first = bm.eq(first);
-					//					first = bm.houghLines(first);
+//										objectImage = bm.eq(objectImage);
+										objectImage = bm.houghLines(objectImage);
 					//					first = bm.filterMat(first);
 					//													first = bm.houghLines(first);
 					//									first = bm.canny(first);
@@ -343,8 +343,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			//			out = bm.gaus(out);
 			//			out = bm.edde(out);
 			out = bm.canny(out);
-			//			out = bm.eq(out);
-			//			out = bm.houghLines(out);
+//						out = bm.eq(out);
+						out = bm.houghLines(out);
 
 			MatOfKeyPoint sKey = bm.getKeyPoints(out);		
 			Mat s = bm.getDescriptors(out, sKey);
@@ -492,7 +492,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				img = resize(img, 640, 480);
 				matFrame = img;
 				frames[0] = img;
-				if(opticalFlow){ // opticalFlow boolean
+				if(opticalFlow || objTrack){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
 				}
 				if(objTrack){

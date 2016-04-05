@@ -99,7 +99,7 @@ public class BilledManipulation {
 	
 	public Mat medianBlur(Mat frame){
 		Mat out = new Mat();
-		Imgproc.medianBlur(frame, out, 9);
+		Imgproc.medianBlur(frame, out, 17);
 		return out;
 	}
 
