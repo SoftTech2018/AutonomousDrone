@@ -1,24 +1,21 @@
 package gui;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
 
 import billedanalyse.BilledAnalyse;
+import billedanalyse.IBilledAnalyse;
 import billedanalyse.QRCodeScanner;
+import diverse.TakePicture;
 import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme;
@@ -35,16 +32,19 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GuiController {
 
-	private final boolean recordVideo = false; // Testkode - sæt til true for at optage en videostream.
+	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
+	
+	private final boolean TAKEPICTURE = false; // Sæt til true for at tage et testbillede via toggle funktionen
 
 	private IDroneControl dc = new DroneControl();
-	private BilledAnalyse ph = new BilledAnalyse();
+	private IBilledAnalyse ba = new BilledAnalyse(dc);
+	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
+	private Thread opgThread, baThread;
 
 	// NUMPAD 7
 	@FXML
@@ -62,6 +62,9 @@ public class GuiController {
 	// START CAMERA BUTTON
 	@FXML
 	private Button start_btn;
+
+	@FXML
+	private Label qrt_label;
 
 	@FXML
 	private ImageView optFlow_imageView;
@@ -124,6 +127,15 @@ public class GuiController {
 	@FXML
 	private ChoiceBox<Integer> frames_choiceBox;
 
+	@FXML
+	private Label roll_label;
+
+	@FXML
+	private Label yaw_label;
+
+	@FXML
+	private Label pitch_label;
+
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer, droneTimer;
 	// the OpenCV object der henter video fra Webcam
@@ -146,27 +158,19 @@ public class GuiController {
 	private boolean objTrack = false;
 	// Tæller op indtil der er forbindelse med dronen eller max er nået
 	private int droneTime = 0, droneMaxTime = 20 ;
-	// Analyserer vi test-video?
-	private boolean useTestVideo = false;
-
-	@FXML
-	private Label roll_label;
-
-	@FXML
-	private Label yaw_label;
-
-	@FXML
-	private Label pitch_label;
-
 	// Bruges til at gemme en videosekvens
 	private VideoWriter outVideo;
 	// Bruges til at læse fra en videosekvens
 	private VideoCapture testStream;
+	// Analyserer vi test-video?
+	private boolean useTestVideo = false; 
 
 	@FXML
 	private void initialize(){		
 		frames_choiceBox.setValue(30);
 		frames_choiceBox.setItems(frameChoicesList);
+
+		// Håndterer når man skifter FPS - også selvom kameraet kører allerede
 		frames_choiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>(){
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
@@ -188,6 +192,7 @@ public class GuiController {
 		pitch_label.textProperty().bind(pitch);
 		yaw_label.textProperty().bind(yaw);
 		roll_label.textProperty().bind(roll);
+		qrt_label.textProperty().bind(qrt);
 
 		// Tjek om dronen er klar til takeoff
 		this.takeoff_btn.setDisable(true);
@@ -223,24 +228,42 @@ public class GuiController {
 	}
 
 	@FXML
+	private Button startOpgAlgo;
+
+	@FXML
 	void startCamera(ActionEvent event) {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}
+
 		optFlow_checkBox.setDisable(!cameraActive);
 		objTracking_checkBox.setDisable(!cameraActive);
 		testVideo_checkBox.setDisable(!cameraActive);
-		if(useTestVideo){
-			startTestVideoStream();
-		} else{
-			if(webcamVideo){
-				// Video hentes fra webcam
-				//				startWebcamStream();
-				startOpgaveAlgoritme();
-			} else {
-				// Video hentes fra dronen
-				startDroneStream();
+		
+		// Hvis kameraet er inaktivt, skal det aktiveres. Ergo startes en tråd med billedanalyse
+		if(!cameraActive){
+			baThread = new Thread((BilledAnalyse) ba);
+			baThread.start();
+		} else { // Kameraet slukkes, billedanalyse stoppes.
+			baThread.interrupt();
+		}
+
+		if(event == null || !event.getSource().equals(startOpgAlgo)){
+			startOpgAlgo.setDisable(!cameraActive);
+			if(useTestVideo){
+				startTestVideoStream();
+			} else{
+				if(webcamVideo){
+					// Video hentes fra webcam
+					startWebcamStream();
+				} else {
+					// Video hentes fra dronen
+					startDroneStream();
+				}
 			}
+		} else if(event.getSource().equals(startOpgAlgo)){
+			// Skynet starter
+			startOpgaveAlgoritme();
 		}
 	}
 
@@ -267,7 +290,7 @@ public class GuiController {
 							}	
 						});
 					} else {
-						Image imageToShow[] = GuiController.this.procesFrame(frame);
+						Image imageToShow[] = ba.getImages();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -300,53 +323,71 @@ public class GuiController {
 		}
 	}
 
-	private OpgaveAlgoritme opg;
-
 	private void startOpgaveAlgoritme(){
-		if(opg==null){
-			opg = new OpgaveAlgoritme(dc, ph);
-			Thread t = new Thread(opg);
-			t.start();
-		}
-		if (!this.cameraActive)	{
-			this.cameraActive = true;
+		grey_checkBox.setDisable(!cameraActive);
+		optFlow_checkBox.setDisable(!cameraActive);
+		qr_checkBox.setDisable(!cameraActive);
+		start_btn.setDisable(!cameraActive);
+		changeCam_btn.setDisable(!cameraActive);
+		cam_chk.setDisable(!cameraActive);
+		optFlow_checkBox.setDisable(!cameraActive);
+		objTracking_checkBox.setDisable(!cameraActive);
+		testVideo_checkBox.setDisable(!cameraActive);
+		frames_choiceBox.setDisable(!cameraActive);
 
-			// grab a frame every 33 ms (30 frames/sec)
+		if (!this.cameraActive)	{
+			System.err.println("*** WARNING - SKYNET COMING ONLINE!");
+			this.cameraActive = true;
+			
+//			// Indstil billedanalyse uanset brugerens valg
+//			ba.setWebCam(false); // Billeder fra dronen bruges
+//			ba.setOpticalFlow(true); // Der udføres optical flow
+//			ba.setObjTrack(true); // Der udføres objekt tracking
+//			ba.setGreyScale(false); // Der konverteres ikke til greyscale
+
+			// Start opgaveAlgoritmen i en seperat tråd
+			opgThread = new Thread(opg);
+			opgThread.start();
+
+			// Opdater GUI'en så det matcher med det antal FPS man har valgt
 			frameGrabber = new Runnable() {
 				@Override
-				public void run()
-				{
-					Mat frames[] = opg.getFrames();
-					if(frames[0]!=null){						
-						currentFrame.setImage(GuiController.this.mat2Image(frames[0])); // Main billede
-					}
-					if(frames[1]!=null){
-						optFlow_imageView.setImage(GuiController.this.mat2Image(frames[1]));	// Optical Flow					
-					}
-					if(frames[2]!=null){
-						objTrack_imageView.setImage(GuiController.this.mat2Image(frames[2])); // Objeckt Tracking						
-					}
+				public void run(){
+					//					opg.getPossibleManeuvers();
+					Image imageToShow[] = ba.getImages();
+					currentFrame.setImage(imageToShow[0]); // Main billede
+					optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
+					objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 				}
 			};
 
 			this.timer = Executors.newSingleThreadScheduledExecutor();
 			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
-			if(recordVideo){	 // TESTKODE
+			if(RECORDVIDEO){	 // TESTKODE
 				int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
 				Size frameSize = new Size(640,480);
 				outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
 			}
 
 			// update the button content
-			this.start_btn.setText("Stop Camera");
-		}else {
-			// the camera is not active at this point
-			this.cameraActive = false;
-			// update again the button content
-			this.start_btn.setText("Start Camera");
+			this.startOpgAlgo.setText("Stop Skynet");
+		} else {
+			// Forsøg at stoppe opgavealgoritmen ASAP
+			System.err.println("*** TRYING TO DESTROY SKYNET");
+			opgThread.interrupt();
 
-			if(recordVideo){// TESTKODE	
+			this.cameraActive = false;
+			this.startOpgAlgo.setText("Start Skynet");
+			
+//			// Indstil billedanalyse tilbage til brugerens valg
+//			ba.setWebCam(webcamVideo); // Billeder fra dronen bruges
+//			ba.setOpticalFlow(optFlow); // Der udføres optical flow
+//			ba.setObjTrack(objTrack); // Der udføres objekt tracking
+//			ba.setGreyScale(greyScale); // Der konverteres ikke til greyscale
+
+			// Hvis vi optager video stopper vi optageren.
+			if(RECORDVIDEO){
 				outVideo.release(); 			
 			}
 			// stop the timer
@@ -377,19 +418,47 @@ public class GuiController {
 				// grab a frame every 33 ms (30 frames/sec)
 				frameGrabber = new Runnable() {
 					@Override
-					public void run()
-					{
-						Image imageToShow[] = grabFrameFromWebcam();
+					public void run(){
+						// Brug webkameraet
+						Mat frame = new Mat();
+						if (GuiController.this.capture.isOpened()){
+							try	{
+								// read the current frame
+								GuiController.this.capture.read(frame);
+								ba.setImg(frame);
+								
+								if(RECORDVIDEO){
+									GuiController.this.recordVideo(frame); // TESTKODE
+								}
+							}catch (Exception e){
+								// log the error
+								System.err.println("Exception during the image elaboration: " + e);
+								e.printStackTrace();
+							}
+						}
+						Image imageToShow[] = ba.getImages();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
+//						System.out.println(ba.getQrText()+"testetsetse");
+						String QrText = ba.getQrt();
+						Platform.runLater(new Runnable(){
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								if(QrText!=null){
+									System.out.println("Dette er test print "+QrText);
+									qrt.set(QrText); // qr kode text
+								}
+							}
+						});
 					}
 				};
 
 				this.timer = Executors.newSingleThreadScheduledExecutor();
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 
-				if(recordVideo){	 // TESTKODE
+				if(RECORDVIDEO){	 // TESTKODE
 					int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
 					Size frameSize = new Size(640,480);
 					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
@@ -407,7 +476,7 @@ public class GuiController {
 			// update again the button content
 			this.start_btn.setText("Start Camera");
 
-			if(recordVideo){// TESTKODE	
+			if(RECORDVIDEO){// TESTKODE	
 				outVideo.release(); 			
 			}
 			// stop the timer
@@ -437,7 +506,7 @@ public class GuiController {
 				frameGrabber = new Runnable() {
 					@Override
 					public void run(){
-						Image imageToShow[] = grabFrame();
+						Image imageToShow[] = ba.getImages();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -448,13 +517,19 @@ public class GuiController {
 								// TODO Auto-generated method stub
 								pitch.set(Float.toString(values[0]));
 								roll.set(Float.toString(values[1]));
-								yaw.set(Float.toString(values[2]));		
+								yaw.set(Float.toString(values[2]));
 							}
 						});
 					}
 				};
 				this.timer = Executors.newSingleThreadScheduledExecutor();
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+
+				if(RECORDVIDEO){	 // TESTKODE
+					int fourcc = VideoWriter.fourcc('M', 'J', 'P', 'G');
+					Size frameSize = new Size(640,480);
+					outVideo = new VideoWriter(".\\outVideo.avi", fourcc, 15, frameSize, true);
+				}
 
 				// update the button content
 				this.start_btn.setText("Stop Camera");
@@ -484,142 +559,13 @@ public class GuiController {
 		}
 	}
 
-	/**
-	 * Get a frame from the opened video stream (if any)
-	 * 
-	 * @return the {@link Image} to show
-	 */
-	private Image[] grabFrame(){
-		// init everything
-		Image imageToShow[] = new Image[2];
-		Mat frame= new Mat();
-
-		// check if the capture is open
-		if(dc!=null){
-			try	{
-				// read the current frame
-				//				imageToShow = dc.getImage();
-				frame = ph.bufferedImageToMat(dc.getbufImg());
-				imageToShow = procesFrame(frame);
-
-			}catch (Exception e){
-				// log the error
-				System.err.println("Exception during the image elaboration: " + e);
-				e.printStackTrace();
-			}
-		}
-
-		return imageToShow;
-	}
-
-	private Mat filterMat(Mat mat) {
-		// convert the image to gray scale
-		//		Imgproc.cvtColor(outFrame[0], outFrame[0], Imgproc.COLOR_BGR2GRAY);
-		mat = ph.resize(mat, 640, 480);
-		mat = ph.edde(mat);
-		//		outFrame[0] = ph.bilat(outFrame[0]);
-		mat = ph.thresh(mat);
-		mat = ph.canny(mat);
-		mat = ph.KeyPointsImg(mat);
-		return mat;
-	}
-
-	private void findQR(Mat frame){
-		QRCodeScanner qrs = new QRCodeScanner();
-		qrs.imageUpdated(ph.mat2bufImg(frame));
-	}
 
 
-	/**
-	 * Processer en mat frame med diverse billedbehandling, og returner et JavaFX image array med
-	 * @param frame Mat frame der skal behandles
-	 * @return [0] = originalt billede, [1] = behandlet billede
-	 */
-	private Image[] procesFrame(Mat frame){
-		Image imageToShow[] = new Image[3];
-		Mat outFrame[] = new Mat[3];
-		// if the frame is not empty, process it
-		if (!frame.empty())	{
-			frame = ph.resize(frame, 640, 480);
-			//			frame = ph.gaus(frame); // TESTKODE
-			//			if(optFlow){ // skal der udføres optical Flow?
-			outFrame = ph.optFlow(frame, optFlow, objTrack);
-			//			} else {
-			//				outFrame[0] = frame;						
-			//			}
-
-			//			if(objTrack){
-			//				outFrame[2] = ph.trackObject(frame);
-			//			} 
-
-			// Enable image filter?
-			if(greyScale){						
-				outFrame[0] = filterMat(outFrame[0]);
-			}
-
-			//Enable QR-checkBox?
-			if(qr){
-				findQR(frame);
-			}
-
-			// convert the Mat object (OpenCV) to Image (JavaFX)
-			imageToShow[0] = mat2Image(outFrame[0]);
-			if(optFlow){
-				imageToShow[1] = mat2Image(outFrame[1]);
-			}
-			if(objTrack){
-				imageToShow[2] = mat2Image(outFrame[2]);
-			}
-		}
-		return imageToShow;
-	}
-
-	/**
-	 * Get a frame from the opened video stream (if any)
-	 * 
-	 * @return the {@link Image} to show
-	 */
-	private Image[] grabFrameFromWebcam(){
-		// init everything
-		Image imageToShow[] = new Image[2];
-		Mat frame = new Mat();
-
-		// check if the capture is open
-		if (this.capture.isOpened()){
-			try	{
-				// read the current frame
-				this.capture.read(frame);
-
-				if(recordVideo){
-					this.recordVideo(frame); // TESTKODE
-				}
-				imageToShow = procesFrame(frame);	
-			}catch (Exception e){
-				// log the error
-				System.err.println("Exception during the image elaboration: " + e);
-				e.printStackTrace();
-			}
-		}
-
-		return imageToShow;
-	}
-
-	/**
-	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX
-	 * 
-	 * @param frame
-	 *            the {@link Mat} representing the current frame
-	 * @return the {@link Image} to show
-	 */
-	private Image mat2Image(Mat frame){
-		// create a temporary buffer
-		MatOfByte buffer = new MatOfByte();
-		// encode the frame in the buffer
-		Imgcodecs.imencode(".png", frame, buffer);
-		// build and return an Image created from the image encoded in the
-		// buffer
-		return new Image(new ByteArrayInputStream(buffer.toArray()));
-	}
+//	private void findQR(Mat frame){
+//		QRCodeScanner qrs = new QRCodeScanner();
+//		qrs.imageUpdated(frame);
+//		qr_label.setText("hej");
+//	}
 
 	@FXML
 	void colorChange(ActionEvent event) {
@@ -627,12 +573,8 @@ public class GuiController {
 			System.out.println("Debug: GuiController.colorChange() kaldt! " + event.getSource().toString());
 		}
 		// Hvis der klikkes på greyScale_checkbox
-		if(event.getSource().equals(grey_checkBox)){
-			if(greyScale)
-				greyScale = false;
-			else
-				greyScale = true;
-		}
+		greyScale = !greyScale;
+		ba.setGreyScale(greyScale);
 	}
 
 	@FXML
@@ -641,12 +583,15 @@ public class GuiController {
 			System.out.println("Debug: GuiController.searhQR() kaldt! " + event.getSource().toString());
 		}
 		// Hvis der klikkes på QR_checkbox
-		if(event.getSource().equals(qr_checkBox)){
-			if(qr)
-				qr = false;
-			else
-				qr = true;
-		}
+		qr = !qr;
+		ba.setQR(qr);
+		
+//		if(event.getSource().equals(qr_checkBox)){
+//			if(qr)
+//				qr = false;
+//			else
+//				qr = true;
+//		}
 	}
 
 	@FXML
@@ -742,6 +687,13 @@ public class GuiController {
 	@FXML
 	void changeCam(ActionEvent event){
 		if(!webcamVideo){
+			
+			if (TAKEPICTURE == true) {
+			//Kode til at tage billede fra drone 
+			TakePicture picture = new TakePicture(dc);
+			picture.takePicture();
+			}
+			
 			dc.toggleCamera();
 		}
 	}
@@ -752,6 +704,7 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Optical Flow er sat til: " + optFlow);
 		}
+		ba.setOpticalFlow(optFlow);
 	}
 
 	@FXML
@@ -760,6 +713,7 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Object Tracking er sat til: " + objTrack);
 		}
+		ba.setObjTrack(objTrack);
 	}
 
 	@FXML
@@ -779,11 +733,13 @@ public class GuiController {
 			else
 				System.out.println("Kamera toggles til Dronecam.");
 		}
+		ba.setWebCam(webcamVideo);
 	}
 
 	@FXML
 	void setTestVideo(ActionEvent event){
 		useTestVideo = !useTestVideo;
+		startOpgAlgo.setDisable(useTestVideo);
 		if(GuiStarter.GUI_DEBUG){
 			System.err.println("Debug: Benytter testvideo: " + useTestVideo);
 		}
@@ -803,19 +759,23 @@ public class GuiController {
 	private StringProperty pitch = new SimpleStringProperty();
 	private StringProperty yaw = new SimpleStringProperty();
 	private StringProperty roll = new SimpleStringProperty();
+	private StringProperty qrt = new SimpleStringProperty();
 
 	// Define a getter for the property's value
 	public final String getPitch(){return pitch.get();}
 	public final String getYaw(){return yaw.get();}
 	public final String getRoll(){return roll.get();}
+	public final String getQrt(){return qrt.get();}
 
 	// Define a setter for the property's value
 	public final void setPitch(String value){pitch.set(value);}
 	public final void setRoll(String value){roll.set(value);}
 	public final void setYaw(String value){yaw.set(value);}
+	public final void setQrt(String value){qrt.set(value);}
 
 	// Define a getter for the property itself
 	public StringProperty pitchProperty() {return pitch;}
 	public StringProperty rollProperty() {return roll;}
 	public StringProperty yawProperty() {return yaw;}
+	public StringProperty qrtProperty(){return qrt;}
 }
