@@ -15,6 +15,7 @@ import org.opencv.videoio.VideoWriter;
 import billedanalyse.BilledAnalyse;
 import billedanalyse.IBilledAnalyse;
 import billedanalyse.QRCodeScanner;
+import diverse.TakePicture;
 import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme;
@@ -37,6 +38,8 @@ import javafx.scene.image.ImageView;
 public class GuiController {
 
 	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
+	
+	private final boolean TAKEPICTURE = false; // Sæt til true for at tage et testbillede via toggle funktionen
 
 	private IDroneControl dc = new DroneControl();
 	private IBilledAnalyse ba = new BilledAnalyse(dc);
@@ -684,6 +687,13 @@ public class GuiController {
 	@FXML
 	void changeCam(ActionEvent event){
 		if(!webcamVideo){
+			
+			if (TAKEPICTURE == true) {
+			//Kode til at tage billede fra drone 
+			TakePicture picture = new TakePicture(dc);
+			picture.takePicture();
+			}
+			
 			dc.toggleCamera();
 		}
 	}
