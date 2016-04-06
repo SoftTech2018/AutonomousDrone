@@ -58,7 +58,7 @@
                   <Label fx:id="yaw_label" layoutX="105.0" layoutY="57.0" />
                   <Label fx:id="pitch_label" layoutX="91.0" layoutY="99.0" />
                   <Label layoutX="19.0" layoutY="132.0" text="QR:" />
-                   <Label fx:id="qr_label" layoutX="88.0" layoutY="132.0" />
+                   <Label fx:id="qrt_label" layoutX="88.0" layoutY="132.0" />
                </children>
             </AnchorPane>
             <CheckBox fx:id="cam_chk" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#togglecam" text="Dronecam" />

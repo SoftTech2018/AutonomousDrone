@@ -75,5 +75,7 @@ public interface IBilledAnalyse {
 	void setImage(Mat frame);
 	
 	void findQR(Mat frame);
+	
+	String getQrt();
 
 }

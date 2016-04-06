@@ -63,6 +63,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow;
 	private Mat webcamFrame;
 	private Mat matFrame;
+	
+	public QRCodeScanner qrs = new QRCodeScanner();
 
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
@@ -573,10 +575,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	public void findQR(Mat frame){
-		QRCodeScanner qrs = new QRCodeScanner();
 		qrs.imageUpdated(frame);
 		//		qr_label.setText("hej");
 	}
+	
+	public String getQrt(){
+		return qrs.getQrt();
+	}
+
 
 	/**
 	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX

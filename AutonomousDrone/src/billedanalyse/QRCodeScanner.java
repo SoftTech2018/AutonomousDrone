@@ -24,6 +24,8 @@ import gui.GuiController;
 public class QRCodeScanner
 {
 	
+	public String qrt = "";
+	
 	public void imageUpdated(Mat frame)
 	{
 		Image image = toBufferedImage(frame);
@@ -35,6 +37,7 @@ public class QRCodeScanner
 		try {
 			Result result = qrReader.decode(bitmap);
 			System.out.println("QR Code data is: "+result.getText());
+			qrt = result.getText();
 		} catch (NotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,6 +52,10 @@ public class QRCodeScanner
 			System.out.println("--------");
 		}
 		qrReader.reset();
+	}
+	
+	public String getQrt(){
+		return qrt;
 	}
 
 	//Metoden er hentet fra stackoverflow: http://stackoverflow.com/questions/15670933/opencv-java-load-image-to-gui

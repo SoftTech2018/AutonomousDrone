@@ -61,7 +61,7 @@ public class GuiController {
 	private Button start_btn;
 
 	@FXML
-	private Label qr_label;
+	private Label qrt_label;
 
 	@FXML
 	private ImageView optFlow_imageView;
@@ -189,6 +189,7 @@ public class GuiController {
 		pitch_label.textProperty().bind(pitch);
 		yaw_label.textProperty().bind(yaw);
 		roll_label.textProperty().bind(roll);
+		qrt_label.textProperty().bind(qrt);
 
 		// Tjek om dronen er klar til takeoff
 		this.takeoff_btn.setDisable(true);
@@ -436,6 +437,18 @@ public class GuiController {
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
+//						System.out.println(ba.getQrText()+"testetsetse");
+						String QrText = ba.getQrt();
+						Platform.runLater(new Runnable(){
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								if(QrText!=null){
+									System.out.println("Dette er test print "+QrText);
+									qrt.set(QrText); // qr kode text
+								}
+							}
+						});
 					}
 				};
 
@@ -501,7 +514,7 @@ public class GuiController {
 								// TODO Auto-generated method stub
 								pitch.set(Float.toString(values[0]));
 								roll.set(Float.toString(values[1]));
-								yaw.set(Float.toString(values[2]));		
+								yaw.set(Float.toString(values[2]));
 							}
 						});
 					}
@@ -736,19 +749,23 @@ public class GuiController {
 	private StringProperty pitch = new SimpleStringProperty();
 	private StringProperty yaw = new SimpleStringProperty();
 	private StringProperty roll = new SimpleStringProperty();
+	private StringProperty qrt = new SimpleStringProperty();
 
 	// Define a getter for the property's value
 	public final String getPitch(){return pitch.get();}
 	public final String getYaw(){return yaw.get();}
 	public final String getRoll(){return roll.get();}
+	public final String getQrt(){return qrt.get();}
 
 	// Define a setter for the property's value
 	public final void setPitch(String value){pitch.set(value);}
 	public final void setRoll(String value){roll.set(value);}
 	public final void setYaw(String value){yaw.set(value);}
+	public final void setQrt(String value){qrt.set(value);}
 
 	// Define a getter for the property itself
 	public StringProperty pitchProperty() {return pitch;}
 	public StringProperty rollProperty() {return roll;}
 	public StringProperty yawProperty() {return yaw;}
+	public StringProperty qrtProperty(){return qrt;}
 }
