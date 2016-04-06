@@ -6,6 +6,8 @@ import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.CommandManager;
 import de.yadrone.base.command.LEDAnimation;
+import de.yadrone.base.navdata.Altitude;
+import de.yadrone.base.navdata.AltitudeListener;
 import de.yadrone.base.navdata.AttitudeListener;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
@@ -25,7 +27,7 @@ public class DroneControl implements IDroneControl {
 	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
 	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
 	 */
-	private final boolean TEST_MODE = true;
+	private final boolean TEST_MODE = false;
 
 	private IARDrone drone;
 	private CommandManager cmd;
@@ -34,16 +36,17 @@ public class DroneControl implements IDroneControl {
 	//TurnLeft og TurnRight ganges med faktor 8-10, up og down ganges med faktor 5
 	private final int SPEED = 10; /* % */ 
 	private final int MINALT = 1000; /* mm */
-	private final int MAXALT = 2500; /* mm */
+	private final int MAXALT = 2000; /* mm */
 	private final int DURATION = 100; /* ms */
 //	private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
-	private int pitch, yaw, roll;
+	private int pitch, yaw, roll, altitude;
 
 	public DroneControl() {
 		pitch = 0;
 		yaw = 0;
 		roll = 0;
+		altitude = 0;
 		if(!TEST_MODE){			
 			drone = new ARDrone();
 			drone.start();
@@ -72,6 +75,21 @@ public class DroneControl implements IDroneControl {
 			@Override
 			public void windCompensation(float arg0, float arg1) {	}
 		});
+		
+		// Nedenstående giver altid 0
+//		ndm.addAltitudeListener(new AltitudeListener(){
+//			@Override
+//			public void receivedAltitude(int arg0) {
+//				System.out.println("Højde er: " + arg0);
+//				DroneControl.this.altitude = (int) arg0 / 1000;
+//			}
+//
+//			@Override
+//			public void receivedExtendedAltitude(Altitude arg0) {
+//				DroneControl.this.altitude = (int) arg0.getRaw() / 1000;
+//				System.out.println("Højde2 er: " + DroneControl.this.altitude);
+//			}
+//		});
 	}
 
 	private void imageCapture(){	

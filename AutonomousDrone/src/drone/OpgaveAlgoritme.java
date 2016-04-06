@@ -1,5 +1,7 @@
 package drone;
 
+import java.util.Random;
+
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -35,6 +37,7 @@ public class OpgaveAlgoritme implements Runnable {
 	public void startOpgaveAlgoritme() {
 		Log.writeLog("*** OpgaveAlgoritmen startes. ***");
 		dc.setTimeMode(true);
+		dc.setFps(15);
 		while (!doStop) {
 			if(Thread.interrupted()){
 				destroy();
@@ -70,7 +73,7 @@ public class OpgaveAlgoritme implements Runnable {
 						System.err.println("*** Dronen letter og starter opgaveløsning ***");
 					}
 					try {
-						Thread.sleep(2000);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						destroy();
 						return;
@@ -179,9 +182,9 @@ public class OpgaveAlgoritme implements Runnable {
 					System.err.println("* Intet mål fundet. Dronen skal flyttes.");
 				}
 				Log.writeLog("Intet mål fundet. Dronen skal flyttes.");
-				
+
 				long startTime = System.currentTimeMillis();
-				while(!targetFound() || (System.currentTimeMillis() - startTime) > 5000){ // Gør noget i 5000 ms eller indtil et mål findes
+				while(targetFound()==false || (System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
 					if(Thread.interrupted()){
 						destroy();
 						return false;
@@ -275,7 +278,7 @@ public class OpgaveAlgoritme implements Runnable {
 	 */
 	public boolean[] getPossibleManeuvers(){
 		int size = 3;
-		double threshold = 10; // TODO Bestemmer hvor stor magnituden i en firkant må være
+		double threshold = 25; // TODO Bestemmer hvor stor magnituden i en firkant må være
 
 		Mat frame = new Mat();
 		frame = ba.getMatFrame();
@@ -295,8 +298,17 @@ public class OpgaveAlgoritme implements Runnable {
 		Scalar red = new Scalar(0,0,255); // Rød farve til stregen
 		Scalar green = new Scalar(0,255,0); // Grøn farve 
 		int thickness = 2; // Tykkelse på stregen
+		double min = Double.MAX_VALUE;
+		int mindsteI = -1;
+		int mindsteO = -1;
 		for(int i=0; i<size; i++){
 			for(int o=0; o<size; o++){
+				// Find den mindste magnitude
+				if(magnitudes[i][o] < min){
+					min = magnitudes[i][o];
+					mindsteI = i;
+					mindsteO = o;
+				}
 				// Tegn rød firkant hvis objektet er for tæt på, ellers tegn grøn firkant
 				if(magnitudes[i][o] >= threshold){
 					Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), red, thickness);
@@ -307,43 +319,103 @@ public class OpgaveAlgoritme implements Runnable {
 		}
 		ba.setImage(frame); // Opdater billedet i BA så det nytegnede billede vises på GUI
 
-		if(magnitudes[0][0] < threshold){
-			x = x - vStep;
-			y = y - hStep;
+		// Balance-modellen - vi bevæger os derhen hvor der er mindst magnitude
+		Random r = new Random();
+		switch(mindsteI){
+		case 0: // Venstre kolonne
+			switch(mindsteO){
+			case 0: // Flyv venstre eller op
+				if(r.nextBoolean()){
+					retninger[2] = true;
+				} else {
+					retninger[2] = true;
+				}
+				break;
+			case 1: // Flyv venstre
+				retninger[2] = true;
+				break;
+			case 2: // Flyv venstre eller ned
+				if(r.nextBoolean()){
+					retninger[2] = true;
+				} else {
+					retninger[2] = true;
+				}
+				break;
+			}
+			break;
+		case 1: // Midterste kolonne
+			switch(mindsteO){
+			case 0: // Flyv op
+				retninger[4] = true;
+				break;
+			case 1: // Fremad
+				retninger[4] = true;
+				break;
+			case 2: // Flyv ned
+				retninger[4] = true;
+				break;
+			}
+			break;
+		case 2: // Højre kolonne
+			switch(mindsteO){
+			case 0: // Flyv højre eller op
+				if(r.nextBoolean()){
+					retninger[3] = true;
+				} else {
+					retninger[3] = true;
+				}
+				break;
+			case 1: // Flyv højre
+				retninger[3] = true;
+				break;
+			case 2: // Flyv højre eller ned
+				if(r.nextBoolean()){
+					retninger[3] = true;
+				} else {
+					retninger[3] = true;
+				}
+				break;
+			}
+			break;
+		default:
 		}
-		if(magnitudes[0][1] < threshold){
-			y = y - hStep;
-			retninger[1] = true;
-		}
-		if(magnitudes[0][2] < threshold){
-			x = x + vStep;
-			y = y - hStep;
-		}
-		if(magnitudes[1][0] < threshold){
-			x = x - vStep;
-			retninger[2] = true;
-		}
-		if(magnitudes[1][1] < threshold){
-			retninger[4] = true;
-		}
-		if(magnitudes[1][2] < threshold){
-			x = x + vStep;
-			retninger[3] = true;
-		}
-		if(magnitudes[2][0] < threshold){
-			x = x - vStep;
-			y = y + hStep;
-		}
-		if(magnitudes[2][1] < threshold){
-			y = y + hStep;;
-			retninger[0] = true;
-		}
-		if(magnitudes[2][2] < threshold){
-			x = x + vStep;
-			y = y + hStep;
-		}	
-		
-		
+
+//		// Baseret på magnitude værdi vs. threshhold
+//		if(magnitudes[0][0] < threshold){
+//			x = x - vStep;
+//			y = y - hStep;
+//		}
+//		if(magnitudes[0][1] < threshold){
+//			y = y - hStep;
+//			retninger[1] = true;
+//		}
+//		if(magnitudes[0][2] < threshold){
+//			x = x + vStep;
+//			y = y - hStep;
+//		}
+//		if(magnitudes[1][0] < threshold){
+//			x = x - vStep;
+//			retninger[2] = true;
+//		}
+//		if(magnitudes[1][1] < threshold){
+//			retninger[4] = true;
+//		}
+//		if(magnitudes[1][2] < threshold){
+//			x = x + vStep;
+//			retninger[3] = true;
+//		}
+//		if(magnitudes[2][0] < threshold){
+//			x = x - vStep;
+//			y = y + hStep;
+//		}
+//		if(magnitudes[2][1] < threshold){
+//			y = y + hStep;;
+//			retninger[0] = true;
+//		}
+//		if(magnitudes[2][2] < threshold){
+//			x = x + vStep;
+//			y = y + hStep;
+//		}	
 
 		//		Vektor dir = new Vektor(center, new Point(x,y)); // Kan benyttes hvis man ønsker en vektorrepræsentation
 		return retninger;				

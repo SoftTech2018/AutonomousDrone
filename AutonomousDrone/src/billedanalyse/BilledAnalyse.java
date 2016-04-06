@@ -63,8 +63,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow;
 	private Mat webcamFrame;
 	private Mat matFrame;
-	
-	public QRCodeScanner qrs = new QRCodeScanner();
+	private QRCodeScanner qrs = new QRCodeScanner();
 
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
@@ -174,7 +173,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			int y = (int) (pointY/sqHeight);
 
 			// Adder længden i den tilsvarende firkant
-			out[x][y] += vectors.get(i).getLength();
+			out[x][y] += ((double) vectors.get(i).getLength());
 			squaresCount[x][y]++;
 		}
 
@@ -182,12 +181,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		for(int i=0; i<size; i++){
 			for(int o=0; o<size; o++){
 				if(squaresCount[i][o] > 0){ // Beregn kun gennemsnitsdistance hvis der er noget at beregne på
-					out[i][o] = out[i][o] / squaresCount[i][o];
+					out[i][o] = (double) out[i][o] / (double) squaresCount[i][o];
 					//					if(out[i][o] > 20){						
 					//						Imgproc.rectangle(frame, new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), new Scalar(0,0,255), 4);
 					//					}
 				} else { // Hvis der ikke spores noget i en kvadrant må vi gå ud fra vi ikke kan flyve den vej
-					out[i][o] = Integer.MAX_VALUE;
+					out[i][o] = Double.MAX_VALUE;
 				}
 			}
 		}
@@ -214,9 +213,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 		if(BILLED_DEBUG){
 			System.out.println("***");
-			System.out.println((int) out[0][0] + "\t" + (int) out[1][0] + "\t" + (int) out[2][0]);
-			System.out.println((int) out[0][1] + "\t" + (int) out[1][1] + "\t" + (int) out[2][1]);
-			System.out.println((int) out[0][2] + "\t" + (int) out[1][2] + "\t" + (int) out[2][2]);
+			System.out.println(out[0][0] + "\t" + out[1][0] + "\t" + out[2][0]);
+			System.out.println(out[0][1] + "\t" + out[1][1] + "\t" + out[2][1]);
+			System.out.println(out[0][2] + "\t" + out[1][2] + "\t" + out[2][2]);
 		}
 		return out;
 	}
@@ -578,11 +577,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		qrs.imageUpdated(frame);
 		//		qr_label.setText("hej");
 	}
-	
-	public String getQrt(){
-		return qrs.getQrt();
-	}
-
 
 	/**
 	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX
@@ -610,4 +604,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void setImage(Mat frame){
 		this.imageToShow[0] = this.mat2Image(frame);
 	}
+	
+	public String getQrt(){
+		 		return qrs.getQrt();
+		 	}
 }
