@@ -24,7 +24,7 @@ public class OpticalFlow {
 		this.bm = bm;
 	}
 	
-	public ArrayList<Vektor> getVektorArray(){
+	public ArrayList<Vektor> getVektorArray(){		
 		return vList;
 	}
 	
@@ -87,19 +87,33 @@ public class OpticalFlow {
 			out.copyTo(first);
 			fKey = sKey;
 
-			// Tegn vektorer på kopien af originale farvebillede 
+			// Find og Tegn vektorer på kopien af originale farvebillede 
 			byte[] fundet = status.toArray();
 			Point[] fArray = fKeyf.toArray();
 			Point[] sArray = sKeyf.toArray();
 			int thickness = 2;
-			int antalFundet = 0;
 			vList = new ArrayList<Vektor>();
+			double vektorLength = 0;
 			for(int i=0; i<fArray.length; i++){
-				if(fundet[i] == 1){ // Tegn kun der hvor der er fundet matches
-					Imgproc.line(out, fArray[i], sArray[i], new Scalar(255,0,0), thickness);
-					vList.add(new Vektor(fArray[i],sArray[i]));
-					antalFundet++;
+				if(fundet[i] == 1){ // Tilføj kun vektorer hvor der er fundet matches
+					Vektor v = new Vektor(fArray[i],sArray[i]);
+					vList.add(v);
+					vektorLength += v.getLength();
 				}		
+			}
+			vektorLength = vektorLength/vList.size();
+			// Fjerner støj - dvs. vektorer der er markant længere end gennemsnittet
+			int p =0;
+			do {
+				if(vList.get(p).getLength() > vektorLength * 1.5){
+					vList.remove(p);
+					p--;
+				}
+				p++;
+			} while(p < vList.size());
+			// Tegn vektorerne på billedet
+			for(int i=0; i<vList.size(); i++){
+				Imgproc.line(out, vList.get(i).getX(), vList.get(i).getY(), new Scalar(255,0,0), thickness);
 			}
 
 			//		double avg = 0;
@@ -127,7 +141,7 @@ public class OpticalFlow {
 				long total = System.nanoTime() - startTime;
 				long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
 				String debug = "Vektorer fundet på: " + durationInMs + " milisekunder.";
-				debug = debug + " Punkter fundet: " + antalFundet + ", ud af: " + sKey.size();
+				debug = debug + " Punkter fundet: " + vList.size() + ", ud af: " + sKey.size();
 				System.out.println(debug);	
 			}
 

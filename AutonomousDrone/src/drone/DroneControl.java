@@ -35,7 +35,7 @@ public class DroneControl implements IDroneControl {
 	private final int SPEED = 10; /* % */ 
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 2500; /* mm */
-	private final int DURATION = 10; /* ms */
+	private final int DURATION = 100; /* ms */
 //	private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll;
@@ -145,7 +145,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Op");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.up(SPEED*5);
 		} else {
 			cmd.up(SPEED*5).doFor(DURATION);			
@@ -162,7 +162,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Ned");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.down(SPEED*5);
 		} else {
 			cmd.down(SPEED*5).doFor(DURATION);			
@@ -178,7 +178,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Fremad");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.forward(SPEED);
 		} else {
 			cmd.forward(SPEED).doFor(DURATION);			
@@ -194,7 +194,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Baglæns");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.backward(SPEED);
 		} else {
 			cmd.backward(SPEED).doFor(DURATION);			
@@ -210,7 +210,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Venstre");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.goLeft(SPEED);
 		} else {
 			cmd.goLeft(SPEED).doFor(DURATION);			
@@ -226,7 +226,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Højre");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.goRight(SPEED);
 		} else {
 			cmd.goRight(SPEED).doFor(DURATION);			
@@ -242,7 +242,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Drejer Venstre");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.spinLeft(SPEED*8);
 		} else {
 			cmd.spinLeft(SPEED*8).doFor(DURATION);			
@@ -258,7 +258,7 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Drejer Højre");
 		}
-		if(timeMode){
+		if(!timeMode){
 			cmd.spinRight(SPEED*10);
 		} else {
 			cmd.spinRight(SPEED*10).doFor(DURATION);			

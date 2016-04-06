@@ -176,16 +176,22 @@ public class OpgaveAlgoritme implements Runnable {
 			turns++;
 			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
 				if(OPGAVE_DEBUG){
-					System.err.println("* Intet mål fundet. Flytter dronen.");
+					System.err.println("* Intet mål fundet. Dronen skal flyttes.");
 				}
-				Log.writeLog("Intet mål fundet. Flytter dronen.");
-				boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
+				Log.writeLog("Intet mål fundet. Dronen skal flyttes.");
+				
 				long startTime = System.currentTimeMillis();
 				while(!targetFound() || (System.currentTimeMillis() - startTime) > 5000){ // Gør noget i 5000 ms eller indtil et mål findes
 					if(Thread.interrupted()){
 						destroy();
 						return false;
 					}
+					boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
+					String muligeRetninger = "Retninger modtaget: ";
+					for(int i=0; i<retninger.length;i++){
+						muligeRetninger += retninger[i] + ", ";
+					}
+					Log.writeLog(muligeRetninger);
 					if(retninger[4]){
 						Log.writeLog("FLYVER FREMAD");
 						dc.forward();
@@ -269,7 +275,7 @@ public class OpgaveAlgoritme implements Runnable {
 	 */
 	public boolean[] getPossibleManeuvers(){
 		int size = 3;
-		double threshold = 15; // TODO Bestemmer hvor stor magnituden i en firkant må være
+		double threshold = 10; // TODO Bestemmer hvor stor magnituden i en firkant må være
 
 		Mat frame = new Mat();
 		frame = ba.getMatFrame();

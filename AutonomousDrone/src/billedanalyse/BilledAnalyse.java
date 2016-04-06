@@ -73,6 +73,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		this.matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
 	}
 
+	@Override
+	public void setQR(boolean qr){
+		this.qr = qr;
+	}
+
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#calcDistances(org.opencv.core.Mat, double, int)
 	 */
@@ -146,6 +151,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			return out;
 		}
 
+		if(this.webcam){
+			frame=this.webcamFrame;				
+		}
+
 		double sqWidth = frame.size().width/size;
 		double sqHeight = frame.size().height/size;
 
@@ -175,6 +184,28 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					//					if(out[i][o] > 20){						
 					//						Imgproc.rectangle(frame, new Point(sqWidth*i, sqHeight*o), new Point(sqWidth*(i+1), sqHeight*(o+1)), new Scalar(0,0,255), 4);
 					//					}
+				} else { // Hvis der ikke spores noget i en kvadrant må vi gå ud fra vi ikke kan flyve den vej
+					out[i][o] = Integer.MAX_VALUE;
+				}
+			}
+		}
+
+		// Tegn røde og grønne firkanter der symboliserer mulige manøvre
+		if(this.webcam){
+			double hStep = 480/size;
+			double vStep = 640/size;
+			int threshold = 10; // Bestemmer hvor stor bevægelse der må være i et kvadrant før det markeres som rødt
+			Scalar red = new Scalar(0,0,255); // Rød farve til stregen
+			Scalar green = new Scalar(0,255,0); // Grøn farve 
+			int thickness = 2; // Tykkelse på stregen
+			for(int i=0; i<size; i++){
+				for(int o=0; o<size; o++){
+					// Tegn rød firkant hvis objektet er for tæt på, ellers tegn grøn firkant
+					if(out[i][o] >= threshold){
+						Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), red, thickness);
+					} else {
+						Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), green, thickness);
+					}
 				}
 			}
 		}
@@ -303,8 +334,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					objectImage = bm.toGray(objectImage);
 					objectImage = bm.medianBlur(objectImage);
 					objectImage = bm.canny(objectImage);
-//										objectImage = bm.eq(objectImage);
-										objectImage = bm.houghLines(objectImage);
+					//										objectImage = bm.eq(objectImage);
+					objectImage = bm.houghLines(objectImage);
 					//					first = bm.filterMat(first);
 					//													first = bm.houghLines(first);
 					//									first = bm.canny(first);
@@ -343,8 +374,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			//			out = bm.gaus(out);
 			//			out = bm.edde(out);
 			out = bm.canny(out);
-//						out = bm.eq(out);
-						out = bm.houghLines(out);
+			//						out = bm.eq(out);
+			out = bm.houghLines(out);
 
 			MatOfKeyPoint sKey = bm.getKeyPoints(out);		
 			Mat s = bm.getDescriptors(out, sKey);
@@ -458,11 +489,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void setGreyScale(boolean greyScale){
 		this.greyScale = greyScale;
 	}
-	
-	@Override
-	public void setQR(boolean qr){
-		this.qr = qr;
-	}
 
 	@Override
 	public void setWebCam(boolean webcam){
@@ -485,6 +511,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		Mat img;
 		boolean interrupted = false;
 		while(!Thread.interrupted() || interrupted){
+			Long startTime = System.currentTimeMillis();
 			try {
 				if(webcam){	
 					if(webcamFrame==null){		
@@ -503,6 +530,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(objTrack){
 					frames[2] = this.trackObject();
 				} 
+				this.calcOptMagnitude(3);
 				//			outFrame[0] = ba.trackObject(frame);
 				//			} else {
 				//				outFrame[0] = frame;						
@@ -518,9 +546,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 
 				//Enable QR-checkBox?
-							if(qr){
-								findQR(matFrame);
-							}
+				if(qr){
+					findQR(matFrame);
+				}
 
 				// convert the Mat object (OpenCV) to Image (JavaFX)
 				for(int i=0; i<frames.length;i++){
@@ -537,14 +565,17 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					interrupted = true;
 				}
 			}
+			if(BilledAnalyse.BILLED_DEBUG){
+				System.out.println("BilledAnalyse færdig på: " + (System.currentTimeMillis() - startTime) + " ms.");				
+			}
 		}
 		System.err.println("*** BilledAnalyse stopper.");
 	}
-	
+
 	public void findQR(Mat frame){
 		QRCodeScanner qrs = new QRCodeScanner();
 		qrs.imageUpdated(frame);
-//		qr_label.setText("hej");
+		//		qr_label.setText("hej");
 	}
 
 	/**
