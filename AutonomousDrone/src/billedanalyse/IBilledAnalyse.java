@@ -63,6 +63,8 @@ public interface IBilledAnalyse {
 	void setObjTrack(boolean objTrack);
 
 	void setGreyScale(boolean greyScale);
+	
+	void setQR(boolean qr);
 
 	void setWebCam(boolean webcam);
 
@@ -71,5 +73,7 @@ public interface IBilledAnalyse {
 	Mat getMatFrame();
 
 	void setImage(Mat frame);
+	
+	void findQR(Mat frame);
 
 }

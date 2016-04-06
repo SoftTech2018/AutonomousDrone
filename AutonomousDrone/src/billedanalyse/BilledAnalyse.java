@@ -60,7 +60,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private MatOfKeyPoint fKey;
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, webcam = true, opticalFlow;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow;
 	private Mat webcamFrame;
 	private Mat matFrame;
 
@@ -458,6 +458,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void setGreyScale(boolean greyScale){
 		this.greyScale = greyScale;
 	}
+	
+	@Override
+	public void setQR(boolean qr){
+		this.qr = qr;
+	}
 
 	@Override
 	public void setWebCam(boolean webcam){
@@ -513,9 +518,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 
 				//Enable QR-checkBox?
-				//			if(qr){
-				//				findQR(frames);
-				//			}
+							if(qr){
+								findQR(matFrame);
+							}
 
 				// convert the Mat object (OpenCV) to Image (JavaFX)
 				for(int i=0; i<frames.length;i++){
@@ -534,6 +539,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			}
 		}
 		System.err.println("*** BilledAnalyse stopper.");
+	}
+	
+	public void findQR(Mat frame){
+		QRCodeScanner qrs = new QRCodeScanner();
+		qrs.imageUpdated(frame);
+//		qr_label.setText("hej");
 	}
 
 	/**

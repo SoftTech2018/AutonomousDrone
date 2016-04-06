@@ -545,11 +545,11 @@ public class GuiController {
 
 
 
-	private void findQR(Mat frame){
-		QRCodeScanner qrs = new QRCodeScanner();
-		qrs.imageUpdated(frame);
-		qr_label.setText("hej");
-	}
+//	private void findQR(Mat frame){
+//		QRCodeScanner qrs = new QRCodeScanner();
+//		qrs.imageUpdated(frame);
+//		qr_label.setText("hej");
+//	}
 
 	@FXML
 	void colorChange(ActionEvent event) {
@@ -567,12 +567,15 @@ public class GuiController {
 			System.out.println("Debug: GuiController.searhQR() kaldt! " + event.getSource().toString());
 		}
 		// Hvis der klikkes på QR_checkbox
-		if(event.getSource().equals(qr_checkBox)){
-			if(qr)
-				qr = false;
-			else
-				qr = true;
-		}
+		qr = !qr;
+		ba.setQR(qr);
+		
+//		if(event.getSource().equals(qr_checkBox)){
+//			if(qr)
+//				qr = false;
+//			else
+//				qr = true;
+//		}
 	}
 
 	@FXML
