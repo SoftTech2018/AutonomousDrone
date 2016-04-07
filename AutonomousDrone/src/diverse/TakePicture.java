@@ -30,9 +30,6 @@ public class TakePicture {
 				e.printStackTrace();
 			}
 
-			//Kode til at tage billede fra drone 
-			TakePicture picture = new TakePicture(dc);
-			picture.takePicture();
 		}
 	}
 }
