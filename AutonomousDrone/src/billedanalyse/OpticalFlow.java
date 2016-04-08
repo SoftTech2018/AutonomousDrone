@@ -24,6 +24,11 @@ public class OpticalFlow {
 		this.bm = bm;
 	}
 	
+	/**
+	 * Hent de sidst fundne vektorer mellem to analyserede billeder. 
+	 * Listen er renset for usandsynlige matches.
+	 * @return ArrayList af vektorer
+	 */
 	public ArrayList<Vektor> getVektorArray(){		
 		return vList;
 	}
@@ -34,6 +39,14 @@ public class OpticalFlow {
 		return klon;
 	}
 	
+	/**
+	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame. 
+	 * Optical Flow udføres først anden gang metoden kaldes.
+	 * @param frame Frame der bliver påtegnet vektorer
+	 * @param optFlow Hvorvidt der skal udføres Optical Flow
+	 * @param objTrack Hvorvidt der skal trackes objekter
+	 * @return Mat frame - påtegnet resultatet (vektorer)
+	 */
 	public Mat optFlow(Mat second, boolean optFlow){
 		if(optFlow){
 			// Første gang metoden kaldes gemmes billedet og der tegnes ingen vektorer.
@@ -144,20 +157,17 @@ public class OpticalFlow {
 				debug = debug + " Punkter fundet: " + vList.size() + ", ud af: " + sKey.size();
 				System.out.println(debug);	
 			}
-
-			
-
-			//			this.calcOptMagnitude(vList, sOrg, 3); // TEST KODE
-			//			out[0] = this.calcDistances(sOrg, vList, 17, 6); // TEST KODE
-
 			return out;
 		} else {
 			return second;
 		}
 	}
 
+	/**
+	 * Hent den sidst behandlede frame
+	 * @return Mat frame
+	 */
 	public Mat getFrame() {
 		return first;
 	}
-
 }

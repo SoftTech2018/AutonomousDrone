@@ -12,6 +12,7 @@ public class TakePicture {
 
 	private BufferedImage image;
 	private IDroneControl dc;
+	private int counter = 0;
 
 	public TakePicture(IDroneControl dc) {
 		this.dc = dc;
@@ -20,16 +21,14 @@ public class TakePicture {
 	public void takePicture() {
 		System.out.println("Forsøger at tage et billede");
 		image = dc.getbufImg();
-		File outputfile = new File(".\\droneImage.jpg"); {
-
-			try {
-				ImageIO.write(image, "jpg", outputfile);
-				System.out.println("Billede gemt");
-			} catch (IOException e) {
-				System.out.println("Kunne ikke gemme billedet");
-				e.printStackTrace();
-			}
-
+		File outputfile = new File(".\\droneImage" + counter + ".jpg"); 
+		try {
+			ImageIO.write(image, "jpg", outputfile);
+			System.out.println("Billede gemt");
+			counter++;
+		} catch (IOException e) {
+			System.out.println("Kunne ikke gemme billedet");
+			e.printStackTrace();
 		}
 	}
 }

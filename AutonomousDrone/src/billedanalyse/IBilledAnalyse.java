@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfKeyPoint;
 
 import javafx.scene.image.Image;
 
@@ -29,33 +28,19 @@ public interface IBilledAnalyse {
 	 */
 	double[][] calcOptMagnitude(int size);
 
-	/**
-	 * Finder matches mellem to billeder og forbinder dem med en streg
-	 * @param first Første billede
-	 * @param second Andet billede
-	 * @return Kombineret billede med streger mellem matches
-	 */
-	Mat drawMatches(Mat first, Mat second);
-
-	MatOfKeyPoint getKP();
-
 	void qrread(Mat frame);
 
 	Mat bufferedImageToMat(BufferedImage bi);
 
-
-	/**
-	 * Udfører Optical Flow analyse mellem to frames og tegner resultatet på det returnede frame. 
-	 * Optical Flow udføres først anden gang metoden kaldes.
-	 * @param frame Frame der bliver påtegnet vektorer
-	 * @param optFlow Hvorvidt der skal udføres Optical Flow
-	 * @param objTrack Hvorvidt der skal trackes objekter
-	 * @return Mat frame - påtegnet resultatet (vektorer)
-	 */
-
-
 	ArrayList<Vektor> getVektorArray();
 
+	/**
+	 * Hent et array af behandlede images
+	 * Image[0] er det originale farvebillede
+	 * Image[1] er optical flow behandlet billede
+	 * Image[2] er object tracking billede
+	 * @return 
+	 */
 	Image[] getImages();
 
 	void setImg(Mat frame);
@@ -70,6 +55,10 @@ public interface IBilledAnalyse {
 
 	void setOpticalFlow(boolean opticalFlow);
 
+	/**
+	 * Hent den seneste ubehandlede Mat frame
+	 * @return
+	 */
 	Mat getMatFrame();
 
 	void setImage(Mat frame);

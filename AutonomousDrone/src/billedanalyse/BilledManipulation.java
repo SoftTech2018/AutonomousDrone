@@ -1,8 +1,11 @@
 package billedanalyse;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayInputStream;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfKeyPoint;
@@ -14,6 +17,8 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+
+import javafx.scene.image.Image;
 
 /**
  * Hjælpeklasse der indeholder en række metoder til at manipulere billeder
@@ -217,6 +222,30 @@ public class BilledManipulation {
 		Mat descriptors = new Mat();
 		extractor.compute(mat, kp, descriptors);
 		return descriptors;
+	}
+	
+	/**
+	 * Convert a Mat object (OpenCV) in the corresponding Image for JavaFX
+	 * 
+	 * @param frame
+	 *            the {@link Mat} representing the current frame
+	 * @return the {@link Image} to show
+	 */
+	protected Image mat2Image(Mat frame){
+		// create a temporary buffer
+		MatOfByte buffer = new MatOfByte();
+		// encode the frame in the buffer
+		Imgcodecs.imencode(".png", frame, buffer);
+		// build and return an Image created from the image encoded in the
+		// buffer
+		return new Image(new ByteArrayInputStream(buffer.toArray()));
+	}
+	
+	protected Mat bufferedImageToMat(BufferedImage bi) {
+		Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+		byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+		mat.put(0, 0, data);
+		return mat;
 	}
 
 }
