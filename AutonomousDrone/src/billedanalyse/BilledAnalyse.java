@@ -1,32 +1,11 @@
 package billedanalyse;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import javax.imageio.ImageIO;
-
-import org.opencv.calib3d.Calib3d;
-import org.opencv.core.CvType;
-import org.opencv.core.DMatch;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfDMatch;
-import org.opencv.core.MatOfKeyPoint;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.features2d.DescriptorMatcher;
-import org.opencv.features2d.Features2d;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import com.google.zxing.BinaryBitmap;
@@ -39,7 +18,6 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 
-import drone.DroneControl;
 import drone.IDroneControl;
 import javafx.scene.image.Image;
 
@@ -217,39 +195,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		return out;
 	}
 
-	/**
-	 * Finder matches mellem to billeder og forbinder dem med en streg
-	 * @param first Første billede
-	 * @param second Andet billede
-	 * @return Kombineret billede med streger mellem matches
-	 */
-	private Mat drawMatches(Mat first, Mat second){
-		// DEBUG
-		long startTime = System.nanoTime();
-
-		MatOfKeyPoint fKey = bm.getKeyPoints(first);
-		MatOfKeyPoint sKey = bm.getKeyPoints(second);		
-		Mat f = bm.getDescriptors(first, fKey);
-		Mat s = bm.getDescriptors(second, sKey);
-
-		DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE);
-		MatOfDMatch dmatches = new MatOfDMatch();
-		matcher.match(f, s, dmatches);
-		Mat out = new Mat();
-		Features2d.drawMatches(first, fKey, second, sKey, dmatches, out);
-		//		Features2d.drawMatches(img1, keypoints1, img2, keypoints2, matches1to2, outImg, matchColor, singlePointColor, matchesMask, flags);
-
-		if(BILLED_DEBUG){
-			long total = System.nanoTime() - startTime;
-			long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
-			String debug = "Matches fundet på: " + durationInMs + " milisekunder";
-			System.out.println(debug);	
-		}
-
-		return out;
-	}
-
-
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#qrread(org.opencv.core.Mat)
 	 */
@@ -412,5 +357,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	@Override
 	public String getQrt(){
 		return qrs.getQrt();
+	}
+
+	@Override
+	public Point getObjectCenter() {
+		return this.objTracker.getObjectCenter();
 	}
 }

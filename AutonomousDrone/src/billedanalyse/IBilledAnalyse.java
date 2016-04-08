@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
 import javafx.scene.image.Image;
 
@@ -29,6 +30,12 @@ public interface IBilledAnalyse {
 	double[][] calcOptMagnitude(int size);
 
 	void qrread(Mat frame);
+	
+	/**
+	 * Giver det senest fundne centerpunkt på det trackede objekt.
+	 * @return Centerpunktet i pixelværdier
+	 */
+	Point getObjectCenter();
 
 	Mat bufferedImageToMat(BufferedImage bi);
 

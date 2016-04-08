@@ -20,44 +20,49 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.features2d.DescriptorMatcher;
+import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 
 public class ObjectTracking {
-	
+
 	private OpticalFlow op;
 	private BilledManipulation bm;
-	
+
 	private Mat objectImage;
 	private Mat objectDescriptors;
 	private MatOfKeyPoint fKey;
 	private DescriptorMatcher matcher;
-	
+	private Point centerPoint;
+
 	public ObjectTracking(OpticalFlow opFlow, BilledManipulation bm){
 		this.op = opFlow;
 		this.bm = bm;
 		this.matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
 	}
-	
+
+	private Mat procesMat(Mat frame){
+		//		frame = bm.gaus(frame);
+		//		frame = bm.medianBlur(frame);
+		//		frame = bm.canny(frame);
+		frame = bm.eq(frame);
+		//		frame = bm.houghLines(frame);
+		//					frame = bm.filterMat(frame);
+		//					frame = bm.canny(frame);
+		return frame;
+	}
+
 	protected Mat trackObject(){
 		Mat out = new Mat();
-		this.op.getFrame().copyTo(out);;
+		this.op.getFrame().copyTo(out);
 		try {
-			if(objectImage==null){
+			if(objectImage==null){ // Første gang metoden kaldes indlæses og behandles objektbilledet
 				try {
 					BufferedImage img = ImageIO.read(new File(".\\test.png"));
-					objectImage = bm.bufferedImageToMat(img);
-					//					first = bm.gaus(first);
+					objectImage = bm.bufferedImageToMat(img);	
 					objectImage = bm.edde(objectImage);
 					objectImage = bm.thresh(objectImage);
 					objectImage = bm.toGray(objectImage);
-					objectImage = bm.medianBlur(objectImage);
-					objectImage = bm.canny(objectImage);
-					//										objectImage = bm.eq(objectImage);
-					objectImage = bm.houghLines(objectImage);
-					//					first = bm.filterMat(first);
-					//													first = bm.houghLines(first);
-					//									first = bm.canny(first);
-
+					objectImage = this.procesMat(objectImage);
 					fKey = bm.getKeyPoints(objectImage);
 					objectDescriptors = bm.getDescriptors(objectImage, fKey);
 				} catch (IOException e) {
@@ -86,21 +91,14 @@ public class ObjectTracking {
 			//			}
 			//			if(true)
 			//				return out;
-			//			out = bm.toGray(out);
-			out = bm.medianBlur(out);
-			//			out = bm.thresh(out);
-			//			out = bm.gaus(out);
-			//			out = bm.edde(out);
-			out = bm.canny(out);
-			//						out = bm.eq(out);
-			out = bm.houghLines(out);
+
+			out = this.procesMat(out);
 
 			MatOfKeyPoint sKey = bm.getKeyPoints(out);		
 			Mat s = bm.getDescriptors(out, sKey);
 			if(s.empty()){
 				return out;
 			}
-			//			System.out.println(s.size().toString());
 
 			//			MatOfDMatch dmatches = new MatOfDMatch();
 			//			matcher.match(f, s, dmatches);
@@ -162,7 +160,10 @@ public class ObjectTracking {
 				return out;
 			}
 
-			//	    Features2d.drawMatches(first, fKey, second, sKey, better_matches_mat, out);
+			//			Mat out2 = new Mat();
+			//			Features2d.drawMatches(objectImage, fKey, out, sKey, better_matches_mat, out2);
+			//			if(true)
+			//				return out2;
 
 			// Beregn center af de bedste matches, og tegn en firkant rundt om objektet
 			double centroidX = 0, centroidY = 0;
@@ -183,6 +184,7 @@ public class ObjectTracking {
 				Point p1 = new Point(centroidX/best_matches.size()-50, centroidY/best_matches.size()-50);
 				Point p2 = new Point(centroidX/best_matches.size()+50, centroidY/best_matches.size()+50);
 				Imgproc.rectangle(out, p1, p2, new Scalar(255,0,0), 5); // TODO erstat evt frame med out
+				centerPoint = new Point(centroidX/best_matches.size(), centroidY/best_matches.size());
 			} 
 
 			if(BilledAnalyse.BILLED_DEBUG){
@@ -192,9 +194,43 @@ public class ObjectTracking {
 				System.out.println(debug);	
 			}
 		} catch (Exception e){
+			e.printStackTrace();
 			return out;
 		}
 
+		return out;
+	}
+	
+	protected Point getObjectCenter(){
+		return centerPoint;
+	}
+
+
+	/**
+	 * Finder matches mellem to billeder og forbinder dem med en streg
+	 * @param first Første billede
+	 * @param second Andet billede
+	 * @return Kombineret billede med streger mellem matches
+	 */
+	protected Mat drawMatches(Mat first, Mat second){
+		long startTime = System.nanoTime();// DEBUG
+		MatOfKeyPoint fKey = bm.getKeyPoints(first);
+		MatOfKeyPoint sKey = bm.getKeyPoints(second);		
+		Mat f = bm.getDescriptors(first, fKey);
+		Mat s = bm.getDescriptors(second, sKey);
+
+		//		DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE);
+		MatOfDMatch dmatches = new MatOfDMatch();
+		matcher.match(f, s, dmatches);
+		Mat out = new Mat();
+		Features2d.drawMatches(first, fKey, second, sKey, dmatches, out);
+		//		Features2d.drawMatches(img1, keypoints1, img2, keypoints2, matches1to2, outImg, matchColor, singlePointColor, matchesMask, flags);
+		if(BilledAnalyse.BILLED_DEBUG){
+			long total = System.nanoTime() - startTime;
+			long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
+			String debug = "Matches fundet på: " + durationInMs + " milisekunder";
+			System.out.println(debug);	
+		}
 		return out;
 	}
 
