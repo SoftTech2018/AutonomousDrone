@@ -9,7 +9,10 @@ import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.IBilledAnalyse;
 import de.yadrone.base.command.LEDAnimation;
+import diverse.Genstand;
+import diverse.Koordinat;
 import diverse.Log;
+import diverse.OpgaveRum;
 
 public class OpgaveAlgoritme implements Runnable {
 
@@ -21,6 +24,7 @@ public class OpgaveAlgoritme implements Runnable {
 
 	private IDroneControl dc;
 	private IBilledAnalyse ba;
+	private OpgaveRum opgrum;
 	protected boolean doStop = false;
 	private boolean flying = false;
 
@@ -216,7 +220,10 @@ public class OpgaveAlgoritme implements Runnable {
 			}
 		}
 		if(targetFound()){
-			Log.writeLog("** Målsøgning afsluttes. Mål fundet.");
+			Log.writeLog("**Mål fundet.");
+			Koordinat koord = new Koordinat(0, 0 /*Der skal udregnes en metode til at finde x og y*/);
+			Genstand genstand = new Genstand(null /*Farve skal hentes fra en Optical Flow metode*/);
+			opgrum.addGenstandTilKoordinat(koord, genstand);
 			return true;
 		}
 		if(OPGAVE_DEBUG){
@@ -225,6 +232,7 @@ public class OpgaveAlgoritme implements Runnable {
 		Log.writeLog("** Målsøgning afsluttes. Mål IKKE fundet.");
 		return false;
 	}
+	
 
 	/**
 	 * Hvis opgaven afbrydes af brugeren kaldes denne metode. Dronen lander øjeblikkeligt.
