@@ -27,7 +27,7 @@ public class DroneControl implements IDroneControl {
 	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
 	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
 	 */
-	private final boolean TEST_MODE = false;
+	private final boolean TEST_MODE = true;
 
 	private IARDrone drone;
 	private CommandManager cmd;
@@ -99,7 +99,8 @@ public class DroneControl implements IDroneControl {
 				if(DRONE_DEBUG){
 					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
 				}
-				bufImgOut = arg0;
+				DroneControl.this.setImg(arg0);
+//				bufImgOut = arg0;
 //				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	
 			}		
 		});
@@ -110,8 +111,12 @@ public class DroneControl implements IDroneControl {
 //		return (Image) imageOutput;
 //	}
 	
+	private synchronized void setImg(BufferedImage img){
+		bufImgOut = img;
+	}
+	
 	@Override
-	public BufferedImage getbufImg(){
+	public synchronized BufferedImage getbufImg(){
 		return bufImgOut;
 	}
 

@@ -251,11 +251,13 @@ public class GuiController {
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
 						// convert the Mat object (OpenCV) to Image (JavaFX)
+						long start = System.currentTimeMillis();
 						for(int i=0; i<frames.length;i++){
 							if(frames[i] != null){
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
 						}
+						System.err.println("Tid: " + Long.toString(start - System.currentTimeMillis()));
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -392,11 +394,13 @@ public class GuiController {
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
 						// convert the Mat object (OpenCV) to Image (JavaFX)
+//						long start = System.currentTimeMillis();
 						for(int i=0; i<frames.length;i++){
 							if(frames[i] != null){
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
 						}
+//						System.err.println("Tid: " + Long.toString(System.currentTimeMillis() - start));
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking

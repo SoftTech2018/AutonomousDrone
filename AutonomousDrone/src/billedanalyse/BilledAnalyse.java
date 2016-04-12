@@ -26,7 +26,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
 	 */
-	protected static final boolean BILLED_DEBUG = true;
+	protected static final boolean BILLED_DEBUG = false;
 
 	private BilledManipulation bm;
 	private OpticalFlow opFlow;
