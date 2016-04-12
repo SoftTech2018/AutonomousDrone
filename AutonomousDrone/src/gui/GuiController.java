@@ -248,7 +248,14 @@ public class GuiController {
 							}	
 						});
 					} else {
-						Image imageToShow[] = ba.getImages();
+						Image imageToShow[] = new Image[3];
+						Mat frames[] = ba.getImages();
+						// convert the Mat object (OpenCV) to Image (JavaFX)
+						for(int i=0; i<frames.length;i++){
+							if(frames[i] != null){
+								imageToShow[i] = ba.mat2Image(frames[i]);
+							}
+						}
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -311,7 +318,14 @@ public class GuiController {
 			frameGrabber = new Runnable() {
 				@Override
 				public void run(){
-					Image imageToShow[] = ba.getImages();
+					Image imageToShow[] = new Image[3];
+					Mat frames[] = ba.getImages();
+					// convert the Mat object (OpenCV) to Image (JavaFX)
+					for(int i=0; i<frames.length;i++){
+						if(frames[i] != null){
+							imageToShow[i] = ba.mat2Image(frames[i]);
+						}
+					}
 					currentFrame.setImage(imageToShow[0]); // Main billede
 					optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 					objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -375,7 +389,14 @@ public class GuiController {
 								e.printStackTrace();
 							}
 						}
-						Image imageToShow[] = ba.getImages();
+						Image imageToShow[] = new Image[3];
+						Mat frames[] = ba.getImages();
+						// convert the Mat object (OpenCV) to Image (JavaFX)
+						for(int i=0; i<frames.length;i++){
+							if(frames[i] != null){
+								imageToShow[i] = ba.mat2Image(frames[i]);
+							}
+						}
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -440,7 +461,14 @@ public class GuiController {
 				frameGrabber = new Runnable() {
 					@Override
 					public void run(){
-						Image imageToShow[] = ba.getImages();
+						Image imageToShow[] = new Image[3];
+						Mat frames[] = ba.getImages();
+						// convert the Mat object (OpenCV) to Image (JavaFX)
+						for(int i=0; i<frames.length;i++){
+							if(frames[i] != null){
+								imageToShow[i] = ba.mat2Image(frames[i]);
+							}
+						}
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking

@@ -48,7 +48,7 @@ public interface IBilledAnalyse {
 	 * Image[2] er object tracking billede
 	 * @return 
 	 */
-	Image[] getImages();
+	Mat[] getImages();
 
 	void setImg(Mat frame);
 
@@ -73,5 +73,7 @@ public interface IBilledAnalyse {
 	void findQR(Mat frame);
 	
 	String getQrt();
+
+	Image mat2Image(Mat mat);
 
 }

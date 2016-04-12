@@ -276,8 +276,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	@Override
-	public Image[] getImages(){
-		return this.imageToShow;
+	public Mat[] getImages(){
+		return this.frames;
 	}
 
 	@Override
@@ -298,7 +298,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 				img = resize(img, 640, 480);
 				matFrame = img;
-				frames[0] = img;
+				
 				if(opticalFlow || objTrack){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
 				}
@@ -306,7 +306,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					frames[2] = objTracker.trackObject();
 				} 
 //				this.calcOptMagnitude(3);
-
+				frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						
 					frames[0] = bm.filterMat(frames[0]);
@@ -317,12 +317,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					findQR(matFrame);
 				}
 
-				// convert the Mat object (OpenCV) to Image (JavaFX)
-				for(int i=0; i<frames.length;i++){
-					if(frames[i] != null){
-						imageToShow[i] = bm.mat2Image(frames[i]);
-					}
-				}
 			} catch (NullPointerException e){
 				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
 				try {
@@ -362,5 +356,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	@Override
 	public Point getObjectCenter() {
 		return this.objTracker.getObjectCenter();
+	}
+
+	@Override
+	public Image mat2Image(Mat mat) {
+		return bm.mat2Image(mat);
 	}
 }
