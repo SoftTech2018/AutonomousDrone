@@ -26,7 +26,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
 	 */
-	protected static final boolean BILLED_DEBUG = false;
+	protected static final boolean BILLED_DEBUG = true;
 
 	private BilledManipulation bm;
 	private OpticalFlow opFlow;
@@ -328,7 +328,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 			}
 			if(BilledAnalyse.BILLED_DEBUG){
-				System.out.println("BilledAnalyse færdig på: " + (System.currentTimeMillis() - startTime) + " ms.");				
+				System.out.println("*** BilledAnalyse færdig på: " + (System.currentTimeMillis() - startTime) + " ms. ****");				
 			}
 		}
 		System.err.println("*** BilledAnalyse stopper.");

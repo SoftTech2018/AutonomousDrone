@@ -160,7 +160,10 @@ public class OpgaveAlgoritme implements Runnable {
 		int degrees = 15;
 		int turns = 0;
 		long targetStartTime = System.currentTimeMillis();
-		while(!targetFound() || (System.currentTimeMillis() - targetStartTime) > searchTime){ // Der søges i max 30 sek
+		while((System.currentTimeMillis() - targetStartTime) < searchTime){ // Der søges i max 30 sek
+			if(targetFound()){
+				break;
+			}
 			if(Thread.interrupted()){
 				destroy();
 				return false;

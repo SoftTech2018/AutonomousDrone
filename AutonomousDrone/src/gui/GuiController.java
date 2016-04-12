@@ -409,7 +409,7 @@ public class GuiController {
 							@Override
 							public void run() {
 								if(QrText!=null){
-									System.out.println("Dette er test print "+QrText);
+//									System.out.println("Dette er test print "+QrText);
 									qrt.set(QrText); // qr kode text
 								}
 							}

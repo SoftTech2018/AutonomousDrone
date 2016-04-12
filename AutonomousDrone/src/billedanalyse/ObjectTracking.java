@@ -115,7 +115,7 @@ public class ObjectTracking {
 				}
 			}
 			if(BilledAnalyse.BILLED_DEBUG){				
-				System.err.println("Antal good_matches: " + good_matches.toArray().length);
+				System.out.println("Antal good_matches: " + good_matches.toArray().length);
 			}
 			if(good_matches.toArray().length < 50){
 				return out;
@@ -153,7 +153,7 @@ public class ObjectTracking {
 			List<DMatch> best_matches = better_matches_mat.toList();
 
 			if(BilledAnalyse.BILLED_DEBUG){
-				System.err.println("Antal best_matches: " + best_matches.size());				
+				System.out.println("Antal best_matches: " + best_matches.size());				
 			}
 
 			if(best_matches.isEmpty() || best_matches == null){
@@ -171,7 +171,7 @@ public class ObjectTracking {
 			double score = (double) best_matches.size() / good_matches.toArray().length;
 
 			if(BilledAnalyse.BILLED_DEBUG){
-				System.out.printf("Matchet %.2f procent\n", score*100);
+				System.out.printf("* Matchet %.2f procent *\n", score*100);
 			}
 
 			if(score > 0.3){
