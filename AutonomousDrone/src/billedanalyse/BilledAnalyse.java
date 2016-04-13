@@ -299,6 +299,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 						continue;
 					}
 					img = this.webcamFrame;
+					bufimg = bm.mat2bufImg(img);
 				} else {
 					if((bufimg = dc.getbufImg())==null){ // Vent 5 ms, og start while løkke forfra
 						Thread.sleep(5);
