@@ -191,7 +191,10 @@ public class OpgaveAlgoritme implements Runnable {
 				Log.writeLog("Intet mål fundet. Dronen skal flyttes.");
 
 				long startTime = System.currentTimeMillis();
-				while(targetFound()==false || (System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
+				while((System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
+					if(targetFound()){
+						break;
+					}
 					if(Thread.interrupted()){
 						destroy();
 						return false;
@@ -201,22 +204,33 @@ public class OpgaveAlgoritme implements Runnable {
 					for(int i=0; i<retninger.length;i++){
 						muligeRetninger += retninger[i] + ", ";
 					}
-					Log.writeLog(muligeRetninger);
+					Log.writeLog(muligeRetninger + " : " + retninger.length);
+					boolean flyver = false;
 					if(retninger[4]){
 						Log.writeLog("FLYVER FREMAD");
+						flyver = true;
 						dc.forward();
 					} else if(retninger[2]){
 						Log.writeLog("DREJER VENSTRE");
+						flyver = true;
 						dc.turnLeft();
 					} else if(retninger[3]){
 						Log.writeLog("DREJER HØJRE");
+						flyver = true;
 						dc.turnRight();
 					} else if(retninger[1]){
 						Log.writeLog("FLYVER OP");
+						flyver = true;
 						dc.up();
 					} else if(retninger[0]){
 						Log.writeLog("FLYVER NED");
+						flyver = true;
 						dc.down();
+					}
+					if(flyver == false){
+						Log.writeLog("DREJER HØJRE");
+						flyver = true;
+						dc.turnRight();
 					}
 				}
 				turns = 0;
