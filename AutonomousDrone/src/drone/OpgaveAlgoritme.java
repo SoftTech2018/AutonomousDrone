@@ -37,8 +37,9 @@ public class OpgaveAlgoritme implements Runnable {
 	 * WARNING - USE AT OWN RISK
 	 * This method will attempt to start SKYNET
 	 * WARNING - USE AT OWN RISK
+	 * @throws InterruptedException 
 	 */
-	public void startOpgaveAlgoritme() {
+	public void startOpgaveAlgoritme() throws InterruptedException {
 		Log.writeLog("*** OpgaveAlgoritmen startes. ***");
 		dc.setTimeMode(true);
 		dc.setFps(15);
@@ -150,8 +151,9 @@ public class OpgaveAlgoritme implements Runnable {
 
 	/**
 	 * Afsøg rummet indtil der findes et target
+	 * @throws InterruptedException 
 	 */
-	private boolean findTarget() {
+	private boolean findTarget() throws InterruptedException {
 		if(OPGAVE_DEBUG){
 			System.err.println("Målsøgning startes.");
 		}
@@ -448,6 +450,11 @@ public class OpgaveAlgoritme implements Runnable {
 
 	@Override
 	public void run() {
-		this.startOpgaveAlgoritme();		
+		try {
+			this.startOpgaveAlgoritme();
+		} catch (InterruptedException e) {
+			this.destroy();
+			return;
+		}		
 	}
 }

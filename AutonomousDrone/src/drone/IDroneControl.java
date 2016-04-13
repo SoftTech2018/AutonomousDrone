@@ -13,21 +13,21 @@ public interface IDroneControl {
 
 	void hover();
 
-	void up();
+	void up() throws InterruptedException;
 
-	void down();
+	void down() throws InterruptedException;
 
-	void forward();
+	void forward() throws InterruptedException;
 
-	void backward();
+	void backward() throws InterruptedException;
 
-	void left();
+	void left() throws InterruptedException;
 
-	void right();
+	void right() throws InterruptedException;
 
-	void turnLeft();
+	void turnLeft() throws InterruptedException;
 
-	void turnRight();
+	void turnRight() throws InterruptedException;
 
 //	Image getImage();
 

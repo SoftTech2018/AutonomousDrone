@@ -546,22 +546,42 @@ public class GuiController {
 
 	@FXML
 	void goForward(ActionEvent event) {
-		dc.forward();
+		try {
+			dc.forward();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	void turnLeft(ActionEvent event) {
-		dc.turnLeft();
+		try {
+			dc.turnLeft();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	void goBack(ActionEvent event) {
-		dc.backward();
+		try {
+			dc.backward();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	void turnRight(ActionEvent event) {
-		dc.turnRight();
+		try {
+			dc.turnRight();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
@@ -610,22 +630,42 @@ public class GuiController {
 
 	@FXML
 	void goLeft(ActionEvent event) {
-		dc.left();
+		try {
+			dc.left();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	void goRight(ActionEvent event) {
-		dc.right();
+		try {
+			dc.right();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	void flyUp(ActionEvent event) {
-		dc.up();
+		try {
+			dc.up();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	void flyDown(ActionEvent event) {
-		dc.down();
+		try {
+			dc.down();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@FXML

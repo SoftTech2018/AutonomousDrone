@@ -176,14 +176,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#up()
 	 */
 	@Override
-	public void up(){
+	public void up() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Op");
 		}
 		if(!timeMode){
 			cmd.up(SPEED*5);
 		} else {
-			cmd.up(SPEED*5).doFor(DURATION);			
+			cmd.up(SPEED*5).doFor(DURATION);
+			Thread.sleep(DURATION);
 		}
 
 		//		cmd.hover();
@@ -193,14 +194,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#down()
 	 */
 	@Override
-	public void down(){
+	public void down() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Ned");
 		}
 		if(!timeMode){
 			cmd.down(SPEED*5);
 		} else {
-			cmd.down(SPEED*5).doFor(DURATION);			
+			cmd.down(SPEED*5).doFor(DURATION);		
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
@@ -209,14 +211,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#forward()
 	 */
 	@Override
-	public void forward(){
+	public void forward() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Fremad");
 		}
 		if(!timeMode){
 			cmd.forward(SPEED);
 		} else {
-			cmd.forward(SPEED).doFor(DURATION);			
+			cmd.forward(SPEED).doFor(DURATION);		
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
@@ -225,14 +228,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#backward()
 	 */
 	@Override
-	public void backward(){
+	public void backward() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Baglæns");
 		}
 		if(!timeMode){
 			cmd.backward(SPEED);
 		} else {
-			cmd.backward(SPEED).doFor(DURATION);			
+			cmd.backward(SPEED).doFor(DURATION);	
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
@@ -241,14 +245,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#left()
 	 */
 	@Override
-	public void left(){
+	public void left() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Venstre");
 		}
 		if(!timeMode){
 			cmd.goLeft(SPEED);
 		} else {
-			cmd.goLeft(SPEED).doFor(DURATION);			
+			cmd.goLeft(SPEED).doFor(DURATION);	
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
@@ -257,7 +262,7 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#right()
 	 */
 	@Override
-	public void right(){
+	public void right() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Flyver Højre");
 		}
@@ -265,6 +270,7 @@ public class DroneControl implements IDroneControl {
 			cmd.goRight(SPEED);
 		} else {
 			cmd.goRight(SPEED).doFor(DURATION);			
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
@@ -273,14 +279,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#turnLeft()
 	 */
 	@Override
-	public void turnLeft(){
+	public void turnLeft() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Drejer Venstre");
 		}
 		if(!timeMode){
 			cmd.spinLeft(SPEED*8);
 		} else {
-			cmd.spinLeft(SPEED*8).doFor(DURATION);			
+			cmd.spinLeft(SPEED*8).doFor(DURATION);	
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
@@ -289,14 +296,15 @@ public class DroneControl implements IDroneControl {
 	 * @see drone.IDroneControl#turnRight()
 	 */
 	@Override
-	public void turnRight(){
+	public void turnRight() throws InterruptedException{
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Drejer Højre");
 		}
 		if(!timeMode){
 			cmd.spinRight(SPEED*10);
 		} else {
-			cmd.spinRight(SPEED*10).doFor(DURATION);			
+			cmd.spinRight(SPEED*10).doFor(DURATION);	
+			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
 	}
