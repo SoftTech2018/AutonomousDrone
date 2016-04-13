@@ -1,6 +1,8 @@
 package billedanalyse;
 
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -302,6 +304,16 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 //				System.err.println("Højde: " + img.size().height + ", Bredde: " + img.size().width);
 //				img = resize(img, 640, 480);
+				
+//				BufferedImage bufResize = new BufferedImage(bufimg.getWidth()/2, bufimg.getHeight()/2,
+//				        BufferedImage.TYPE_BYTE_INDEXED);
+//
+//				    AffineTransform tx = new AffineTransform();
+//				    tx.scale(1, 2);
+//
+//				    AffineTransformOp op = new AffineTransformOp(tx,
+//				        AffineTransformOp.TYPE_BILINEAR);
+//				    bufimg = op.filter(bufimg, null);
 
 				matFrame = img;
 				

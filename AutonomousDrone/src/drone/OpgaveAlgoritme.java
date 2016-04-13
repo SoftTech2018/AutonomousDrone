@@ -310,10 +310,10 @@ public class OpgaveAlgoritme implements Runnable {
 
 		double magnitudes[][] = ba.calcOptMagnitude(size); // Beregn Magnituden (baseret på Optical Flow vektorer)
 
-		Point center = new Point(640/2, 480/2);
+		Point center = new Point(640/2, 360/2);
 		double x = center.x;
 		double y = center.y;
-		double hStep = 480/size;
+		double hStep = 360/size;
 		double vStep = 640/size;
 
 		// Mulige manøvre

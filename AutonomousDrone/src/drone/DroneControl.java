@@ -34,7 +34,7 @@ public class DroneControl implements IDroneControl {
 	private NavDataManager ndm;
 	
 	//TurnLeft og TurnRight ganges med faktor 8-10, up og down ganges med faktor 5
-	private final int SPEED = 10; /* % */ 
+	private final int SPEED = 5; /* % */ 
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 2000; /* mm */
 	private final int DURATION = 100; /* ms */
