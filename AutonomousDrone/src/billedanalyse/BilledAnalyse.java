@@ -200,29 +200,29 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		return out;
 	}
 
-	/* (non-Javadoc)
-	 * @see billedanalyse.IBilledAnalyse#qrread(org.opencv.core.Mat)
-	 */
-	@Override
-	public void qrread(Mat frame){	
-		BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
-				new BufferedImageLuminanceSource(bm.mat2bufImg(frame))));
-		Reader reader = new QRCodeMultiReader();
-
-		try {							
-			Result qrout = reader.decode(binaryBitmap);
-			System.out.println(qrout.getText());
-			System.out.println("HIT");
-		} catch (NotFoundException e) {
-
-		} catch (ChecksumException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	/* (non-Javadoc)
+//	 * @see billedanalyse.IBilledAnalyse#qrread(org.opencv.core.Mat)
+//	 */
+//	@Override
+//	public void qrread(Mat frame){	
+//		BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
+//				new BufferedImageLuminanceSource(bm.mat2bufImg(frame))));
+//		Reader reader = new QRCodeMultiReader();
+//
+//		try {							
+//			Result qrout = reader.decode(binaryBitmap);
+//			System.out.println(qrout.getText());
+//			System.out.println("HIT");
+//		} catch (NotFoundException e) {
+//
+//		} catch (ChecksumException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (FormatException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#bufferedImageToMat(java.awt.image.BufferedImage)

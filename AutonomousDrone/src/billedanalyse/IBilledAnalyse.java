@@ -29,7 +29,7 @@ public interface IBilledAnalyse {
 	 */
 	double[][] calcOptMagnitude(int size);
 
-	void qrread(Mat frame);
+//	void qrread(Mat frame);
 	
 	/**
 	 * Giver det senest fundne centerpunkt på det trackede objekt.
