@@ -44,7 +44,7 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 		this.associate = associate;
 		this.imageType = imageType;
 		
-		imageA = UtilImageIO.loadImage(UtilIO.pathExample(".\\code.png"));
+		imageA = UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/Jon/git/AutonomousDrone/AutonomousDrone/code.png"));
 		inputA = ConvertBufferedImage.convertFromSingle(imageA, null, imageType);
 		
 		// stores the location of detected interest points
@@ -95,9 +95,9 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 //		System.out.println("Matches: "+associate.getMatches().size);
 //		System.out.println(goodmatches.size());
 		// display the results
-		AssociationPanel panel = new AssociationPanel(20);
-		panel.setAssociation(pointsA,pointsB,goodmatches);
-		panel.setImages(imageA,imageB);
+//		AssociationPanel panel = new AssociationPanel(20);
+//		panel.setAssociation(pointsA,pointsB,goodmatches);
+//		panel.setImages(imageA,imageB);
 
 //		ShowImages.showWindow(panel,"Associated Features",true);
 		

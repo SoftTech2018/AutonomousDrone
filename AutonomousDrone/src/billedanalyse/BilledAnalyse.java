@@ -1,11 +1,13 @@
 package billedanalyse;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import com.google.zxing.BinaryBitmap;
@@ -298,7 +300,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					bufimg = dc.getbufImg();
 					img = this.bufferedImageToMat(bufimg);				
 				}
-				img = resize(img, 640, 480);
+//				System.err.println("Højde: " + img.size().height + ", Bredde: " + img.size().width);
+//				img = resize(img, 640, 480);
+
 				matFrame = img;
 				
 				if(opticalFlow || objTrack){ // opticalFlow boolean
