@@ -33,6 +33,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	protected static final boolean BILLED_DEBUG = true;
 
 	private BilledManipulation bm;
+	
 	private OpticalFlow opFlow;
 	private IDroneControl dc;
 	private ObjectTracking objTracker;
@@ -299,7 +300,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					}
 					img = this.webcamFrame;
 				} else {
-					bufimg = dc.getbufImg();
+					if((bufimg = dc.getbufImg())==null){ // Vent 5 ms, og start while løkke forfra
+						Thread.sleep(5);
+//						System.out.println("****** Venter 5 ms!");
+						continue; 
+					}
 					img = this.bufferedImageToMat(bufimg);				
 				}
 //				System.err.println("Højde: " + img.size().height + ", Bredde: " + img.size().width);
@@ -337,13 +342,19 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 			} catch (NullPointerException e){
 				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
-				try {
+				e.printStackTrace();
+				
 					// Intet billede modtaget. Vent 50 ms og tjek igen.
-					Thread.sleep(50);
-				} catch (InterruptedException e1) {
-					interrupted = true;
-					return;
-				}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e1) {
+						interrupted = true;
+						return;
+					}
+				
+			} catch (InterruptedException e) {
+				interrupted = true;
+				return;
 			}
 			if(BilledAnalyse.BILLED_DEBUG){
 				System.out.println("*** BilledAnalyse færdig på: " + (System.currentTimeMillis() - startTime) + " ms. ****");				

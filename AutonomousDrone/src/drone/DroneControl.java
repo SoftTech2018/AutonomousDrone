@@ -1,6 +1,8 @@
 package drone;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
@@ -112,12 +114,21 @@ public class DroneControl implements IDroneControl {
 //	}
 	
 	private synchronized void setImg(BufferedImage img){
+		System.err.println("Billede opdateret.");
 		bufImgOut = img;
 	}
 	
 	@Override
-	public synchronized BufferedImage getbufImg(){
-		return bufImgOut;
+	public synchronized BufferedImage getbufImg(){	
+		if(bufImgOut==null){
+			return null;
+		}
+		ColorModel cm = bufImgOut.getColorModel();
+	    boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+	    WritableRaster raster = bufImgOut.copyData(bufImgOut.getRaster().createCompatibleWritableRaster());
+	    BufferedImage out = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+		bufImgOut = null;
+		return out;
 	}
 
 	/* (non-Javadoc)
