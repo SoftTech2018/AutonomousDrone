@@ -284,6 +284,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void run() {
 		System.err.println("*** BilledAnalyse starter.");
 		Mat img;
+		BufferedImage bufimg = null;
 		boolean interrupted = false;
 		while(!Thread.interrupted() || interrupted){
 			Long startTime = System.currentTimeMillis();
@@ -294,7 +295,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					}
 					img = this.webcamFrame;
 				} else {
-					img = this.bufferedImageToMat(dc.getbufImg());				
+					bufimg = dc.getbufImg();
+					img = this.bufferedImageToMat(bufimg);				
 				}
 				img = resize(img, 640, 480);
 				matFrame = img;
@@ -303,7 +305,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					frames[1] = this.opFlow.optFlow(img, true);
 				}
 				if(objTrack){
-					frames[2] = objTracker.trackObject();
+					frames[2] = objTracker.trackSurfObject(bufimg);
 				} 
 //				this.calcOptMagnitude(3);
 				frames[0] = img;

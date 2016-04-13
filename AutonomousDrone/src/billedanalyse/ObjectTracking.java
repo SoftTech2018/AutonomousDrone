@@ -23,6 +23,9 @@ import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 
+import boofcv.io.UtilIO;
+import boofcv.io.image.UtilImageIO;
+
 public class ObjectTracking {
 
 	private OpticalFlow op;
@@ -33,11 +36,13 @@ public class ObjectTracking {
 	private MatOfKeyPoint fKey;
 	private DescriptorMatcher matcher;
 	private Point centerPoint;
+	private Surf surftest;
 
 	public ObjectTracking(OpticalFlow opFlow, BilledManipulation bm){
 		this.op = opFlow;
 		this.bm = bm;
 		this.matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+		this.surftest = new Surf();
 	}
 
 	private Mat procesMat(Mat frame){
@@ -50,12 +55,12 @@ public class ObjectTracking {
 		//					frame = bm.canny(frame);
 		return frame;
 	}
-
+	
 	protected Mat trackObject(){
 		Mat out = new Mat();
 		this.op.getFrame().copyTo(out);
 		try {
-			if(objectImage==null){ // FÃ¸rste gang metoden kaldes indlÃ¦ses og behandles objektbilledet
+			if(objectImage==null){ // Første gang metoden kaldes indlæses og behandles objektbilledet
 				try {
 					BufferedImage img = ImageIO.read(new File(".\\test.png"));
 					objectImage = bm.bufferedImageToMat(img);	
@@ -167,7 +172,7 @@ public class ObjectTracking {
 
 			// Beregn center af de bedste matches, og tegn en firkant rundt om objektet
 			double centroidX = 0, centroidY = 0;
-			// Tjek om der er fundet en passende mÃ¦ngde gode matches
+			// Tjek om der er fundet en passende mængde gode matches
 			double score = (double) best_matches.size() / good_matches.toArray().length;
 
 			if(BilledAnalyse.BILLED_DEBUG){
@@ -190,6 +195,54 @@ public class ObjectTracking {
 			if(BilledAnalyse.BILLED_DEBUG){
 				long total = System.nanoTime() - startTime;
 				long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
+				String debug = "Object tracket på: " + durationInMs + " milisekunder";
+				System.out.println(debug);	
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+			return out;
+		}
+
+		return out;
+	}
+
+	protected Mat trackSurfObject(BufferedImage in){
+		Mat out = new Mat();
+//		this.op.getFrame().copyTo(out);
+		try {
+
+			long startTime = System.nanoTime();
+
+			
+//			bm.toGray(out);
+//			BufferedImage imageB = bm.mat2bufImg(out);
+//			out = bm.bufferedImageToMat(imageB);
+//			if (true) return out;
+			List<Point> matches = surftest.surfDetect(in);
+			out = bm.bufferedImageToMat(in);
+			System.out.println("goodmatches: "+matches.size());
+			
+			if(matches.isEmpty() || matches == null || matches.size()<10){
+				return out;
+			}
+
+			double centroidX = 0, centroidY = 0;
+			for(Point p : matches){
+				System.out.println("surf x: "+p.x);
+				System.out.println("surf y: "+p.y);
+				centroidX += p.x;
+				centroidY += p.y;
+			}
+
+			Point p1 = new Point(centroidX/matches.size()-50, centroidY/matches.size()-50);
+			Point p2 = new Point(centroidX/matches.size()+50, centroidY/matches.size()+50);
+			Imgproc.rectangle(out, p1, p2, new Scalar(255,0,0), 5); // TODO erstat evt frame med out
+			centerPoint = new Point(centroidX/matches.size(), centroidY/matches.size());
+
+
+			if(BilledAnalyse.BILLED_DEBUG){
+				long total = System.nanoTime() - startTime;
+				long durationInMs = TimeUnit.MILLISECONDS.convert(total, TimeUnit.NANOSECONDS);
 				String debug = "Object tracket pÃ¥: " + durationInMs + " milisekunder";
 				System.out.println(debug);	
 			}
@@ -200,7 +253,7 @@ public class ObjectTracking {
 
 		return out;
 	}
-	
+
 	protected Point getObjectCenter(){
 		return centerPoint;
 	}
