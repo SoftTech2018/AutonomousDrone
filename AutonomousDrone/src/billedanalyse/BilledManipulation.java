@@ -127,14 +127,29 @@ public class BilledManipulation {
 	}
 
 	public BufferedImage mat2bufImg(Mat frame){
-		// create a temporary buffer
-		MatOfByte buffer = new MatOfByte();
-		// encode the frame in the buffer
-		Imgcodecs.imencode(".bmp", frame, buffer);
-		// build and return an Image created from the image encoded in the
-		// buffer
-		return new BufferedImage(frame.width(), frame.height(), java.awt.image.BufferedImage.TYPE_BYTE_INDEXED);
+//		// create a temporary buffer
+//		MatOfByte buffer = new MatOfByte();
+//		// encode the frame in the buffer
+//		Imgcodecs.imencode(".bmp", frame, buffer);
+//		// build and return an Image created from the image encoded in the
+//		// buffer
+//		return new BufferedImage(frame.width(), frame.height(), java.awt.image.BufferedImage.TYPE_BYTE_INDEXED);
+		
+		BufferedImage out;
+        byte[] data = new byte[frame.width() * frame.height() * (int)frame.elemSize()];
+        int type;
+        frame.get(0, 0, data);
 
+        if(frame.channels() == 1)
+            type = BufferedImage.TYPE_BYTE_GRAY;
+        else
+            type = BufferedImage.TYPE_3BYTE_BGR;
+
+        out = new BufferedImage(frame.width(), frame.height(), type);
+
+        out.getRaster().setDataElements(0, 0, frame.width(), frame.height(), data);
+        return out;
+        
 	}
 	
 	public Mat filterMat(Mat mat) {

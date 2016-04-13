@@ -3,6 +3,7 @@ package billedanalyse;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.ddogleg.struct.FastQueue;
 import org.opencv.core.Point;
@@ -44,7 +45,7 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 		this.associate = associate;
 		this.imageType = imageType;
 		
-		imageA = UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/Jon/git/AutonomousDrone/AutonomousDrone/code.png"));
+		imageA = UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/coderaw.png"));
 		inputA = ConvertBufferedImage.convertFromSingle(imageA, null, imageType);
 		
 		// stores the location of detected interest points
@@ -64,7 +65,10 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 	 * Detect and associate point features in the two images.  Display the results.
 	 */
 	public List<Point> associate(BufferedImage imageB )
-	{				
+	{	
+		long surfTime = System.nanoTime();
+		
+		
 		T inputB = ConvertBufferedImage.convertFromSingle(imageB, null, imageType);
 		
 		pointsB = new ArrayList<Point2D_F64>();
@@ -75,10 +79,13 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 
 		// Associate features between the two images
 		associate.setDestination(descB);
-		associate.associate();
-		
+
+		associate.associate();		
+
+		long surftotal = System.nanoTime() - surfTime;
 		FastQueue<AssociatedIndex> goodmatches = new FastQueue<AssociatedIndex>(AssociatedIndex.class, true);
 		List<Point> points = new ArrayList<Point>();
+		
 		
 		for(AssociatedIndex match : associate.getMatches().toList()){
 //			System.out.println("fitScore: "+match.fitScore);
@@ -90,16 +97,11 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 				goodmatches.add(match);
 			}
 		}
-//		System.out.println(associate.getMatches().get(0).fitScore);
 		
-//		System.out.println("Matches: "+associate.getMatches().size);
-//		System.out.println(goodmatches.size());
-		// display the results
-//		AssociationPanel panel = new AssociationPanel(20);
-//		panel.setAssociation(pointsA,pointsB,goodmatches);
-//		panel.setImages(imageA,imageB);
-
-//		ShowImages.showWindow(panel,"Associated Features",true);
+		
+		long surfdurationInMs = TimeUnit.MILLISECONDS.convert(surftotal, TimeUnit.NANOSECONDS);
+		String surfdebug = "SURF: " + surfdurationInMs + " milisekunder";
+		System.out.println(surfdebug);
 		
 		return points;
 	}

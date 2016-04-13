@@ -218,18 +218,24 @@ public class ObjectTracking {
 //			BufferedImage imageB = bm.mat2bufImg(out);
 //			out = bm.bufferedImageToMat(imageB);
 //			if (true) return out;
+			long surfTime = System.nanoTime();
 			List<Point> matches = surftest.surfDetect(in);
+			long surftotal = System.nanoTime() - surfTime;
+			long surfdurationInMs = TimeUnit.MILLISECONDS.convert(surftotal, TimeUnit.NANOSECONDS);
+			String surfdebug = "SURF: " + surfdurationInMs + " milisekunder";
+//			System.out.println(surfdebug);
+			
 			out = bm.bufferedImageToMat(in);
 			System.out.println("goodmatches: "+matches.size());
 			
-			if(matches.isEmpty() || matches == null || matches.size()<10){
+			if(matches.isEmpty() || matches == null || matches.size()<3){
 				return out;
 			}
 
 			double centroidX = 0, centroidY = 0;
 			for(Point p : matches){
-				System.out.println("surf x: "+p.x);
-				System.out.println("surf y: "+p.y);
+//				System.out.println("surf x: "+p.x);
+//				System.out.println("surf y: "+p.y);
 				centroidX += p.x;
 				centroidY += p.y;
 			}
