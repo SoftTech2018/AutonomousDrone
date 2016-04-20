@@ -13,21 +13,7 @@ public class PunktNavigering {
 	
 	// Skal debug beskeder udskrives?
 		protected static final boolean PNAV_DEBUG = false;
-
-	/*
-	 * 3 punkter: 			p1		 				= (x1, y1) 
-	 * 						p2		 				= (x2, y2) 
-	 * 						p3						= (x3, y3)
-	 * Dronepunkt: 			punktDrone 				= (xD, yD)
-	 * 
-	 * Afstand mellem punkter: punktEt <-> punktTo 	= a
-	 * 						punktTo <-> punktTre 	= b
-	 * 
-	 * Vinkel mellem punkter: 	punktEt <-> punktTo 	= alpha
-	 * 						punktTo <-> punktTre 	= beta
-	 * 
-	 * Cirklens ligning: 		(x-a)^2 + (y-b)^2 = r^2
-	 */
+		
 	/**
 	 * Kigger på ArrayListen og tjekker hvor mange skæringspunkter der findes. 
 	 * Hvis der findes mere end to skæringspunkter, tjekkes der op imod det midterste punkt, 
@@ -39,7 +25,6 @@ public class PunktNavigering {
 	 * @param beta Vinklen fra dronen mellem p3 og p2
 	 * @return Skæringspunktet som ikke er p2.
 	 */
-
 	public Vector2 udregnDronePunkt(Vector2 p1, Vector2 p2, Vector2 p3, double alpha, double beta) {
 		ArrayList<Vector2> out = findSkæringspunkt(p1, p2, p3, alpha, beta);
 		
@@ -51,7 +36,7 @@ public class PunktNavigering {
 				return out.get(0);
 			}
 		} 
-		return null; //Dronen har samme koordinat som vægmarkeringen 	
+		return null; //Dronen har samme koordinat som vægmarkeringen eller også er skæringspunkterne er forkerte
 	}
 
 	/**
@@ -65,13 +50,12 @@ public class PunktNavigering {
 	 * @param beta Vinklen fra dronen mellem p3 og p2
 	 * @return Liste af skæringspunkter. Er tom hvis der ingen skæringspunkter er.
 	 */
-	public ArrayList<Vector2> findSkæringspunkt(Vector2 p1, Vector2 p3, Vector2 p2, double alpha, double beta) {
+	private ArrayList<Vector2> findSkæringspunkt(Vector2 p1, Vector2 p3, Vector2 p2, double alpha, double beta) {
 		ArrayList<Vector2> out = new ArrayList<Vector2>();
 
 		Vector2 c1 = udregnCentrum(p1, p2, alpha); 		// Centrum på den første cirkel
 		Vector2 c2 = udregnCentrum(p3, p2, beta); 		// Centrum på den anden cirkel
 		
-
 		Circle circle1 = new Circle(c1, udregnRadius(c1, p2, alpha)); 		//Cirkel baseret på c1
 		Circle circle2 = new Circle(c2, udregnRadius(c2, p2, beta));  		//Cirkel baseret på c2
 		CircleCircleIntersection ccIntersect = new CircleCircleIntersection(circle1, circle2);
@@ -109,7 +93,7 @@ public class PunktNavigering {
 		
 		return ab;
 	}
-	
+				//Udregner centrum for 2 punkter
 	private Vector2 udregnCentrum(Vector2 p1, Vector2 p2, double alpha) {
 		double a = afstandMellemPunkter(p1, p2);
 		double x = 	(1/2) * ( (p2.y-p1.y) / Math.sqrt(Math.pow((p1.y-p2.y), 2) + Math.pow((p1.x-p2.x), 2)))
@@ -125,4 +109,5 @@ public class PunktNavigering {
 		
 		return new Vector2(x,y);
 	}
+	
 }
