@@ -12,6 +12,7 @@ public class Koordinat {
 	private int x;
 	private int y;
 	private ArrayList<Genstand> genstande = new ArrayList<>();
+	private WallMarking marking = null;
 
 	/**
 	 * Opretter et nyt koordinat
@@ -46,8 +47,15 @@ public class Koordinat {
 		int antal = genstande.size();
 		return antal;
 	}
+	public void setMarking(WallMarking marking){
+		this.marking = marking;
+	}
+	public WallMarking getMarking(){
+		return marking;
+	}
 
 	public String toString(){
 		return "("+x+","+y+")" + " indeholder" + getAntalGenstande() + ", " + genstande;
 	}
 }
+

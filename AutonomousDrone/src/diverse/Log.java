@@ -13,7 +13,7 @@ import java.util.Date;
 public class Log {
 
 	/**
-	 * Statisk metode der skriver til en logfil. Metoden håndterer linje skift
+	 * Statisk metode der skriver til en logfil. Metoden hï¿½ndterer linje skift
 	 * @param string Tager i mod en String der skal skrives til loggen
 	 * 
 	 */
@@ -28,9 +28,26 @@ public class Log {
 			fw.close();
 		} catch (IOException e) {
 		   e.printStackTrace();
-		   System.out.println("Filen kunne ikke åbnes");
+		   System.out.println("Filen kunne ikke Ã¥bnes");
 		}
 		
 		
+	}
+	
+	public static void writeWallMarking(String[] string){
+		String stringToLog;
+		try {
+			PrintWriter fw = new PrintWriter(new BufferedWriter(new FileWriter("wallmarks.txt", true)));
+	
+			for(int i = 0; i < string.length; i++){
+				stringToLog =  string[i] + "\n";
+				fw.write(stringToLog);
+			}
+			
+			fw.close();
+		} catch (IOException e) {
+		   e.printStackTrace();
+		   System.out.println("Filen kunne ikke Ã¥bnes");
+		}
 	}
 }
