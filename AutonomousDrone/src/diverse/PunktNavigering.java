@@ -10,6 +10,9 @@ import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;
 
 public class PunktNavigering {
+	
+	// Skal debug beskeder udskrives?
+		protected static final boolean PNAV_DEBUG = false;
 
 	/*
 	 * 3 punkter: 			p1		 				= (x1, y1) 
@@ -25,9 +28,19 @@ public class PunktNavigering {
 	 * 
 	 * Cirklens ligning: 		(x-a)^2 + (y-b)^2 = r^2
 	 */
+	/**
+	 * Kigger på ArrayListen og tjekker hvor mange skæringspunkter der findes. 
+	 * Hvis der findes mere end to skæringspunkter, tjekkes der op imod det midterste punkt, 
+	 * som altid vil være det ene skæringspunkt.
+	 * @param p1 Punkt 1 (x,y)
+	 * @param p3 Punkt 3 (x,y)
+	 * @param p2 Punkt 2 (x,y) - det midterste punkt
+	 * @param alpha Vinklen fra dronen mellem p1 og p2
+	 * @param beta Vinklen fra dronen mellem p3 og p2
+	 * @return Skæringspunktet som ikke er p2.
+	 */
 
-
-	public Vector2 udregnDronePunkt(Vector2 p1, Vector2 p2, Vector2 p3, Circle c1, Circle c2, double alpha, double beta) {
+	public Vector2 udregnDronePunkt(Vector2 p1, Vector2 p2, Vector2 p3, double alpha, double beta) {
 		ArrayList<Vector2> out = findSkæringspunkt(p1, p2, p3, alpha, beta);
 		
 		if (out.size() == 2) { //Tjekker for om cirklerne ligger tangent på hinanden
@@ -56,9 +69,8 @@ public class PunktNavigering {
 		ArrayList<Vector2> out = new ArrayList<Vector2>();
 
 		Vector2 c1 = udregnCentrum(p1, p2, alpha); 		// Centrum på den første cirkel
-		System.out.println(c1.toString());
 		Vector2 c2 = udregnCentrum(p3, p2, beta); 		// Centrum på den anden cirkel
-		System.out.println(c2.toString());
+		
 
 		Circle circle1 = new Circle(c1, udregnRadius(c1, p2, alpha)); 		//Cirkel baseret på c1
 		Circle circle2 = new Circle(c2, udregnRadius(c2, p2, beta));  		//Cirkel baseret på c2
@@ -76,14 +88,25 @@ public class PunktNavigering {
 		}
 		return out;
 	}
+	
 				//Udregner radius for to punkter i 2d
 	private double udregnRadius(Vector2 p1, Vector2 p2, double alpha) {
 		double radius = (1/2)* (afstandMellemPunkter(p1, p2)/Math.sin(alpha));
+		
+		if (PNAV_DEBUG) {
+			System.out.println("Radius er: " + radius);
+		}
+		
 		return radius;
 	}
 				//Udregner afstanden mellem to vektorer i 2d
 	private double afstandMellemPunkter(Vector2 p1, Vector2 p2) {
 		double ab = Math.sqrt(Math.pow((p2.x-p1.x), 2) + Math.pow((p2.y-p1.y), 2));
+		
+		if (PNAV_DEBUG) {
+			System.out.println("Afstand mellem punkter: " + ab);
+		}
+		
 		return ab;
 	}
 	
@@ -95,6 +118,11 @@ public class PunktNavigering {
 		double y = 	(1/2) * ( (p1.x-p2.x) / Math.sqrt(Math.pow((p1.y-p2.y), 2) + Math.pow((p1.x-p2.x), 2)))
 				* Math.sqrt(  ( Math.pow(a,2) / Math.pow(Math.sin(alpha), 2) ) - Math.pow(a, 2) )
 				+ (1/2) * p1.y + (1/2) * p2.y;
+		
+		if (PNAV_DEBUG) {
+			System.out.println("Centrum er: " + "(" + x + ", " + y + ")");
+		}
+		
 		return new Vector2(x,y);
 	}
 }
