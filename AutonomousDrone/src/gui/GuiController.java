@@ -477,12 +477,14 @@ public class GuiController {
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						int values[] = GuiController.this.dc.getFlightData();
+						String QrText = ba.getQrt();
 						Platform.runLater(new Runnable(){
 							@Override
 							public void run() {
 								pitch.set(Float.toString(values[0]));
 								roll.set(Float.toString(values[1]));
 								yaw.set(Float.toString(values[2]));
+								qrt.set(QrText);
 							}
 						});
 					}
