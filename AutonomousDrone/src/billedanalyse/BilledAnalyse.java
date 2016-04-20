@@ -8,6 +8,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import billedanalyse.ColorTracker.MODE;
 import drone.IDroneControl;
 import javafx.scene.image.Image;
 
@@ -23,6 +24,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private OpticalFlow opFlow;
 	private IDroneControl dc;
 	private ObjectTracking objTracker;
+	private ColorTracker colTracker;
 
 	private Image[] imageToShow;
 	private Mat[] frames;
@@ -38,6 +40,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		frames = new Mat[3];
 		this.opFlow = new OpticalFlow(bm);
 		objTracker = new ObjectTracking(opFlow, bm);
+		colTracker = new ColorTracker();
+		colTracker.setMode(MODE.webcam);
 	}
 
 	@Override
@@ -258,6 +262,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	@Override
 	public void setWebCam(boolean webcam){
+		if(webcam){
+			colTracker.setMode(MODE.webcam);			
+		} else {
+			colTracker.setMode(MODE.droneDown);
+		}
 		this.webcam = webcam;
 	}
 
@@ -312,22 +321,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(opticalFlow){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
 				}
+				
 				if(objTrack){
 //					frames[2] = objTracker.trackSurfObject(bufimg);
-					Mat org = new Mat();
-					img.copyTo(org);
-					if(webcam){
-						frames[2] = bm.findColorObjects(org, img, null, Colors.hsvMinGreenWebcam, Colors.hsvMaxGreenWebcam);
-						frames[2] = bm.findColorObjects(org, img, frames[2], Colors.hsvMinRedWebcam, Colors.hsvMaxRedWebcam);
-					} else { // DroneCam
-						if(downCam){ // Nedadrettet kamera
-							frames[2] = bm.findColorObjects(org, img, null, Colors.hsvMinGreenDroneDown, Colors.hsvMaxGreenDroneDown);
-//							frames[2] = bm.findColorObjects(org, img, frames[2], Colors.hsvMinRedDroneDown, Colors.hsvMaxRedDroneDown);
-						} else { // Fremadrettet kamera			
-						frames[2] = bm.findColorObjects(org, img, null, Colors.hsvMinGreenDrone, Colors.hsvMaxGreenDrone);
-						}
-						frames[2] = bm.findColorObjects(org, img, frames[2], Colors.hsvMinRedDrone, Colors.hsvMaxRedDrone);
-					}
+					frames[2] = this.colTracker.findColorObjects(img);
 				} 
 				
 				frames[0] = img;

@@ -4,6 +4,7 @@ import org.opencv.core.Scalar;
 
 public class Colors {
 	
+	// Definerer den mindste størrelse (areal) et objekt skal have før det betragtes som baggrundsstøj (i pixels)
 	public static final int MIN_OBJECT_AREA = 20 * 20;
 	
 	// Farve til at identificere grønne bolde med Jon's Webcam
@@ -30,8 +31,12 @@ public class Colors {
 	public static final Scalar hsvMinRedDroneDown = new Scalar(168, 165, 127);
 	public static final Scalar hsvMaxRedDroneDown = new Scalar(180, 255, 255);
 
-	public static Scalar hsvMinRed = hsvMinRedDroneDown;
-	public static Scalar hsvMaxRed = hsvMaxRedDroneDown;
+	public static Scalar hsvMaxRedDrone2 = hsvMaxRedDroneDown;
+	public static Scalar hsvMinRedDrone2 = hsvMinRedDroneDown;
+
+	public static Scalar hsvMinRedDroneDown2 = hsvMinRedDrone;
+	public static Scalar hsvMaxRedDroneDown2 = hsvMaxRedDrone;
+
 
 	
 //	// Farve til at identificere grønne bolde med Jon's Webcam
