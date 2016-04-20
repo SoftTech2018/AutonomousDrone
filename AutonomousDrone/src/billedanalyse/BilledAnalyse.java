@@ -323,17 +323,18 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				matFrame = img;
 				
-				if(opticalFlow || objTrack){ // opticalFlow boolean
+				if(opticalFlow){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
 				}
 				if(objTrack){
-					frames[2] = objTracker.trackSurfObject(bufimg);
+//					frames[2] = objTracker.trackSurfObject(bufimg);
+					frames[2] = bm.findColorObjects(img, Colors.hsvMinGreenWebcam, Colors.hsvMaxGreenWebcam);
 				} 
 //				this.calcOptMagnitude(3);
 				frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						
-					frames[0] = bm.filterMat(frames[0]);
+					frames[0] = bm.filterMat(frames[0]);						
 				}
 
 				//Enable QR-checkBox?
