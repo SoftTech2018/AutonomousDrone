@@ -12,9 +12,9 @@ import diverse.circleCalc.Vector2;
 public class PunktNavigering {
 
 	/*
-	 * 3 punkter: 				punktEt 				= (x1, y1) 
-	 * 						punktTo 				= (x2, y2) 
-	 * 						punktTre				= (x3, y3)
+	 * 3 punkter: 			p1		 				= (x1, y1) 
+	 * 						p2		 				= (x2, y2) 
+	 * 						p3						= (x3, y3)
 	 * Dronepunkt: 			punktDrone 				= (xD, yD)
 	 * 
 	 * Afstand mellem punkter: punktEt <-> punktTo 	= a
@@ -27,7 +27,18 @@ public class PunktNavigering {
 	 */
 
 
-	public void udregnDronePunkt(int[] punktEt, double[] punktTo, double[] punktTre, double[] punktDrone) {
+	public Vector2 udregnDronePunkt(Vector2 p1, Vector2 p2, Vector2 p3, Circle c1, Circle c2, double alpha, double beta) {
+		ArrayList<Vector2> out = findSkæringspunkt(p1, p2, p3, alpha, beta);
+		
+		if (out.size() == 2) { //Tjekker for om cirklerne ligger tangent på hinanden
+			if(out.get(0) == p2) {
+				return out.get(1); 
+			}
+			else if(out.get(1) == p2) {
+				return out.get(0);
+			}
+		} 
+		return null; //Dronen har samme koordinat som vægmarkeringen 	
 	}
 
 	/**
@@ -44,11 +55,13 @@ public class PunktNavigering {
 	public ArrayList<Vector2> findSkæringspunkt(Vector2 p1, Vector2 p3, Vector2 p2, double alpha, double beta) {
 		ArrayList<Vector2> out = new ArrayList<Vector2>();
 
-		Vector2 c1 = udregnCentrum(p1, p2, alpha); // Centrum på den første cirkel
-		Vector2 c2 = udregnCentrum(p3, p2, beta); // Centrum på den anden cirkel
+		Vector2 c1 = udregnCentrum(p1, p2, alpha); 		// Centrum på den første cirkel
+		System.out.println(c1.toString());
+		Vector2 c2 = udregnCentrum(p3, p2, beta); 		// Centrum på den anden cirkel
+		System.out.println(c2.toString());
 
-		Circle circle1 = new Circle(c1, udregnRadius(c1, p2, alpha));
-		Circle circle2 = new Circle(c2, udregnRadius(c2, p2, beta));
+		Circle circle1 = new Circle(c1, udregnRadius(c1, p2, alpha)); 		//Cirkel baseret på c1
+		Circle circle2 = new Circle(c2, udregnRadius(c2, p2, beta));  		//Cirkel baseret på c2
 		CircleCircleIntersection ccIntersect = new CircleCircleIntersection(circle1, circle2);
 
 		switch(ccIntersect.type){
@@ -63,18 +76,14 @@ public class PunktNavigering {
 		}
 		return out;
 	}
-
+				//Udregner radius for to punkter i 2d
 	private double udregnRadius(Vector2 p1, Vector2 p2, double alpha) {
 		double radius = (1/2)* (afstandMellemPunkter(p1, p2)/Math.sin(alpha));
 		return radius;
 	}
-
+				//Udregner afstanden mellem to vektorer i 2d
 	private double afstandMellemPunkter(Vector2 p1, Vector2 p2) {
-		//		int[] ab = new int[2];
-		//		ab[1] = pt[1] - py[1];
-		//		ab[2] = pt[2] - py[2];
 		double ab = Math.sqrt(Math.pow((p2.x-p1.x), 2) + Math.pow((p2.y-p1.y), 2));
-
 		return ab;
 	}
 	
