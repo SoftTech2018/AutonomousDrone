@@ -1,26 +1,12 @@
 package billedanalyse;
 
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.ChecksumException;
-import com.google.zxing.FormatException;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Reader;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 
 import drone.IDroneControl;
 import javafx.scene.image.Image;
@@ -40,7 +26,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, downCam;
 	private Mat webcamFrame;
 	private Mat matFrame;
 	private QRCodeScanner qrs = new QRCodeScanner();
@@ -328,9 +314,22 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 				if(objTrack){
 //					frames[2] = objTracker.trackSurfObject(bufimg);
-					frames[2] = bm.findColorObjects(img, Colors.hsvMinGreenWebcam, Colors.hsvMaxGreenWebcam);
+					Mat org = new Mat();
+					img.copyTo(org);
+					if(webcam){
+						frames[2] = bm.findColorObjects(org, img, null, Colors.hsvMinGreenWebcam, Colors.hsvMaxGreenWebcam);
+						frames[2] = bm.findColorObjects(org, img, frames[2], Colors.hsvMinRedWebcam, Colors.hsvMaxRedWebcam);
+					} else { // DroneCam
+						if(downCam){ // Nedadrettet kamera
+							frames[2] = bm.findColorObjects(org, img, null, Colors.hsvMinGreenDroneDown, Colors.hsvMaxGreenDroneDown);
+//							frames[2] = bm.findColorObjects(org, img, frames[2], Colors.hsvMinRedDroneDown, Colors.hsvMaxRedDroneDown);
+						} else { // Fremadrettet kamera			
+						frames[2] = bm.findColorObjects(org, img, null, Colors.hsvMinGreenDrone, Colors.hsvMaxGreenDrone);
+						}
+						frames[2] = bm.findColorObjects(org, img, frames[2], Colors.hsvMinRedDrone, Colors.hsvMaxRedDrone);
+					}
 				} 
-//				this.calcOptMagnitude(3);
+				
 				frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						

@@ -276,10 +276,26 @@ public class BilledManipulation {
 	 * @param hsvMax
 	 * @return
 	 */
-	public Mat findColorObjects(Mat frame, Scalar hsvMin, Scalar hsvMax){
+	public Mat findColorObjects(Mat org, Mat frame, Mat second, Scalar hsvMin, Scalar hsvMax){
+		String color;
+		if(hsvMin.equals(Colors.hsvMinGreenDrone) || hsvMin.equals(Colors.hsvMinGreenDroneDown) || hsvMin.equals(Colors.hsvMinGreenWebcam)){
+			color = "Green";
+		} else {
+			color = "Red";
+		}
+		
 		Mat out = new Mat();	
-		Imgproc.cvtColor(frame, out, Imgproc.COLOR_BGR2HSV);
-		Core.inRange(out, hsvMin, hsvMax, out);
+		Imgproc.cvtColor(org, out, Imgproc.COLOR_BGR2HSV);
+		
+		// Kombiner begge ranges af hues (170-> 180 og 0->10) for at finde alle røder farver
+		if(color.equals("red")){
+			Mat temp = new Mat();
+			Core.inRange(out, hsvMin, hsvMax, temp);
+			Core.inRange(out, Colors.hsvMinRed, Colors.hsvMaxRed, out);
+			Core.addWeighted(temp, 1.0, out, 1.0, 0.0, out);
+		} else {
+			Core.inRange(out, hsvMin, hsvMax, out);	
+		}
 			
 		Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
 		Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(8, 8));
@@ -314,11 +330,13 @@ public class BilledManipulation {
 					// Tegn firkanter og tekst på objekt tracking frame for hvert objekt der er fundet
 					Imgproc.rectangle(out, new Point(x-(Math.sqrt(area)/2), y-(Math.sqrt(area)/2)), new Point(x+(Math.sqrt(area)/2), y+(Math.sqrt(area)/2)), new Scalar(255,0,0), 3);
 //					Imgproc.circle(out, new Point(x, y), (int) Math.sqrt(area/Math.PI), new Scalar(255,0,0), 3);
-					Imgproc.putText(frame, objectsFound + ": " + x + "," + y, new Point(x-(Math.sqrt(area)/2), y), 1, 2, new Scalar(255, 255, 255), 2);
+					Imgproc.putText(frame, color + ": " + x + "," + y, new Point(x-(Math.sqrt(area)/2), y), 1, 2, new Scalar(255, 255, 255), 2);
 				}
 			}
 		}
-		
+		if(second != null){
+			Core.addWeighted(out, 1, second, 1, 0.0, out);			
+		}
 		if(BilledAnalyse.BILLED_DEBUG){			
 			System.out.println("Fundet " + objectsFound + " objekter!");
 		}
