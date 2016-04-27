@@ -1,3 +1,18 @@
 
 Wed Mar 30 13:20:52 CEST 2016: Jeg skriver mega meget
 Wed Mar 30 13:20:52 CEST 2016: Jeg skriver mega meget
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :0,63
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :2,3
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :2,4
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :2,31
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :2,57
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :2,64
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :2,678
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :3,2
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :3,5
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :3,85
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :5,90
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :24,9
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :25,8
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :35,7
+Wed Apr 20 21:55:16 CEST 2016: Væg Markering fundet på :63,2
