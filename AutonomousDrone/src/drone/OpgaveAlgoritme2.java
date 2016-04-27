@@ -8,13 +8,16 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.IBilledAnalyse;
+import billedanalyse.QRCodeScanner;
 import de.yadrone.base.command.LEDAnimation;
 import diverse.Genstand;
 import diverse.Koordinat;
 import diverse.Log;
 import diverse.OpgaveRum;
+import diverse.PunktNavigering;
+import diverse.circleCalc.Vector2;
 
-public class OpgaveAlgoritme implements Runnable {
+public class OpgaveAlgoritme2 implements Runnable {
 
 	/*
 	 * Markør hvor der kan udskrives debug-beskeder i konsollen.
@@ -25,10 +28,12 @@ public class OpgaveAlgoritme implements Runnable {
 	private IDroneControl dc;
 	private IBilledAnalyse ba;
 	private OpgaveRum opgrum;
+	private QRCodeScanner qrcs;
+	private PunktNavigering pn;
 	protected boolean doStop = false;
 	private boolean flying = false;
 
-	public OpgaveAlgoritme(IDroneControl dc, IBilledAnalyse ba){
+	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
 		this.dc = dc;
 		this.ba = ba;
 	}
@@ -74,6 +79,7 @@ public class OpgaveAlgoritme implements Runnable {
 					Log.writeLog("*Dronen letter autonomt.");
 					flying = true;
 					dc.takeoff();
+					findMark();
 					//Her skal tilføjes en metode til at logge landingspladsen
 					if(OPGAVE_DEBUG){
 						System.err.println("*** Dronen letter og starter opgaveløsning ***");
@@ -92,69 +98,17 @@ public class OpgaveAlgoritme implements Runnable {
 				Log.writeLog("Dronen kan ikke flyve forlæns. Hover.");
 				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
 			}
-
-			// Find de objekter vi leder efter
-			boolean targets[][] = getTargets(); // 3x3 array
-			int x = -1, y = -1;
-			// Hvor er mål objektet i dronens synsfelt
-			for(int i=0; i<3; i++){
-				for(int o=0; o<3; o++){
-					if(targets[i][o]){
-						x = i;
-						y = o;
-						Log.writeLog("**Mål fundet i: " + x + "," + y);
-					}
-				}
-			}
-			if(x != -1 && y != -1){ // Der findes et mål, så det finder vi da.
-				if(x==0){ // målet ligger til venstre for os
-					Log.writeLog("DREJER VENSTRE");
-					dc.turnLeft();
-				} else if (x==1){ // målet er foran os
-					switch(y){
-					case 0: 
-						if(retninger[1]){
-							Log.writeLog("FLYVER OP");
-							dc.up();							
-						}
-						break;
-					case 1:
-						if(retninger[4]){
-							Log.writeLog("FLYVER FREMAD");
-							dc.forward();
-						}
-						break;
-					case 2: 
-						if(retninger[0]){
-							Log.writeLog("FLYVER NED");
-							dc.down();
-						}
-						break;
-					}
-				} else if(x==2){ // målet er til højre for os
-					Log.writeLog("DREJER HØJRE");
-					dc.turnRight();
-				}
-			} else {// Intet mål-objekt fundet, vi starter målsøgningen				
-				if (findTarget()){
-					// TODO Her skal nok ikke laves noget. Whileløkken kan bare fortsætte
-				} else {
-					// Der kunne ikke findes et mål objekt på 30 sekunder.
-					// TODO Land dronen sikkert
-					flying = false;
-					dc.land();
-				}
-			}
 		}
-		dc.setTimeMode(false);
-		Log.writeLog("*** OpgaveAlgoritme afsluttes.");
 	}
+
+			
+	
 
 	/**
 	 * Afsøg rummet indtil der findes et target
 	 * @throws InterruptedException 
 	 */
-	private boolean findTarget() throws InterruptedException {
+	private boolean findMark() throws InterruptedException {
 		if(OPGAVE_DEBUG){
 			System.err.println("Målsøgning startes.");
 		}
@@ -164,8 +118,8 @@ public class OpgaveAlgoritme implements Runnable {
 		int turns = 0;
 		long targetStartTime = System.currentTimeMillis();
 		while((System.currentTimeMillis() - targetStartTime) < searchTime){ // Der søges i max 30 sek
-			if(targetFound()){
-				break;
+			if(qrcs != null){ 
+				markFound(qrcs.getQrt());
 			}
 			if(Thread.interrupted()){
 				destroy();
@@ -195,8 +149,8 @@ public class OpgaveAlgoritme implements Runnable {
 
 				long startTime = System.currentTimeMillis();
 				while((System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
-					if(targetFound()){
-						break;
+					if(qrcs != null){ 
+						markFound(qrcs.getQrt());
 					}
 					if(Thread.interrupted()){
 						destroy();
@@ -239,11 +193,8 @@ public class OpgaveAlgoritme implements Runnable {
 				turns = 0;
 			}
 		}
-		if(targetFound()){
+		if(markFound(qrcs.getQrt())){
 			Log.writeLog("**Mål fundet.");
-			Koordinat koord = new Koordinat(0, 0 /*Der skal udregnes en metode til at finde x og y*/);
-			Genstand genstand = new Genstand(null /*Farve skal hentes fra en Optical Flow metode*/);
-			opgrum.addGenstandTilKoordinat(koord, genstand);
 			return true;
 		}
 		if(OPGAVE_DEBUG){
@@ -272,33 +223,18 @@ public class OpgaveAlgoritme implements Runnable {
 		return;
 	}
 
-	private boolean targetFound(){
-		//		boolean targets[][] = getTargets(); // 3x3 array
-		//		// Hvor er mål objektet i dronens synsfelt
-		//		for(int i=0; i<3; i++){
-		//			for(int o=0; o<3; o++){
-		//				if(targets[i][o]){
-		//					return true;
-		//				}
-		//			}
-		//		}
+	private boolean markFound(String getqrt){
+		//Her skal der hentes koordinater via en getMark metode
+		Vector2 punkter[] = opgrum.getMultiMarkings();
+		
+		
+		//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+		
+		pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
 		return false;
 	}
 
-	/**
-	 * Find det target hvor vi skal bevæge os til
-	 * @return
-	 */
-	private boolean[][] getTargets() {
-		boolean out[][] = new boolean[3][3];
-		for(int i=0; i<3; i++){
-			for(int o=0; o<3; o++){
-				out[i][o] = false;
-			}
-		}
-		// TODO Auto-generated method stub
-		return out;
-	}
+	
 
 	/**
 	 * Find de mulige manøvremuligheder for dronen. False betyder at vi ikke kan flyve i den retning
@@ -408,44 +344,6 @@ public class OpgaveAlgoritme implements Runnable {
 		default:
 		}
 
-//		// Baseret på magnitude værdi vs. threshhold
-//		if(magnitudes[0][0] < threshold){
-//			x = x - vStep;
-//			y = y - hStep;
-//		}
-//		if(magnitudes[0][1] < threshold){
-//			y = y - hStep;
-//			retninger[1] = true;
-//		}
-//		if(magnitudes[0][2] < threshold){
-//			x = x + vStep;
-//			y = y - hStep;
-//		}
-//		if(magnitudes[1][0] < threshold){
-//			x = x - vStep;
-//			retninger[2] = true;
-//		}
-//		if(magnitudes[1][1] < threshold){
-//			retninger[4] = true;
-//		}
-//		if(magnitudes[1][2] < threshold){
-//			x = x + vStep;
-//			retninger[3] = true;
-//		}
-//		if(magnitudes[2][0] < threshold){
-//			x = x - vStep;
-//			y = y + hStep;
-//		}
-//		if(magnitudes[2][1] < threshold){
-//			y = y + hStep;;
-//			retninger[0] = true;
-//		}
-//		if(magnitudes[2][2] < threshold){
-//			x = x + vStep;
-//			y = y + hStep;
-//		}	
-
-		//		Vektor dir = new Vektor(center, new Point(x,y)); // Kan benyttes hvis man ønsker en vektorrepræsentation
 		return retninger;				
 	}
 
