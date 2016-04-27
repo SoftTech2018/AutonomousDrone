@@ -1,4 +1,4 @@
-package diverse;
+package diverse.koordinat;
 
 public class Genstand {
 	enum FARVE {GRØN, RØD}

@@ -1,4 +1,4 @@
-package diverse;
+package diverse.koordinat;
 /**
  * 
  * @author KimDrewes

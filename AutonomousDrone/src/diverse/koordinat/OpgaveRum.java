@@ -1,4 +1,4 @@
-package diverse;
+package diverse.koordinat;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import diverse.Log;
 import diverse.circleCalc.Vector2;
 
 
@@ -144,6 +145,12 @@ public class OpgaveRum {
 		return -1;
 	}
 
+	
+	/**
+	 * 
+	 * @param markName Den String som QR code scanneren returnerer
+	 * @return Returnere et Array med den aflæste QR Plakat, samt positionerne af dens naboer i form af Vektor2 objekter
+	 */
 	public Vector2[] getMultiMarkings(String markName){
 		int i = getMarkeringNummer(markName);
 		Vector2 middle = markingKoordinater[i].getVector();
@@ -161,7 +168,6 @@ public class OpgaveRum {
 			left = markingKoordinater[i-1].getVector();
 			right = markingKoordinater[i+1].getVector();	
 		}
-
 
 		Vector2[] temp = {left, middle, right};
 		return temp;

@@ -1,4 +1,4 @@
-package diverse;
+package diverse.koordinat;
 
 
 import gui.WallValuesController;

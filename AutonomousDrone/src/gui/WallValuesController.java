@@ -1,9 +1,9 @@
 package gui;
 
-import diverse.Koordinat;
 import diverse.Log;
-import diverse.OpgaveRum;
 import diverse.circleCalc.Vector2;
+import diverse.koordinat.Koordinat;
+import diverse.koordinat.OpgaveRum;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,6 +12,9 @@ import javafx.scene.control.TextField;
 
 public class WallValuesController {
 
+	int xLength;
+	int yWidth;
+	
     @FXML
     private Button save;
 
@@ -64,9 +67,17 @@ public class WallValuesController {
 
     @FXML
     private TextField W03_04;
+    
+    @FXML
+    private TextField length;
+    
+    @FXML
+    private TextField width;
 
     @FXML
     void saveMarkings(ActionEvent event) {
+    	yWidth = Integer.parseInt(width.getText());
+    	xLength= Integer.parseInt(length.getText());
     	System.out.println("Gemmer");
          String[] markings = { W00_00.getText(), W00_01.getText(), W00_02.getText(),
         		 			   W01_00.getText(), W01_01.getText(),W01_02.getText(), W01_03.getText(), W01_04.getText(),
@@ -79,16 +90,13 @@ public class WallValuesController {
     // Ment som test kun, der skal tages stilling
     // til hvordan parametret initialiseres
     public void init(){
-    	OpgaveRum or = new OpgaveRum(1082, 962);
+    	OpgaveRum or = new OpgaveRum(xLength, yWidth);
     	or.setMarkings();
     	or.writeMarkingsToLog();
     	Vector2[] koordinat = or.getMultiMarkings("W00_00");
     	for (int i = 0; i < koordinat.length; i++) {
 			System.out.println(koordinat[i].toString());
-		}
-    	
-    		
-    	
+    	}
     }
 
 }

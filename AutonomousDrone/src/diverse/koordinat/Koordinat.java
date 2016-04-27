@@ -1,4 +1,4 @@
-package diverse;
+package diverse.koordinat;
 
 /**
  * Klasse der repræsenterer et koordinat i et OpgaveRum!
