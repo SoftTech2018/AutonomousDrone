@@ -7,8 +7,11 @@ package diverse;
  */
 import java.util.ArrayList;
 
+import diverse.circleCalc.Vector2;
+
 public class Koordinat {
 
+	Vector2 v;
 	private int x;
 	private int y;
 	private ArrayList<Genstand> genstande = new ArrayList<>();
@@ -26,6 +29,7 @@ public class Koordinat {
 	public Koordinat(int x, int y){
 		this.x = x;
 		this.y = y;
+		v = new Vector2(x, y);
 	}
 	
 	/**
@@ -100,6 +104,10 @@ public class Koordinat {
 
 	public String toString(){
 		return "("+x+","+y+")" + " indeholder" + getAntalGenstande() + ", " + genstande;
+	}
+	
+	public Vector2 getVector(){
+		return v;
 	}
 }
 

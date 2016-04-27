@@ -80,7 +80,7 @@ public class WallValuesController {
     	OpgaveRum or = new OpgaveRum(1082, 962);
     	or.setMarkings();
     	or.writeMarkingsToLog();
-    	Koordinat[] koordinat = or.getNeighbours("W00_00");
+    	Koordinat[] koordinat = or.getMultiMarkings("W00_00");
     	for (int i = 0; i < koordinat.length; i++) {
 			System.out.println(koordinat[i].toString());
 		}

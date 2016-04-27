@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import diverse.circleCalc.Vector2;
+
 
 /**
  * 
@@ -142,26 +144,26 @@ public class OpgaveRum {
 		return -1;
 	}
 
-	public Koordinat[] getMultiMarkings(String markName){
+	public Vector2[] getMultiMarkings(String markName){
 		int i = getMarkeringNummer(markName);
-		Koordinat middle = markingKoordinater[i];
+		Vector2 middle = markingKoordinater[i].getVector();
 
-		Koordinat left;
-		Koordinat right;
+		Vector2 left;
+		Vector2 right;
 
 		if(i == 0){
-			left =  markingKoordinater[15];
-			right = markingKoordinater[1];
+			left =  markingKoordinater[15].getVector();
+			right = markingKoordinater[1].getVector();
 		}else if(i == 15){
-			left = markingKoordinater[14];
-			right = markingKoordinater[0];
+			left = markingKoordinater[14].getVector();
+			right = markingKoordinater[0].getVector();
 		}else{
-			left = markingKoordinater[i-1];;
-			right = markingKoordinater[i+1];;	
+			left = markingKoordinater[i-1].getVector();
+			right = markingKoordinater[i+1].getVector();	
 		}
 
 
-		Koordinat[] temp = {left, middle, right};
+		Vector2[] temp = {left, middle, right};
 		return temp;
 	}
 
