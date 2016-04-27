@@ -118,9 +118,12 @@ public class OpgaveAlgoritme2 implements Runnable {
 		int turns = 0;
 		long targetStartTime = System.currentTimeMillis();
 		while((System.currentTimeMillis() - targetStartTime) < searchTime){ // Der søges i max 30 sek
-			if(qrcs != null){ 
+			if(!qrcs.getQrt().isEmpty()){ 
 				markFound(qrcs.getQrt());
-			}
+				while(/*Tjek for om der stadig er objekter i dronens synsfelt der ikke er registeret*/) {
+					/*Her skal der registreres objekter*/
+				}
+			} 
 			if(Thread.interrupted()){
 				destroy();
 				return false;
@@ -149,13 +152,17 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 				long startTime = System.currentTimeMillis();
 				while((System.currentTimeMillis() - startTime) < 5000){ // Gør noget i 5000 ms eller indtil et mål findes
-					if(qrcs != null){ 
-						markFound(qrcs.getQrt());
-					}
+//					if(!qrcs.getQrt().isEmpty()){ 
+//						markFound(qrcs.getQrt());
+//					}
 					if(Thread.interrupted()){
 						destroy();
 						return false;
 					}
+					
+					// Der skal oprettes en metode til at flyve hen til et nyt punkt
+					// Idé: Drej dronen mod det nye punkt og flyv derhen
+					
 					boolean retninger[] = getPossibleManeuvers(); // down, up, goLeft, goRight, forward
 					String muligeRetninger = "Retninger modtaget: ";
 					for(int i=0; i<retninger.length;i++){
@@ -225,8 +232,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 	private boolean markFound(String getqrt){
 		//Her skal der hentes koordinater via en getMark metode
-		Vector2 punkter[] = opgrum.getMultiMarkings();
-		
+		Vector2 punkter[] = opgrum.getMultiMarkings(getqrt);
 		
 		//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
 		
