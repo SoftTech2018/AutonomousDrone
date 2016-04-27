@@ -26,7 +26,7 @@ public class Log {
 	
 			fw.write(stringToLog);
 			fw.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		   e.printStackTrace();
 		   System.out.println("Filen kunne ikke åbnes");
 		}
@@ -36,18 +36,22 @@ public class Log {
 	
 	public static void writeWallMarking(String[] string){
 		String stringToLog;
+		PrintWriter fw = null;
 		try {
-			PrintWriter fw = new PrintWriter(new BufferedWriter(new FileWriter("wallmarks.txt", true)));
+			fw = new PrintWriter(new BufferedWriter(new FileWriter("wallmarks.txt", false)));
 	
 			for(int i = 0; i < string.length; i++){
 				stringToLog =  string[i] + "\n";
+				System.out.println(stringToLog);
 				fw.write(stringToLog);
 			}
 			
-			fw.close();
-		} catch (IOException e) {
+		
+		} catch (Exception e) {
 		   e.printStackTrace();
 		   System.out.println("Filen kunne ikke åbnes");
+		} finally {
+			fw.close();
 		}
 	}
 }

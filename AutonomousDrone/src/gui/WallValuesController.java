@@ -3,6 +3,7 @@ package gui;
 import diverse.Koordinat;
 import diverse.Log;
 import diverse.OpgaveRum;
+import diverse.circleCalc.Vector2;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -66,12 +67,13 @@ public class WallValuesController {
 
     @FXML
     void saveMarkings(ActionEvent event) {
+    	System.out.println("Gemmer");
          String[] markings = { W00_00.getText(), W00_01.getText(), W00_02.getText(),
         		 			   W01_00.getText(), W01_01.getText(),W01_02.getText(), W01_03.getText(), W01_04.getText(),
         		 			   W02_00.getText(), W02_01.getText(), W02_02.getText(),
         		 			   W03_00.getText(), W03_03.getText(),W03_02.getText(), W03_03.getText(), W03_04.getText()};
          Log.writeWallMarking(markings);
-         init();
+        init();
     }
     
     // Ment som test kun, der skal tages stilling
@@ -80,7 +82,7 @@ public class WallValuesController {
     	OpgaveRum or = new OpgaveRum(1082, 962);
     	or.setMarkings();
     	or.writeMarkingsToLog();
-    	Koordinat[] koordinat = or.getMultiMarkings("W00_00");
+    	Vector2[] koordinat = or.getMultiMarkings("W00_00");
     	for (int i = 0; i < koordinat.length; i++) {
 			System.out.println(koordinat[i].toString());
 		}
