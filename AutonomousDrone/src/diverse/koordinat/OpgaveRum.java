@@ -24,7 +24,7 @@ public class OpgaveRum {
 	int længde, bredde;
 
 	// Et array til at holde styr på koordinaterne til vægmarkeringerne ( Indlæses i setMarkingsmetoden)
-	Koordinat[] markingKoordinater = new Koordinat[16];	
+	public Koordinat[] markingKoordinater = new Koordinat[16];	
 
 	// markings er et array af de 16 kende vægmarkeringer, bliver tildelt en koordinat vha setMarkings
 	WallMarking[] markings = {
