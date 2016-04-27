@@ -29,7 +29,7 @@ public class DroneControl implements IDroneControl {
 	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
 	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
 	 */
-	private final boolean TEST_MODE = true;
+	private final boolean TEST_MODE = false;
 
 	private IARDrone drone;
 	private CommandManager cmd;
