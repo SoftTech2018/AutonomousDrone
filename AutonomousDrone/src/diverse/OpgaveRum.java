@@ -133,7 +133,7 @@ public class OpgaveRum {
 	}
 
 	// 
-	public int getMarkeringNummer(String markName){
+	private int getMarkeringNummer(String markName){
 		for(int i = 0; i< markings.length; i++){
 			if(markings[i].getString().equals(markName)){
 				return i;
@@ -142,7 +142,7 @@ public class OpgaveRum {
 		return -1;
 	}
 
-	public Koordinat[] getNeighbours(String markName){
+	public Koordinat[] getMultiMarkings(String markName){
 		int i = getMarkeringNummer(markName);
 		Koordinat middle = markingKoordinater[i];
 

@@ -1,5 +1,6 @@
 package gui;
 
+import diverse.Koordinat;
 import diverse.Log;
 import diverse.OpgaveRum;
 import javafx.event.ActionEvent;
@@ -79,6 +80,11 @@ public class WallValuesController {
     	OpgaveRum or = new OpgaveRum(1082, 962);
     	or.setMarkings();
     	or.writeMarkingsToLog();
+    	Koordinat[] koordinat = or.getNeighbours("W00_00");
+    	for (int i = 0; i < koordinat.length; i++) {
+			System.out.println(koordinat[i].toString());
+		}
+    	
     		
     	
     }

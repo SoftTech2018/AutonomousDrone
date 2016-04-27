@@ -17,7 +17,7 @@ public class TestAfWallMarkings extends Application {
 		VBox root = (VBox) loader.load();
 		WallValuesController controller = loader.getController();
 		Scene scene = new Scene(root,600,570);
-	//	scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Skynet 0.1");
 		primaryStage.show();
