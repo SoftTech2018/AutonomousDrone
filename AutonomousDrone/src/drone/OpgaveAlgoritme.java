@@ -9,10 +9,10 @@ import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.IBilledAnalyse;
 import de.yadrone.base.command.LEDAnimation;
-import diverse.Genstand;
-import diverse.Koordinat;
 import diverse.Log;
-import diverse.OpgaveRum;
+import diverse.koordinat.Genstand;
+import diverse.koordinat.Koordinat;
+import diverse.koordinat.OpgaveRum;
 
 public class OpgaveAlgoritme implements Runnable {
 
