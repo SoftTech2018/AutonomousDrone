@@ -20,7 +20,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	protected static final boolean BILLED_DEBUG = true;
 
 	private BilledManipulation bm;
-	
+
 	private OpticalFlow opFlow;
 	private IDroneControl dc;
 	private ObjectTracking objTracker;
@@ -190,29 +190,29 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		return out;
 	}
 
-//	/* (non-Javadoc)
-//	 * @see billedanalyse.IBilledAnalyse#qrread(org.opencv.core.Mat)
-//	 */
-//	@Override
-//	public void qrread(Mat frame){	
-//		BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
-//				new BufferedImageLuminanceSource(bm.mat2bufImg(frame))));
-//		Reader reader = new QRCodeMultiReader();
-//
-//		try {							
-//			Result qrout = reader.decode(binaryBitmap);
-//			System.out.println(qrout.getText());
-//			System.out.println("HIT");
-//		} catch (NotFoundException e) {
-//
-//		} catch (ChecksumException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (FormatException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	//	/* (non-Javadoc)
+	//	 * @see billedanalyse.IBilledAnalyse#qrread(org.opencv.core.Mat)
+	//	 */
+	//	@Override
+	//	public void qrread(Mat frame){	
+	//		BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
+	//				new BufferedImageLuminanceSource(bm.mat2bufImg(frame))));
+	//		Reader reader = new QRCodeMultiReader();
+	//
+	//		try {							
+	//			Result qrout = reader.decode(binaryBitmap);
+	//			System.out.println(qrout.getText());
+	//			System.out.println("HIT");
+	//		} catch (NotFoundException e) {
+	//
+	//		} catch (ChecksumException e) {
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		} catch (FormatException e) {
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		}
+	//	}
 
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#bufferedImageToMat(java.awt.image.BufferedImage)
@@ -296,37 +296,46 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					img = this.webcamFrame;
 					bufimg = bm.mat2bufImg(img);
 				} else {
-					if((bufimg = dc.getbufImg())==null){ // Vent 5 ms, og start while løkke forfra
-						Thread.sleep(5);
-//						System.out.println("****** Venter 5 ms!");
-						continue; 
+					BufferedImage temp = dc.getbufImg();
+					try{
+						// Er billedet forskelligt fra sidst behandlede billede?
+						if(temp != null && !bufimg.equals(temp)){ 
+							bufimg = temp;
+						} else { // Vent 5 ms, og start while løkke forfra
+							Thread.sleep(5);
+//							System.err.println("****** Venter 5 ms!");
+							continue;
+						}
+					} catch (NullPointerException e){ // bufimg er null, men temp er ikke
+//						e.printStackTrace();
+						bufimg = temp;
 					}
 					img = this.bufferedImageToMat(bufimg);				
 				}
-//				System.err.println("Højde: " + img.size().height + ", Bredde: " + img.size().width);
-//				img = resize(img, 640, 480);
-				
-//				BufferedImage bufResize = new BufferedImage(bufimg.getWidth()/2, bufimg.getHeight()/2,
-//				        BufferedImage.TYPE_BYTE_INDEXED);
-//
-//				    AffineTransform tx = new AffineTransform();
-//				    tx.scale(1, 2);
-//
-//				    AffineTransformOp op = new AffineTransformOp(tx,
-//				        AffineTransformOp.TYPE_BILINEAR);
-//				    bufimg = op.filter(bufimg, null);
+				//				System.err.println("Højde: " + img.size().height + ", Bredde: " + img.size().width);
+				//				img = resize(img, 640, 480);
+
+				//				BufferedImage bufResize = new BufferedImage(bufimg.getWidth()/2, bufimg.getHeight()/2,
+				//				        BufferedImage.TYPE_BYTE_INDEXED);
+				//
+				//				    AffineTransform tx = new AffineTransform();
+				//				    tx.scale(1, 2);
+				//
+				//				    AffineTransformOp op = new AffineTransformOp(tx,
+				//				        AffineTransformOp.TYPE_BILINEAR);
+				//				    bufimg = op.filter(bufimg, null);
 
 				matFrame = img;
-				
+
 				if(opticalFlow){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
 				}
-				
+
 				if(objTrack){
-//					frames[2] = objTracker.trackSurfObject(bufimg);
+					//					frames[2] = objTracker.trackSurfObject(bufimg);
 					frames[2] = this.colTracker.findColorObjects(img);
 				} 
-				
+
 				frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						
@@ -341,15 +350,15 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			} catch (NullPointerException e){
 				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
 				e.printStackTrace();
-				
-					// Intet billede modtaget. Vent 50 ms og tjek igen.
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						interrupted = true;
-						return;
-					}
-				
+
+				// Intet billede modtaget. Vent 50 ms og tjek igen.
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e1) {
+					interrupted = true;
+					return;
+				}
+
 			} catch (InterruptedException e) {
 				interrupted = true;
 				return;
