@@ -45,8 +45,8 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 		this.associate = associate;
 		this.imageType = imageType;
 		
-		imageA = UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/coderaw.png"));
-		inputA = ConvertBufferedImage.convertFromSingle(imageA, null, imageType);
+//		imageA = UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/coderaw.png"));
+//		inputA = ConvertBufferedImage.convertFromSingle(imageA, null, imageType);
 		
 		// stores the location of detected interest points
 		pointsA = new ArrayList<Point2D_F64>();
@@ -56,7 +56,7 @@ public class ExampleAssociatePoints<T extends ImageGray, TD extends TupleDesc> {
 		FastQueue<TD> descA = UtilFeature.createQueue(detDesc,100);
 		
 		
-		describeImage(inputA,pointsA,descA);
+//		describeImage(inputA,pointsA,descA);
 		
 		associate.setSource(descA);
 	}

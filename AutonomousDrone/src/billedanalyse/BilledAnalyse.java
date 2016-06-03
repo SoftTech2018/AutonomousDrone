@@ -307,7 +307,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 							continue;
 						}
 					} catch (NullPointerException e){ // bufimg er null, men temp er ikke
-//						e.printStackTrace();
+						e.printStackTrace();
 						bufimg = temp;
 					}
 					img = this.bufferedImageToMat(bufimg);				
@@ -336,15 +336,18 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					frames[2] = this.colTracker.findColorObjects(img);
 				} 
 
-				frames[0] = img;
+				//frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						
-					frames[0] = bm.filterMat(frames[0]);						
+//					frames[0] = bm.filterMat(frames[0]);						
 				}
 
 				//Enable QR-checkBox?
 				if(qr){
-					findQR(matFrame);
+//					findQR(matFrame);
+					frames[0] = bm.filterMat(img);
+				} else {
+					frames[0]=img;
 				}
 
 			} catch (NullPointerException e){
