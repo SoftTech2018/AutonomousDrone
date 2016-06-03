@@ -110,4 +110,17 @@ public class PunktNavigering {
 		return new Vector2(x,y);
 	}
 	
+	public double droneVendingsGrad(Vector2 dronePunkt, Vector2 vægMark, Vector2 nytPunkt) {
+		//Vi rykker vægMark og nytPunkt ned til origo
+		vægMark.sub(dronePunkt);
+		nytPunkt.sub(dronePunkt);
+		dronePunkt.sub(dronePunkt);
+		
+		double øvreBrøk = vægMark.x*nytPunkt.x + vægMark.y*nytPunkt.y;
+		double nedreBrøk = Math.sqrt(Math.pow(vægMark.x,2) + Math.pow(vægMark.y,2) * 
+									 Math.pow(nytPunkt.x,2) + Math.pow(nytPunkt.y,2));
+		Double resultat = øvreBrøk/nedreBrøk;
+		return Math.cos(resultat);
+	}
+	
 }
