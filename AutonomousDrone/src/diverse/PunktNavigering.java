@@ -114,8 +114,8 @@ public class PunktNavigering {
 		//Vi rykker vægMark og nytPunkt ned til origo
 		vægMark.sub(dronePunkt);
 		nytPunkt.sub(dronePunkt);
-		dronePunkt.sub(dronePunkt);
 		
+		//Udregning af grad
 		double øvreBrøk = vægMark.x*nytPunkt.x + vægMark.y*nytPunkt.y;
 		double nedreBrøk = Math.sqrt(Math.pow(vægMark.x,2) + Math.pow(vægMark.y,2) * 
 									 Math.pow(nytPunkt.x,2) + Math.pow(nytPunkt.y,2));
