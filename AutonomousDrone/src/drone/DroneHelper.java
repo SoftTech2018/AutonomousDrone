@@ -57,7 +57,7 @@ public class DroneHelper {
 		if(start.getY() > slut.getY()){
 			goRight = true;
 		}
-		int margin = 200; // Sikkerhedssafstand til papkassen
+		int margin = 80; // Sikkerhedssafstand til papkassen
 
 		if(papkasseTjek(start, slut, margin)){
 			int yMargin;
