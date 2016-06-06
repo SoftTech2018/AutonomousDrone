@@ -45,4 +45,8 @@ public interface IDroneControl {
 
 	void setTimeMode(boolean timeMode);
 
+	void turnDrone(double rotVinkel);
+
+	void flyDrone(double dist);
+
 }

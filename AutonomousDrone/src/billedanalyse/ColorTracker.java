@@ -144,6 +144,9 @@ public class ColorTracker {
 		} else {
 			Core.inRange(temp, minGreen, maxGreen, out);	
 		}
+//		Scalar blackMin = new Scalar(0, 0, 0);
+//		Scalar blackMax = new Scalar(180, 255, 50);
+//		Core.inRange(temp, blackMin, blackMax, out);
 
 		Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
 		Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(8, 8));
