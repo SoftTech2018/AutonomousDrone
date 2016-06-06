@@ -54,4 +54,25 @@ public class Log {
 			fw.close();
 		}
 	}
+	public static void writeSize(int[] size){
+	
+		String stringToLog;
+		PrintWriter fw = null;
+		try {
+			fw = new PrintWriter(new BufferedWriter(new FileWriter("roomSize.txt", false)));
+	
+			for(int i = 0; i < size.length; i++){
+				stringToLog =  size[i] + "\n";
+				System.out.println(stringToLog);
+				fw.write(stringToLog);
+			}
+			
+		
+		} catch (Exception e) {
+		   e.printStackTrace();
+		   System.out.println("Filen kunne ikke åbnes");
+		} finally {
+			fw.close();
+		}
+	}
 }

@@ -27,7 +27,7 @@
               </rowConstraints>
                <children>
                   <TextField fx:id="length" prefHeight="25.0" prefWidth="125.0" GridPane.columnIndex="1" />
-                  <Label text="Label" />
+                  <Label text="Længde" />
                </children>
                <HBox.margin>
                   <Insets right="50.0" />
@@ -106,7 +106,7 @@
                         <Label text="W01_02" GridPane.rowIndex="2" />
                         <Label text="W01_03" GridPane.rowIndex="3" />
                         <Label text="W01_04" GridPane.rowIndex="4" />
-                        <TextArea fx:id="W01_00" GridPane.columnIndex="1" />
+                        <TextField fx:id="W01_00" GridPane.columnIndex="1" />
                         <TextField fx:id="W01_01" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <TextField fx:id="W01_02" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <TextField fx:id="W01_03" GridPane.columnIndex="1" GridPane.rowIndex="3" />

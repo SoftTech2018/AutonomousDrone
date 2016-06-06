@@ -1,38 +1,131 @@
 package gui;
 
+import java.io.IOException;
+import java.util.ArrayList;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
+import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
-import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.stage.Stage;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
-public class GuiRoom extends Application{
+public class GuiRoom extends Canvas{
 
-	public static void main(String[] args) {
-		launch(args);
+
+	private int xLength;
+	private int yLength;
+	double zoomScale = 5;
+
+	OpgaveRum opgRum;
+	GraphicsContext gc;
+
+
+	public GuiRoom() throws NumberFormatException, IOException{
+		super(200,822);
+		gc = super.getGraphicsContext2D();
+        gc.fillRect(0, 0, 200, 300);
+		opgRum = new OpgaveRum();
+		drawVisible(gc);
+		this.setOnMousePressed(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+
+				try {
+					clear();
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+
+				}
+			}
+		});
+
 	}
 
-	@Override
-	public void start(Stage primaryStage) {
-		primaryStage.setTitle("OpgaveRum");
-		Group root = new Group();
-		Canvas canvas = new Canvas(320, 300);
-		GraphicsContext gc = canvas.getGraphicsContext2D();
-		drawRoom(gc);
-		root.getChildren().add(canvas);
-		primaryStage.setScene(new Scene(root));
-		primaryStage.show();
-	}
+	public void drawVisible(GraphicsContext gc){
+		xLength = opgRum.getWidth();
+		yLength = opgRum.getLength();
+		double guiWidth = xLength/zoomScale;
+		double guiLength = yLength/zoomScale;
+		gc.setFill(Color.BLACK);
+		gc.fillRect(0, 40, guiWidth, guiLength);
+		
+		gc.setStroke(Color.BLUE);
+		gc.setLineWidth(2);
+		gc.strokeRect(4, 40, guiWidth, guiLength);
+		ArrayList<Koordinat> objects = opgRum.getFoundObjects();
 
-	public void drawRoom(GraphicsContext gc){
-		OpgaveRum opgRum = new OpgaveRum(301, 271);
+
+
+		
+		gc.setFill(Color.CYAN);
+
 		for (int i = 0; i < opgRum.markingKoordinater.length; i++) {
-			gc.setLineWidth(5);
-			gc.strokeLine(opgRum.markingKoordinater[i].getX(), opgRum.markingKoordinater[i].getY(), opgRum.markingKoordinater[i].getX()+1, opgRum.markingKoordinater[i].getY()+1);
+			if(opgRum.markingKoordinater[i] != null){
+
+				double x = (double) opgRum.markingKoordinater[i].getX()/zoomScale;
+				double y = (double) opgRum.markingKoordinater[i].getY()/zoomScale;
+             if(x > 180 || x == 0){
+				gc.fillRect(x+4, y+40, 2, 4 );	
+             }else{
+            	 gc.fillRect(x+4, y+40, 4, 2 );	
+             }
+			}
+
 		}
+		if(objects.size() > 0){
+
+			for (int i = 0; i < objects.size(); i++) {
+				Koordinat koord = objects.get(i);
+				gc.setFill(Color.RED);
+				gc.fillRect((koord.getX()/5)+4, (koord.getY()/5)+40, 2, 2);
+			}
+
+		}
+		
+		gc.fillText("Room Map", 10, 10);
+		
+		gc.strokeLine(10, 20, 100/zoomScale, 20);
+		gc.strokeLine(10, 18, 10, 22);
+		gc.strokeLine(100/zoomScale, 18, 100/zoomScale, 22);
+		gc.fillText("1,m", 100/zoomScale+5 , 20);
+		
+		opgRum.setObstacleCenter(new Koordinat(300, 700));
+		
+		Koordinat k;
+		if((k = opgRum.getObstacleCenter()) != null){
+		
+			gc.fillOval(k.getX()/zoomScale, (k.getY()/zoomScale)+40, 80/zoomScale, 80/zoomScale);
+		}
+	
+		
 	}
+
+
+
+	public void clear() throws NumberFormatException, IOException{
+		gc.clearRect(0, 0, 300, 322);
+		opgRum = new OpgaveRum();
+		drawVisible(gc);
+
+	}
+
+
+
+
+
+
+
+
+
+
 }
+
+

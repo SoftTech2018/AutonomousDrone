@@ -5,9 +5,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import diverse.Log;
 import diverse.circleCalc.Vector2;
+import diverse.koordinat.Genstand.FARVE;
+import sun.security.ssl.KerberosClientKeyExchange;
 
 
 /**
@@ -20,49 +23,80 @@ import diverse.circleCalc.Vector2;
  */
 public class OpgaveRum {
 
-	Koordinat[][] rum;
-	int længde, bredde;
+	private Koordinat[][] rum;
+	private int længde = 0;
+	private int bredde = 0;
+	private boolean isMarkingOk = true;
+	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
+	private Koordinat obstacleCenter = null;
 
+	public int getLength() {
+		return længde;
+	}
+
+
+	public int getWidth() {
+		return bredde;
+	}
 	// Et array til at holde styr på koordinaterne til vægmarkeringerne ( Indlæses i setMarkingsmetoden)
-	public Koordinat[] markingKoordinater = new Koordinat[16];	
+	public Koordinat[] markingKoordinater = new Koordinat[20];	
 
-	// markings er et array af de 16 kende vægmarkeringer, bliver tildelt en koordinat vha setMarkings
+	// markings er et array af de 200 kende vægmarkeringer, bliver tildelt en koordinat vha setMarkings
 	WallMarking[] markings = {
 			new WallMarking("W00_00"),new WallMarking("W00_01"),
-			new WallMarking("W00_02"),new WallMarking("W01_00"),
+			new WallMarking("W00_02"),new WallMarking("W00_03"),
+			new WallMarking("W00_04"),new WallMarking("W01_00"),
 			new WallMarking("W01_01"),new WallMarking("W01_02"),
 			new WallMarking("W01_03"),new WallMarking("W01_04"),
 			new WallMarking("W02_00"),new WallMarking("W02_01"),
-			new WallMarking("W02_02"),new WallMarking("W03_00"),
+			new WallMarking("W02_02"),new WallMarking("W02_03"),
+			new WallMarking("W02_04"),new WallMarking("W03_00"),
 			new WallMarking("W03_01"),new WallMarking("W03_02"),
 			new WallMarking("W03_03"),new WallMarking("W03_04")
 	};
 
 
 	// Konstruktør tager imod længde og bredde, opretter et koordinatsystem, og sætter markeringerne
-	public OpgaveRum(int længde, int bredde) {
-		this.længde = længde;
-		this.bredde = bredde;
-		rum = new Koordinat[længde][bredde];
-		for (int i = 0; i < længde; i++) {
-			for (int j = 0; j < bredde; j++) {
+	public OpgaveRum() throws NumberFormatException, IOException {
+		setSize();
+
+		rum = new Koordinat[bredde][længde];
+		for (int i = 0; i < bredde; i++) {
+			for (int j = 0; j < længde; j++) {
 				rum[i][j] = new Koordinat(i, j);
 			}
 		}
 		setMarkings();
+		
+		for (int i = 0; i < 963; i = i+100) {
+			for (int j = 0; j < 1078; j=j+100) {
+				System.out.println(i + " " + j);
+				addGenstandTilKoordinat(rum[i][j], new Genstand(FARVE.RØD));
+			
+			}
+		}
 
 	}
 
 
-	/* 
-	 *         Længde 
-	 *    * * * * * * * * * *
-	 *    * * * * * * * * * *
-	 *    * * * * * * * * * *   Bredde
-	 *    * * * * * * * * * *
-	 *    * * * * * * * * * *
-	 * 
+	/**
+	 * setSize() læser fra roomSize.txt og sætter længde og bredde af rummet.
+	 * @throws NumberFormatException
+	 * @throws IOException
 	 */
+
+	private void setSize() throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new FileReader(new File("roomSize.txt")));
+		String size;
+		if((size = br.readLine())!= null){
+			bredde = Integer.parseInt(size)+1; // lægger én til
+		}
+		if((size = br.readLine())!= null){
+			længde = Integer.parseInt(size)+1; // Lægger én til.
+		}
+		br.close();
+	}
+
 
 	/**
 	 * Metode til at tilføje genstande til et koordinat
@@ -71,6 +105,7 @@ public class OpgaveRum {
 	 */
 	public void addGenstandTilKoordinat(Koordinat koordinat, Genstand genstand){
 		koordinat.addGenstand(genstand);
+		fundneGenstande.add(koordinat);
 	}
 
 	/**
@@ -80,14 +115,14 @@ public class OpgaveRum {
 	 * @return Returnere det koordinat der ligger på det angivende længde og bredde
 	 */
 	public Koordinat hentKoordinat(int længde, int bredde){
-		return rum[længde][bredde];
+		return rum[bredde][længde];
 	}
 
 	//Udskriver alle koordinaterne til Loggen
 	public void udskrivKoordinater(){
 		Log.writeLog("Der er fundet følgende");
-		for (int i = 0; i < længde; i++) {
-			for (int j = 0; j < bredde; j++) {
+		for (int i = 0; i < bredde; i++) {
+			for (int j = 0; j < længde; j++) {
 				Log.writeLog(rum[i][j].toString());
 			}
 		}
@@ -95,25 +130,35 @@ public class OpgaveRum {
 
 	// Sætter vægmarkeringerne efter wallmarks.txt
 	public void setMarkings(){
+		BufferedReader br;
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File("wallmarks.txt")));
+			br = new BufferedReader(new FileReader(new File("wallmarks.txt")));
 			String wallmark;
 			for(int i = 0; i< markings.length; i++){
-				if((wallmark = br.readLine())!= null){
-					System.out.println(wallmark);
-					String[] temp = wallmark.split(",");
-					int x = Integer.parseInt(temp[0]);
-					int y = Integer.parseInt(temp[1]);
-					rum[x][y].setMarking(markings[i]);
-					markingKoordinater[i]= rum[x][y];
-				}
+				try {
+					if((wallmark = br.readLine())!= null){
+						
+						System.out.println(wallmark);
+						String[] temp = wallmark.split(",");
+						int x = Integer.parseInt(temp[0]);
+						int y = Integer.parseInt(temp[1]);
+					
+						markingKoordinater[i]= new Koordinat(x, y);
+						
+					}
 
+				} catch (Exception e) {
+
+				}
 			}
+
+
+			br.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
@@ -135,7 +180,7 @@ public class OpgaveRum {
 		}
 	}
 
-	// 
+	// hjælpe metode til getMultiMarkings()
 	private int getMarkeringNummer(String markName){
 		for(int i = 0; i< markings.length; i++){
 			if(markings[i].getString().equals(markName)){
@@ -145,7 +190,7 @@ public class OpgaveRum {
 		return -1;
 	}
 
-	
+
 	/**
 	 * 
 	 * @param markName Den String som QR code scanneren returnerer
@@ -173,6 +218,40 @@ public class OpgaveRum {
 		return temp;
 	}
 
+	public void setLength(int length){
+		this.længde = længde;
+	}
+	public void setWidth(int width){
+		this.bredde = width;
+	}
+
+	public ArrayList<Koordinat> getFoundObjects(){
+		return fundneGenstande;
+	}
+
+	public void setObstacleCenter(Koordinat k){
+		obstacleCenter = rum[k.getX()][k.getY()];
+	}
+	
+	public boolean erForhindring(Koordinat k){
+		
+		Vector2 obstacle = obstacleCenter.getVector();
+		Vector2 searchPoint = k.getVector();
+		Vector2 temp = obstacle.sub(searchPoint);
+		double afstand = Math.sqrt(Math.pow(temp.x, 2) + Math.pow(temp.y, 2));
+		if(afstand > 80){
+			return true;
+		}
+		
+		return false;
+	}
+	public Koordinat getObstacleCenter(){
+		return obstacleCenter;
+	}
+	
+	
 }
+
+
 
 

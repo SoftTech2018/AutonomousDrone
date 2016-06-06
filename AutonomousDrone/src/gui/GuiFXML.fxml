@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
@@ -7,8 +8,9 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
+<?import gui.GuiRoom?>
 
-<AnchorPane prefHeight="583.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
+<AnchorPane prefHeight="583.0" prefWidth="847.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
    <children>
       <GridPane layoutX="14.0" layoutY="419.0" maxWidth="400.0" minHeight="150.0" prefHeight="90.0" prefWidth="408.0">
          <children>
@@ -43,8 +45,8 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
       </GridPane>
-      <ImageView fx:id="currentFrame" fitHeight="278.0" fitWidth="361.0" layoutX="10.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true" />
-      <AnchorPane layoutX="376.0" layoutY="9.0" minHeight="0.0" minWidth="0.0" prefHeight="432.0" prefWidth="191.0">
+      <ImageView fx:id="currentFrame" fitHeight="276.0" fitWidth="338.0" layoutX="10.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true" />
+      <AnchorPane layoutX="649.0" minHeight="0.0" minWidth="0.0" prefHeight="432.0" prefWidth="191.0">
          <children>
             <CheckBox fx:id="grey_checkBox" layoutX="10.0" layoutY="57.0" mnemonicParsing="false" onAction="#colorChange" text="Enable Filter" />
             <Label layoutX="10.0" layoutY="13.0" text="Frames/Second:" />
@@ -71,5 +73,8 @@
       <ImageView fx:id="optFlow_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="21.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="objTrack_imageView" fitHeight="120.0" fitWidth="160.0" layoutX="205.0" layoutY="306.0" pickOnBounds="true" preserveRatio="true" />
       <Button fx:id="startOpgAlgo" layoutX="394.0" layoutY="533.0" mnemonicParsing="false" onAction="#startCamera" text="Start Skynet" />
+      <GuiRoom fx:id="mapView" height="422.0" layoutX="394.0" layoutY="10.0" width="200.0"  />
+      <Button fx:id="setMapInfo" layoutX="750.0" layoutY="533.0" text="Set Room Info" onAction="#setMapInfo" />
+    
    </children>
 </AnchorPane>
