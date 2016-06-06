@@ -29,14 +29,14 @@ public class DroneControl implements IDroneControl {
 	 *  SÆT TIL TRUE NÅR DER TESTES UDEN DRONE!
 	 *  SÆT TIL FALSE NÅR DER TESTES MED DRONE!
 	 */
-	private final boolean TEST_MODE = true;
+	private final boolean TEST_MODE = false;
 
 	private IARDrone drone;
 	private CommandManager cmd;
 	private NavDataManager ndm;
 	
 	//TurnLeft og TurnRight ganges med faktor 8-10, up og down ganges med faktor 5
-	private final int SPEED = 5; /* % */ 
+	private final int SPEED = 10; /* % */ 
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 2000; /* mm */
 	private final int DURATION = 100; /* ms */
@@ -280,15 +280,16 @@ public class DroneControl implements IDroneControl {
 	 */
 	@Override
 	public void turnLeft() throws InterruptedException{
-		if(DRONE_DEBUG){
-			System.out.println("DroneControl: Drejer Venstre");
-		}
-		if(!timeMode){
-			cmd.spinLeft(SPEED*8);
-		} else {
-			cmd.spinLeft(SPEED*8).doFor(DURATION);	
-			Thread.sleep(DURATION);
-		}
+		this.turnDrone(-90);
+//		if(DRONE_DEBUG){
+//			System.out.println("DroneControl: Drejer Venstre");
+//		}
+//		if(!timeMode){
+//			cmd.spinLeft(SPEED*8);
+//		} else {
+//			cmd.spinLeft(SPEED*8).doFor(DURATION);	
+//			Thread.sleep(DURATION);
+//		}
 		//		cmd.hover();
 	}
 
@@ -358,7 +359,7 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void turnDrone(double rotVinkel) {
-		final int FACTOR = 10; //Tidsfaktor
+		final int FACTOR = 13; //Tidsfaktor
 		final int VINKELFEJL = 5; // Fejlmargin i sigte
 		
 		// Find YAW-værdien som dronen bør have når den peger på målet
@@ -370,21 +371,23 @@ public class DroneControl implements IDroneControl {
 		}
 		
 		if(rotVinkel < 0){// Drej til venstre
-			cmd.spinLeft(SPEED).doFor((long) (FACTOR*rotVinkel));
-
+			cmd.spinLeft(SPEED).doFor((long) Math.abs((FACTOR*rotVinkel)));
 		} else {// Drej til højre
-			cmd.spinRight(SPEED).doFor((long) (FACTOR*rotVinkel));
+			cmd.spinRight(SPEED).doFor((long) Math.abs((FACTOR*rotVinkel)));
 		}
 		
 		// Korrektion, finjustering af sigte
 		int vinkel;
 		while((vinkel = (targetYaw-this.yaw)) > VINKELFEJL || vinkel < -VINKELFEJL){
 			if(vinkel<0){ // Vi skal dreje til venstre
-				cmd.spinLeft(SPEED).doFor(FACTOR);
+				cmd.spinLeft(SPEED).doFor(FACTOR*5);
 			} else if(vinkel>0){ // Vi skal dreje til højre
-				cmd.spinRight(SPEED).doFor(FACTOR);
+				cmd.spinRight(SPEED).doFor(FACTOR*5);
 			}
+			System.err.println("Justerer vinkel: " + vinkel);
+			System.err.println("targetYaw: " + targetYaw);
 		}
+		cmd.hover();
 	}
 
 	@Override
@@ -395,6 +398,18 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.backward(SPEED).doFor((long) (FACTOR*dist));
 		}
+	}
+
+	@Override
+	public void strafeRight(int dist) {
+		final long FACTOR = 10; // TODO
+		cmd.goRight(SPEED).doFor(FACTOR*dist);
+	}
+
+	@Override
+	public void strafeLeft(int dist) {
+		final long FACTOR = 10; // TODO
+		cmd.goLeft(SPEED).doFor(FACTOR*dist);
 	}
 	
 

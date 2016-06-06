@@ -1,21 +1,19 @@
 package drone;
 
-import org.opencv.core.Point;
-
 import diverse.koordinat.Koordinat;
-import diverse.koordinat.OpgaveRum;
 
 public class DroneHelper {
 
 	private IDroneControl dc;
-	private OpgaveRum or;
+	private Koordinat papKasse;
 
-	public DroneHelper(IDroneControl dc, OpgaveRum or){
+	public DroneHelper(IDroneControl dc, Koordinat papKasse){
 		this.dc = dc;
-		this.or = or;
+		this.papKasse = papKasse;
 	}
 
-	public void flyTo(Koordinat start, Koordinat slut, int vinkel){
+	public void flyTo(Koordinat start, Koordinat slut){
+		int vinkel = dc.getFlightData()[2];
 		// Beregn hvor meget dronen skal dreje for at "sigte" på slut punktet
 		int a = slut.getX() - start.getX();
 		int b = slut.getY() - start.getY();
@@ -37,10 +35,10 @@ public class DroneHelper {
 			System.out.println("Dronen skal flyve: " + dist + " fremad.");
 		}
 
-		if(this.papkasseTjek(start, slut, or.getPapkasse(), 200)){
+		if(this.papkasseTjek(start, slut, 200)){
 			Koordinat temp = new Koordinat(500,450); // CENTRUM af rummet
-			this.flyTo(start, temp, vinkel); // Flyv til centrum af rummet
-			this.flyTo(temp, slut, dc.getFlightData()[2]); // Flyv fra centrum af rummet til landingsplads
+			this.flyTo(start, temp); // Flyv til centrum af rummet
+			this.flyTo(temp, slut); // Flyv fra centrum af rummet til landingsplads
 		} else {
 			// Drej dronen X grader
 			dc.turnDrone(rotVinkel);
@@ -60,8 +58,8 @@ public class DroneHelper {
 			goRight = true;
 		}
 		int margin = 200; // Sikkerhedssafstand til papkassen
-		Koordinat papKasse = or.getPapkasse();
-		if(papkasseTjek(start, slut, papKasse, margin)){
+
+		if(papkasseTjek(start, slut, margin)){
 			int yMargin;
 			if(!goRight){
 				yMargin = papKasse.getY() - margin;
@@ -108,7 +106,7 @@ public class DroneHelper {
 				p2 = new Koordinat(start.getX(), tempPunkt.getY() - 2*margin);
 				dc.strafeRight(p2.getY() - slut.getY());
 			} else {
-				new Koordinat(start.getX(), tempPunkt.getY() + 2*margin);
+				p2 = new Koordinat(start.getX(), tempPunkt.getY() + 2*margin);
 				dc.strafeLeft(slut.getY() - p2.getY());
 			}
 		} else {
@@ -120,11 +118,11 @@ public class DroneHelper {
 		}
 	}
 
-	private boolean papkasseTjek(Koordinat pointA, Koordinat pointB, Koordinat center, double radius) {
+	private boolean papkasseTjek(Koordinat pointA, Koordinat pointB, double radius) {
 		double baX = pointB.getX() - pointA.getX();
 		double baY = pointB.getY() - pointA.getY();
-		double caX = center.getX() - pointA.getX();
-		double caY = center.getY() - pointA.getY();
+		double caX = papKasse.getX() - pointA.getX();
+		double caY = papKasse.getY() - pointA.getY();
 
 		double a = baX * baX + baY * baY;
 		double bBy2 = baX * caX + baY * caY;
@@ -139,5 +137,10 @@ public class DroneHelper {
 		} else {
 			return true;
 		}
+	}
+
+	public void adjust(Koordinat dronePos, Koordinat koordinat) {
+		// TODO Auto-generated method stub
+
 	}
 }

@@ -109,5 +109,11 @@ public class Koordinat {
 	public Vector2 getVector(){
 		return v;
 	}
+
+	public int dist(Koordinat koordinat) {
+		int a = this.getX() - koordinat.getX();
+		int b = this.getY() - koordinat.getY();
+		return (int) Math.abs(Math.sqrt(a*a+b*b)); 
+	}
 }
 

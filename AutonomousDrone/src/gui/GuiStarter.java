@@ -31,7 +31,7 @@ public class GuiStarter extends Application{
 			primaryStage.show();
 
 			// Lytter til key-events til at styre dronen.
-			scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+			scene.setOnKeyReleased(new EventHandler<KeyEvent>(){
 				@Override
 				public void handle(KeyEvent arg0) {
 					if(GuiStarter.GUI_DEBUG){
@@ -72,15 +72,15 @@ public class GuiStarter extends Application{
 				}		
 			});
 
-			scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-				@Override
-				public void handle(KeyEvent event) {
-					if(GuiStarter.GUI_DEBUG){
-						System.out.println("Key released!");						
-					}
-					controller.hover(null);				
-				}				
-			});
+//			scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
+//				@Override
+//				public void handle(KeyEvent event) {
+//					if(GuiStarter.GUI_DEBUG){
+//						System.out.println("Key released!");						
+//					}
+//					controller.hover(null);				
+//				}				
+//			});
 
 			// K�res n�r vinduet lukkes - hvad skal der ske hvis vinduet lukkes mens dronen flyver?
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

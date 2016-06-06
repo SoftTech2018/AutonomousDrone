@@ -186,6 +186,7 @@ public class GuiController {
 		};
 		this.droneTimer = Executors.newSingleThreadScheduledExecutor();
 		this.droneTimer.scheduleAtFixedRate(droneChecker, 0, 1000, TimeUnit.MILLISECONDS);
+		
 	}
 
 	@FXML

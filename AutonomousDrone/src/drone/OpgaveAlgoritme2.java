@@ -29,16 +29,20 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private IDroneControl dc;
 	private IBilledAnalyse ba;
 	private OpgaveRum opgrum;
+	private DroneHelper dh;
 	private QRCodeScanner qrcs;
 	private PunktNavigering pn;
 	protected boolean doStop = false;
 	private boolean flying = false;
 	private Vector2 dronePunkt = null;
-	
+	private ArrayList<Koordinat> searchPoints;
+	private Koordinat landingsPlads, papKasse;
+
 
 	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
 		this.dc = dc;
 		this.ba = ba;
+		this.createPoints();
 	}
 
 	/**
@@ -82,8 +86,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 					Log.writeLog("*Dronen letter autonomt.");
 					flying = true;
 					dc.takeoff();
-					findMark();
-					//Her skal tilføjes en metode til at logge landingspladsen
+
 					if(OPGAVE_DEBUG){
 						System.err.println("*** Dronen letter og starter opgaveløsning ***");
 					}
@@ -95,13 +98,84 @@ public class OpgaveAlgoritme2 implements Runnable {
 					}
 				}
 			}
-			// Find de mulige manøvre vi kan foretage os
-			boolean retninger[] = getPossibleManeuvers(); // 0=down, 1=up, 2=goLeft, 3=goRight, 4=forward
-			if(!retninger[4]){
-				Log.writeLog("Dronen kan ikke flyve forlæns. Hover.");
-				dc.hover(); // Vi kan ikke flyve forlæns, ergo må vi stoppe dronen
+
+			// Find position og gem position som landingsplads
+			landingsPlads = findDronePos();
+			
+			// Find papkasse-position
+			
+			this.dh = new DroneHelper(dc, papKasse);
+			
+			// Flyv til start
+			dh.flyTo(landingsPlads, this.searchPoints.get(0));
+
+			// Roter drone (mod vinduet)
+			dc.turnDrone(90-dc.getFlightData()[2]);
+			dh.adjust(findDronePos(), searchPoints.get(0));
+
+			// Start objektsøgning
+			objectSearch();
+
+			// Flyv til landingsplads
+			dc.turnDrone(0-dc.getFlightData()[2]); // Drej dronen mod tavlevæggen 
+			dh.flyTo(findDronePos(), landingsPlads); // Flyv fra opdateret position til landingsplads
+			
+			// Land
+			dc.turnDrone(-90-dc.getFlightData()[2]); // Drej dronen mod fjerneste væg
+			dh.adjust(findDronePos(), landingsPlads);
+			destroy();
+		}
+	}
+
+	private void createPoints(){
+		int yMax = 900; // Max Y værdi i koordinatsættet som dronen skal besøge
+		int yMin = 0; // Min Y værdi i koordinatsættet som dronen skal besøge
+		int xMin = 478; // Min X værdi i koordinatsættet som dronen skal besøge
+		int step = 75; // Bredden af en søgebane
+		searchPoints = new ArrayList<Koordinat>();
+		for(int i=0; i<8; i++){
+			if(i%2==0){
+				searchPoints.add(new Koordinat(xMin + i*step, yMin));
+				searchPoints.add(new Koordinat(xMin + i*step, yMax));
+			}else {
+				searchPoints.add(new Koordinat(xMin + i*step, yMax));
+				searchPoints.add(new Koordinat(xMin + i*step, yMin));
 			}
 		}
+	}
+	
+	private void objectSearch() throws InterruptedException{	
+		final int ACCEPT_DIST = 50; // Acceptabel fejlmargin i position (cm)
+
+		// Find dronepos
+		Koordinat dronePos = findDronePos();
+
+		// Strafe højre/venstre
+		for(int i=0; i<8; i++){
+			//Skift kamera (nedaf)
+			dc.toggleCamera();
+			Thread.sleep(500);
+
+			// Strafe 90%
+			dh.strafePunkt(searchPoints.get(2*i), searchPoints.get(2*i+1));				
+			// Tjek pos
+
+			//Skift kamera (fremad)
+			dc.toggleCamera();
+			Thread.sleep(500);
+			dronePos = findDronePos();
+			if(dronePos.dist(searchPoints.get(2*i+1)) > ACCEPT_DIST){
+				// Finjuster til næste startbane
+				if(i!=7){					
+					dh.adjust(dronePos, searchPoints.get(2*i+2));
+				}
+			}
+		}
+	}
+
+	private Koordinat findDronePos(){
+		// TODO
+		return null;
 	}
 
 	/**
@@ -134,7 +208,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 				if(OPGAVE_DEBUG){
 					System.err.println("Intet mål fundet. Drejer dronen.");
 				}
-//				getPossibleManeuvers();
+				//				getPossibleManeuvers();
 				dc.turnLeft();	
 				Log.writeLog("DREJER VENSTRE");
 			}
@@ -153,16 +227,16 @@ public class OpgaveAlgoritme2 implements Runnable {
 			}
 			if(qrcs.getQrt() != ""){
 				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
-				
+
 				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
-				
+
 				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
-				
+
 				dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
 				Log.writeLog("Dronepunkt "+ dronePunkt.x +  " , " + dronePunkt.y +"fundet.");
-				
+
 				objektSøgning();
-				
+
 				return true;
 			}
 			if(OPGAVE_DEBUG){
@@ -173,178 +247,56 @@ public class OpgaveAlgoritme2 implements Runnable {
 		}
 		return false;
 	}
-	
-	private boolean objektSøgning(){
-		dc.toggleCamera();
-		boolean status = false;
-			while(status ) { //gentager registrering indtil der ikke er flere uopdaget objekter
-				/*Her skal der registreres objekter*/
-				if(objectsfound == true /*Tjek for om der stadig er objekter i dronens synsfelt der ikke er registeret*/) {
-					status = true;
-				}
-			}
-			
-		return true; //Returnere true, hvis der ikke er flere objekter tilbage at registere
+
+
+	/**
+	 * Hvis opgaven afbrydes af brugeren kaldes denne metode. Dronen lander øjeblikkeligt.
+	 */
+	private void destroy() {
+		doStop = true;
+		flying = true;
+		System.err.println("*** SKYNET DESTROYED");
+		Log.writeLog("*** OpgaveAlgoritme afsluttes. Dronen forsøger at lande.");
+		try {			
+			dc.land();
+			dc.setTimeMode(false);
+		} catch (NullPointerException e){
+			if(OPGAVE_DEBUG)
+				System.err.println("OpgaveAlgoritme.dc er null. Der er ikke forbindelse til dronen.");
+		}
+		return;
+	}
+
+	private Vector2 markFound(String getqrt){
+		//Her skal der hentes koordinater via en getMark metode
+
+		if(getqrt != "") {
+			Vector2 punkter[] = opgrum.getMultiMarkings(getqrt);
+
+			//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+
+			Vector2 dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+		} else {
+			return null;
+		}
+	}
+
+	private boolean newLocation(Vector2 dronePunkt) {
+
+
+
+		return true;
 	}
 
 
-		/**
-		 * Hvis opgaven afbrydes af brugeren kaldes denne metode. Dronen lander øjeblikkeligt.
-		 */
-		private void destroy() {
-			doStop = true;
-			flying = true;
-			System.err.println("*** SKYNET DESTROYED");
-			Log.writeLog("*** OpgaveAlgoritme afsluttes. Dronen forsøger at lande.");
-			try {			
-				dc.land();
-				dc.setTimeMode(false);
-			} catch (NullPointerException e){
-				if(OPGAVE_DEBUG)
-					System.err.println("OpgaveAlgoritme.dc er null. Der er ikke forbindelse til dronen.");
-			}
+
+	@Override
+	public void run() {
+		try {
+			this.startOpgaveAlgoritme();
+		} catch (InterruptedException e) {
+			this.destroy();
 			return;
-		}
-
-		private Vector2 markFound(String getqrt){
-			//Her skal der hentes koordinater via en getMark metode
-			
-			if(getqrt != "") {
-				Vector2 punkter[] = opgrum.getMultiMarkings(getqrt);
-				
-				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
-				
-				Vector2 dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
-			} else {
-				return null;
-			}
-		}
-
-		private boolean newLocation(Vector2 dronePunkt) {
-			
-			
-			
-			return true;
-		}
-
-		/**
-		 * Find de mulige manøvremuligheder for dronen. False betyder at vi ikke kan flyve i den retning
-		 * @return Array med mulige retninger: down, up, goLeft, goRight, forward
-		 */
-		public boolean[] getPossibleManeuvers(){
-			int size = 3;
-			double threshold = 25; // TODO Bestemmer hvor stor magnituden i en firkant må være
-
-			Mat frame = new Mat();
-			frame = ba.getMatFrame();
-
-			double magnitudes[][] = ba.calcOptMagnitude(size); // Beregn Magnituden (baseret på Optical Flow vektorer)
-
-			Point center = new Point(640/2, 360/2);
-			double x = center.x;
-			double y = center.y;
-			double hStep = 360/size;
-			double vStep = 640/size;
-
-			// Mulige manøvre
-			boolean retninger[] = {false,false,false,false,false};// down, up, goLeft, goRight, forward
-
-			// Tegn røde og grønne firkanter der symboliserer mulige manøvre
-			Scalar red = new Scalar(0,0,255); // Rød farve til stregen
-			Scalar green = new Scalar(0,255,0); // Grøn farve 
-			int thickness = 2; // Tykkelse på stregen
-			double min = Double.MAX_VALUE;
-			int mindsteI = -1;
-			int mindsteO = -1;
-			for(int i=0; i<size; i++){
-				for(int o=0; o<size; o++){
-					// Find den mindste magnitude
-					if(magnitudes[i][o] < min){
-						min = magnitudes[i][o];
-						mindsteI = i;
-						mindsteO = o;
-					}
-					// Tegn rød firkant hvis objektet er for tæt på, ellers tegn grøn firkant
-					if(magnitudes[i][o] >= threshold){
-						Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), red, thickness);
-					} else {
-						Imgproc.rectangle(frame, new Point(vStep*i, hStep*o), new Point(vStep*(i+1)-2, hStep*(o+1)-2), green, thickness);
-					}
-				}
-			}
-			ba.setImage(frame); // Opdater billedet i BA så det nytegnede billede vises på GUI
-
-			// Balance-modellen - vi bevæger os derhen hvor der er mindst magnitude
-			Random r = new Random();
-			switch(mindsteI){
-			case 0: // Venstre kolonne
-				switch(mindsteO){
-				case 0: // Flyv venstre eller op
-					if(r.nextBoolean()){
-						retninger[2] = true;
-					} else {
-						retninger[2] = true;
-					}
-					break;
-				case 1: // Flyv venstre
-					retninger[2] = true;
-					break;
-				case 2: // Flyv venstre eller ned
-					if(r.nextBoolean()){
-						retninger[2] = true;
-					} else {
-						retninger[2] = true;
-					}
-					break;
-				}
-				break;
-			case 1: // Midterste kolonne
-				switch(mindsteO){
-				case 0: // Flyv op
-					retninger[4] = true;
-					break;
-				case 1: // Fremad
-					retninger[4] = true;
-					break;
-				case 2: // Flyv ned
-					retninger[4] = true;
-					break;
-				}
-				break;
-			case 2: // Højre kolonne
-				switch(mindsteO){
-				case 0: // Flyv højre eller op
-					if(r.nextBoolean()){
-						retninger[3] = true;
-					} else {
-						retninger[3] = true;
-					}
-					break;
-				case 1: // Flyv højre
-					retninger[3] = true;
-					break;
-				case 2: // Flyv højre eller ned
-					if(r.nextBoolean()){
-						retninger[3] = true;
-					} else {
-						retninger[3] = true;
-					}
-					break;
-				}
-				break;
-			default:
-			}
-
-			return retninger;				
-		}
-
-		@Override
-		public void run() {
-			try {
-				this.startOpgaveAlgoritme();
-			} catch (InterruptedException e) {
-				this.destroy();
-				return;
-			}		
-		}
+		}		
 	}
+}

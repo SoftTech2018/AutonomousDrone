@@ -49,4 +49,8 @@ public interface IDroneControl {
 
 	void flyDrone(double dist);
 
+	void strafeRight(int i);
+
+	void strafeLeft(int i);
+
 }
