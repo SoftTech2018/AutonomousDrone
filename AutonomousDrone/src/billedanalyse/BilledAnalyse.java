@@ -412,10 +412,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-					this.testDronePos(temp, img);
+//					this.testDronePos(temp, img);
 //					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
+					Mat testimg = bm.readQrSkewed(img);
+					findQR(testimg);
+//					frames[0] = bm.filterMat(img);
+					
 				} 
 				frames[0]=img;
 
