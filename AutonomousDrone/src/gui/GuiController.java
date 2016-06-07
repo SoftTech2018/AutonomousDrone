@@ -121,6 +121,7 @@ public class GuiController {
 			e.printStackTrace();
 		}
 		WallValuesController controller = loader.getController();
+		controller.setParentController(this);
 		Scene scene = new Scene(root,850,570);
 		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		secondaryStage.setScene(scene);

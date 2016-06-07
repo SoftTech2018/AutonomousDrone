@@ -68,8 +68,8 @@ public class OpgaveRum {
 		}
 		setMarkings();
 		
-		for (int i = 0; i < 963; i = i+100) {
-			for (int j = 0; j < 1078; j=j+100) {
+		for (int i = 0; i < bredde; i = i+100) {
+			for (int j = 0; j < længde; j=j+100) {
 				System.out.println(i + " " + j);
 				addGenstandTilKoordinat(rum[i][j], new Genstand(FARVE.RØD));
 			

@@ -97,7 +97,7 @@ public class GuiRoom extends Canvas{
 		gc.strokeLine(100/zoomScale, 18, 100/zoomScale, 22);
 		gc.fillText("1,m", 100/zoomScale+5 , 20);
 		
-		opgRum.setObstacleCenter(new Koordinat(300, 700));
+
 		
 		Koordinat k;
 		if((k = opgRum.getObstacleCenter()) != null){
