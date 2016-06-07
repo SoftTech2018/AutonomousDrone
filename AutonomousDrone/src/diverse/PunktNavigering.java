@@ -25,7 +25,7 @@ public class PunktNavigering {
 	 * @param beta Vinklen fra dronen mellem p3 og p2
 	 * @return Skæringspunktet som ikke er p2.
 	 */
-	public Vector2 udregnDronePunkt(Vector2 p1, Vector2 p2, Vector2 p3, double alpha, double beta) {
+	public Vector2 udregnDronePunkt(Vector2 p1, Vector2 p3, Vector2 p2, double alpha, double beta) {
 		ArrayList<Vector2> out = findSkæringspunkt(p1, p2, p3, alpha, beta);
 		
 		if (out.size() == 2) { //Tjekker for om cirklerne ligger tangent på hinanden

@@ -30,6 +30,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private IBilledAnalyse ba;
 	private OpgaveRum opgrum;
 	private DroneHelper dh;
+	private PunktNavigering punktNav;
 	private QRCodeScanner qrcs;
 	private PunktNavigering pn;
 	protected boolean doStop = false;
@@ -42,6 +43,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
 		this.dc = dc;
 		this.ba = ba;
+		this.punktNav = new PunktNavigering();
 		this.createPoints();
 	}
 
@@ -175,7 +177,19 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 	private Koordinat findDronePos(){
 		// TODO
-		return null;
+		if(qrcs.getQrt() != ""){
+			Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
+
+			Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
+
+			//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+
+			dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+			Log.writeLog("Dronepunkt "+ dronePunkt.x +  " , " + dronePunkt.y +"fundet.");
+		}
+		
+		Vector2 dp = punktNav.udregnDronePunkt(p1, p3, p2, alpha, beta);
+		return new Koordinat((int) dp.x, (int) dp.y);
 	}
 
 	/**
