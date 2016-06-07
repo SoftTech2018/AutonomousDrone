@@ -9,7 +9,9 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.ColorTracker.MODE;
+import drone.DroneControl;
 import drone.IDroneControl;
+import drone.OpgaveAlgoritme2;
 import javafx.scene.image.Image;
 
 public class BilledAnalyse implements IBilledAnalyse, Runnable {
@@ -344,12 +346,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-//					findQR(matFrame);
-					frames[0] = bm.filterMat(img);
-				} else {
-					frames[0]=img;
-				}
-
+					findQR(img);
+//					bm.filterMat(img);
+//					bm.calcDist(img);
+				} 
+				frames[0]=img;
+				
 			} catch (NullPointerException e){
 				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
 				e.printStackTrace();
@@ -374,6 +376,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	public void findQR(Mat frame){
+		Mat out = new Mat();
+		frame.copyTo(out);
+		bm.toGray(frame);
 		qrs.imageUpdated(frame);
 	}
 

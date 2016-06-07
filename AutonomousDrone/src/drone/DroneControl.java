@@ -114,7 +114,7 @@ public class DroneControl implements IDroneControl {
 //	}
 	
 	private synchronized void setImg(BufferedImage img){
-		System.err.println("Billede opdateret.");
+//		System.err.println("Billede opdateret.");
 		bufImgOut = img;
 	}
 	
