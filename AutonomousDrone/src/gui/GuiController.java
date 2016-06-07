@@ -1,9 +1,11 @@
 package gui;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.jfree.data.time.Second;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.videoio.VideoCapture;
@@ -24,12 +26,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class GuiController {
 
@@ -41,6 +48,9 @@ public class GuiController {
 	private IBilledAnalyse ba = new BilledAnalyse(dc);
 	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
 	private Thread opgThread, baThread;
+	
+	@FXML
+	private GuiRoom mapView;
 
 	@FXML
 	private Button strafeLeft_btn;// NUMPAD 7
@@ -97,8 +107,25 @@ public class GuiController {
 	@FXML
 	private Button startOpgAlgo;
 	
+	Stage secondaryStage;
+	
 	@FXML
 	public void setMapInfo(){
+		secondaryStage = new Stage();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/WallValues.fxml"));
+		VBox root = null;
+		try {
+			root = (VBox) loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		WallValuesController controller = loader.getController();
+		Scene scene = new Scene(root,850,570);
+		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		secondaryStage.setScene(scene);
+		secondaryStage.setTitle("Skynet 0.1");
+		secondaryStage.show();
 	}
 
 	// a timer for acquiring the video stream
@@ -130,6 +157,9 @@ public class GuiController {
 	// Analyserer vi test-video?
 	private boolean useTestVideo = false; 
 
+	
+	
+	
 	@FXML
 	private void initialize(){		
 		frames_choiceBox.setValue(30);
@@ -749,6 +779,14 @@ public class GuiController {
 			System.out.println("Skriver til video-fil");
 			outVideo.write(frame);				
 		}
+	}
+	
+	public void setGuiRoom() throws NumberFormatException, IOException{
+        mapView.clear();
+	}
+	
+	public void closeMapInfo(){
+		secondaryStage.close();
 	}
 
 	// Define a variable to store the property

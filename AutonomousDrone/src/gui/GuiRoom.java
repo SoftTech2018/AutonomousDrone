@@ -29,7 +29,7 @@ public class GuiRoom extends Canvas{
 		gc = super.getGraphicsContext2D();
         gc.fillRect(0, 0, 200, 300);
 		opgRum = new OpgaveRum();
-//		drawVisible(gc);
+		drawVisible(gc);
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -113,7 +113,7 @@ public class GuiRoom extends Canvas{
 	public void clear() throws NumberFormatException, IOException{
 		gc.clearRect(0, 0, 300, 322);
 		opgRum = new OpgaveRum();
-//		drawVisible(gc);
+		drawVisible(gc);
 
 	}
 

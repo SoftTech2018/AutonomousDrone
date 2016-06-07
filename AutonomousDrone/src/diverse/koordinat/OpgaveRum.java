@@ -13,9 +13,9 @@ import diverse.koordinat.Genstand.FARVE;
 import sun.security.ssl.KerberosClientKeyExchange;
 
 
-/**
+/**Rettet 7/6 kl 9:30	
  * 
- * @author KimDrewes
+ * @author KimDrewess
  * Klasse der repræsenterer et OpgaveRum
  * OpgaveRum's objektet initialiseres ved at angive koordinater i cm
  * Vægmarkeringerne bliver indlæst fra wallmarks.txt (Bliver skrvet efter der indtastes i WallValues GUIen)
