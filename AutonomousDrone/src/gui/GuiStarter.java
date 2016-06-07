@@ -24,7 +24,7 @@ public class GuiStarter extends Application{
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/GuiFXML.fxml"));
 			AnchorPane root = (AnchorPane) loader.load();
 			GuiController controller = loader.getController();
-			Scene scene = new Scene(root,600,570);
+			Scene scene = new Scene(root,850,570);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Skynet 0.1");
