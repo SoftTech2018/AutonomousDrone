@@ -9,8 +9,7 @@ import java.util.ArrayList;
 
 import diverse.Log;
 import diverse.circleCalc.Vector2;
-import diverse.koordinat.Genstand.FARVE;
-import sun.security.ssl.KerberosClientKeyExchange;
+import diverse.koordinat.Genstand.COLOR;;
 
 
 /**Rettet 7/6 kl 9:30	
@@ -43,16 +42,16 @@ public class OpgaveRum {
 
 	// markings er et array af de 200 kende vægmarkeringer, bliver tildelt en koordinat vha setMarkings
 	WallMarking[] markings = {
-			new WallMarking("W00_00"),new WallMarking("W00_01"),
-			new WallMarking("W00_02"),new WallMarking("W00_03"),
-			new WallMarking("W00_04"),new WallMarking("W01_00"),
-			new WallMarking("W01_01"),new WallMarking("W01_02"),
-			new WallMarking("W01_03"),new WallMarking("W01_04"),
-			new WallMarking("W02_00"),new WallMarking("W02_01"),
-			new WallMarking("W02_02"),new WallMarking("W02_03"),
-			new WallMarking("W02_04"),new WallMarking("W03_00"),
-			new WallMarking("W03_01"),new WallMarking("W03_02"),
-			new WallMarking("W03_03"),new WallMarking("W03_04")
+			new WallMarking("W00.00"),new WallMarking("W00.01"),
+			new WallMarking("W00.02"),new WallMarking("W00.03"),
+			new WallMarking("W00.04"),new WallMarking("W01.00"),
+			new WallMarking("W01.01"),new WallMarking("W01.02"),
+			new WallMarking("W01.03"),new WallMarking("W01.04"),
+			new WallMarking("W02.00"),new WallMarking("W02.01"),
+			new WallMarking("W02.02"),new WallMarking("W02.03"),
+			new WallMarking("W02.04"),new WallMarking("W03.00"),
+			new WallMarking("W03.01"),new WallMarking("W03.02"),
+			new WallMarking("W03.03"),new WallMarking("W03.04")
 	};
 
 
@@ -71,7 +70,7 @@ public class OpgaveRum {
 		for (int i = 0; i < bredde; i = i+100) {
 			for (int j = 0; j < længde; j=j+100) {
 				System.out.println(i + " " + j);
-				addGenstandTilKoordinat(rum[i][j], new Genstand(FARVE.RØD));
+				addGenstandTilKoordinat(rum[i][j], new Genstand(COLOR.RØD));
 			
 			}
 		}
@@ -187,7 +186,8 @@ public class OpgaveRum {
 				return i;
 			}
 		}
-		return -1;
+		throw new NullPointerException("Fejl");
+//		return -1;
 	}
 
 
@@ -197,6 +197,8 @@ public class OpgaveRum {
 	 * @return Returnere et Array med den aflæste QR Plakat, samt positionerne af dens naboer i form af Vektor2 objekter
 	 */
 	public Vector2[] getMultiMarkings(String markName){
+
+		
 		int i = getMarkeringNummer(markName);
 		Vector2 middle = markingKoordinater[i].getVector();
 

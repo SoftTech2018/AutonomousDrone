@@ -212,7 +212,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		
 		// TODO Læs QR kode og sammenhold position med qrFirkanter objekter
 		String qrText = qrcs.imageUpdated(bufFrame);
-		
+
 		QrFirkant readQr = qrFirkanter.get(0); // TODO
 		readQr.setText(qrText);
 		Vector2 v = this.opgrum.getMultiMarkings(qrText)[1];
@@ -354,7 +354,9 @@ public class OpgaveAlgoritme2 implements Runnable {
 	@Override
 	public void run() {
 //		try {
-//			this.startOpgaveAlgoritme();
+		while(true){
+			this.findDronePos2();			
+		}
 //		} catch (InterruptedException e) {
 //			this.destroy();
 //			return;

@@ -1,6 +1,7 @@
 package billedanalyse;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
@@ -9,6 +10,11 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.ColorTracker.MODE;
+import diverse.PunktNavigering;
+import diverse.QrFirkant;
+import diverse.circleCalc.Vector2;
+import diverse.koordinat.Koordinat;
+import diverse.koordinat.OpgaveRum;
 import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme2;
@@ -34,6 +40,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private Mat webcamFrame;
 	private Mat matFrame;
 	private QRCodeScanner qrs = new QRCodeScanner();
+	
+	PunktNavigering punktNav = new PunktNavigering();
+	OpgaveRum opgrum;
 
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
@@ -44,6 +53,62 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		objTracker = new ObjectTracking(opFlow, bm);
 		colTracker = new ColorTracker();
 		colTracker.setMode(MODE.webcam);
+		
+		try {
+			opgrum = new OpgaveRum();
+		} catch (NumberFormatException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+
+	private void testDronePos(BufferedImage bufFrame, Mat frame){
+		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
+		if(qrFirkanter==null || qrFirkanter.isEmpty()){
+			return;
+		}
+		// TODO Læs QR kode og sammenhold position med qrFirkanter objekter
+		String qrText = qrs.imageUpdated(bufFrame);
+
+		System.err.println("***" + qrText);
+		
+		QrFirkant readQr = qrFirkanter.get(0); // TODO
+		readQr.setText(qrText);
+		try{
+			
+			if(qrText.equals("")){
+				return;
+			}
+		Vector2 v = this.opgrum.getMultiMarkings(qrText)[1];
+		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
+		
+		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
+		} catch (NullPointerException e){
+			e.printStackTrace();
+			return;
+		}
+
+		// Beregn distancen til QR koden
+		double dist = punktNav.calcDist(readQr.getHeight(), 420);
+		System.err.println("Distance beregnet til:" + dist);
+		
+		// Find vinklen til QR koden
+		// Dronens YAW + vinklen i kameraet til QR-koden
+		int yaw = dc.getFlightData()[2];
+		int imgAngle = punktNav.getAngle(readQr.deltaX()); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
+		int totalAngle = yaw + imgAngle;
+		
+		System.err.println("Total vinkel:" + totalAngle);
+
+		Koordinat qrPlacering = readQr.getPlacering();
+		// Beregn dronens koordinat
+		Koordinat dp = new Koordinat((int) (dist*Math.sin(totalAngle)*0.1), (int) (dist*Math.cos(totalAngle)*0.1));
+		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
+		dp.setY(qrPlacering.getX() - dp.getX());
+		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
+//		System.err.println(qrText);
 	}
 
 	@Override
@@ -290,6 +355,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		boolean interrupted = false;
 		while(!Thread.interrupted() || interrupted){
 			Long startTime = System.currentTimeMillis();
+			BufferedImage temp = null;
 			try {
 				if(webcam){	
 					if(webcamFrame==null){		
@@ -298,14 +364,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					img = this.webcamFrame;
 					bufimg = bm.mat2bufImg(img);
 				} else {
-					BufferedImage temp = dc.getbufImg();
+					temp = dc.getbufImg();
 					try{
 						// Er billedet forskelligt fra sidst behandlede billede?
 						if(temp != null && !bufimg.equals(temp)){ 
 							bufimg = temp;
 						} else { // Vent 5 ms, og start while løkke forfra
 							Thread.sleep(5);
-//							System.err.println("****** Venter 5 ms!");
+							//							System.err.println("****** Venter 5 ms!");
 							continue;
 						}
 					} catch (NullPointerException e){ // bufimg er null, men temp er ikke
@@ -341,17 +407,18 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				//frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						
-//					frames[0] = bm.filterMat(frames[0]);						
+					//					frames[0] = bm.filterMat(frames[0]);						
 				}
 
 				//Enable QR-checkBox?
 				if(qr){
-					findQR(img);
-//					bm.filterMat(img);
-//					bm.calcDist(img);
+					this.testDronePos(temp, img);
+//					findQR(img);
+					//					bm.filterMat(img);
+					//					bm.calcDist(img);
 				} 
 				frames[0]=img;
-				
+
 			} catch (NullPointerException e){
 				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
 				e.printStackTrace();

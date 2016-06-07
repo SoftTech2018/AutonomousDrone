@@ -20,16 +20,20 @@ public class QrFirkant {
 	public double deltaX(){
 		double xKor = (p0.x+p1.x+p2.x+p3.x)/4;
 //		double yKor = (p0.y+p1.y+p2.y+p3.y)/4;
+
+		System.err.println("DeltaX: " + (xKor-360));
 		return xKor - 360;
 	}
 	
 	public int getHeight(){
-		int height1 = (int) (p0.y - p1.y + p3.y - p2.y)/2;
-		int height2 = (int) (p1.y - p2.y + p0.y - p3.y)/2;
+		double height1 = (p0.y - p3.y + p1.y - p2.y)/2;
+		double height2 = (p1.y - p0.y + p2.y - p3.y)/2;
 		if(height1>height2){
-			return height1;
+			System.err.println("Højde: " + Math.abs(height1));
+			return (int) Math.abs(height1);
 		} else {
-			return height2;
+			System.err.println("Højde: " + Math.abs(height2));
+			return (int) Math.abs(height2);
 		}
 	}
 

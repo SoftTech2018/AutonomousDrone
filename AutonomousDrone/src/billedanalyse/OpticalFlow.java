@@ -13,6 +13,8 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
 
+import diverse.circleCalc.Vector2;
+
 public class OpticalFlow {
 	
 	private BilledManipulation bm;
@@ -37,6 +39,15 @@ public class OpticalFlow {
 		Mat klon = frame.clone();
 		// TODO Auto-generated method stub
 		return klon;
+	}
+	
+	public Vektor getDroneMovement(){
+		int xDir = 0;
+		int yDir = 0;
+		for(Vektor v : vList){
+//			xDir += v.getX()
+		}
+		return null;
 	}
 	
 	/**

@@ -146,7 +146,7 @@ public class PunktNavigering {
 		int width = 720;
 		int angle = 93;
 				
-		return (int) ((width/angle)*distance);
+		return (int) ((angle/width)*distance);
 	}
 	
 	/**
@@ -213,7 +213,7 @@ public class PunktNavigering {
 					}
 					for(int p=0; p<cKor.size();p++){
 						int dist = cKor.get(p).dist(centrum);
-						System.err.println(dist);
+//						System.err.println(dist);
 						if(dist > 20){
 							cKor.add(centrum);	
 							Imgproc.putText(out, Double.toString((int)l1/l2), new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
