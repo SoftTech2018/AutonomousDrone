@@ -122,5 +122,12 @@ public class PunktNavigering {
 		Double resultat = øvreBrøk/nedreBrøk;
 		return Math.cos(resultat);
 	}
+		
+	public double getAngle(double distance){
+		int width = 720;
+		int angle = 93;
+				
+		return (width/angle)*distance;
+	}
 	
 }
