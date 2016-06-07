@@ -164,8 +164,8 @@ public class PunktNavigering {
 		ArrayList<QrFirkant> qrFirkanter = new ArrayList<QrFirkant>();
 
 		//Manipulerer billede til findContours
-		Mat out = new Mat();
-		mat.copyTo(out);
+		Mat out = mat; // new Mat();
+//		mat.copyTo(out);
 		Mat temp = new Mat();
 		mat.copyTo(temp);
 
@@ -216,9 +216,9 @@ public class PunktNavigering {
 //						System.err.println(dist);
 						if(dist > 20){
 							cKor.add(centrum);	
-							Imgproc.putText(out, Double.toString((int)l1/l2), new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
-							Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
-							Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
+//							Imgproc.putText(out, Double.toString((int)l1/l2), new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
+//							Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
+//							Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
 							
 							QrFirkant qr = new QrFirkant(list.get(0), list.get(1), list.get(2), list.get(3));
 							qrFirkanter.add(qr);

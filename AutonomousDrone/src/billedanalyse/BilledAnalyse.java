@@ -104,10 +104,13 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 		Koordinat qrPlacering = readQr.getPlacering();
 		// Beregn dronens koordinat
-		Koordinat dp = new Koordinat((int) (dist*Math.sin(totalAngle)*0.1), (int) (dist*Math.cos(totalAngle)*0.1));
+		Koordinat dp = new Koordinat((int) (dist*Math.cos(Math.toRadians(90-totalAngle))*0.1), 
+									 (int) (dist*Math.sin(Math.toRadians(90-totalAngle))*0.1));
 		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
-		dp.setY(qrPlacering.getX() - dp.getX());
+		dp.setY(qrPlacering.getY() - dp.getY());
 		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
+		this.opgrum.setObstacleCenter(dp);
+		
 //		System.err.println(qrText);
 	}
 

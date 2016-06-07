@@ -509,6 +509,7 @@ public class GuiController {
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
 						}
+						GuiController.this.mapView.drawVisible(null);
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking

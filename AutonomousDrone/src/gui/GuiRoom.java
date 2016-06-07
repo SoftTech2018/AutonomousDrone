@@ -3,7 +3,6 @@ package gui;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
@@ -50,6 +49,9 @@ public class GuiRoom extends Canvas{
 	}
 
 	public void drawVisible(GraphicsContext gc){
+		if(gc==null){
+			gc = this.gc;
+		}
 		xLength = opgRum.getWidth();
 		yLength = opgRum.getLength();
 		double guiWidth = xLength/zoomScale;
@@ -101,7 +103,7 @@ public class GuiRoom extends Canvas{
 		
 		Koordinat k;
 		if((k = opgRum.getObstacleCenter()) != null){
-		
+//			System.err.println("******* K: " + k);
 			gc.fillOval(k.getX()/zoomScale, (k.getY()/zoomScale)+40, 80/zoomScale, 80/zoomScale);
 		}
 	
