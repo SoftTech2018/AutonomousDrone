@@ -96,6 +96,10 @@ public class GuiController {
 	private Label pitch_label;
 	@FXML
 	private Button startOpgAlgo;
+	
+	@FXML
+	public void setMapInfo(){
+	}
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer, droneTimer;

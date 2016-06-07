@@ -103,11 +103,11 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
-			
+
 			// Find papkasse-position
-			
+
 			this.dh = new DroneHelper(dc, papKasse);
-			
+
 			// Flyv til start
 			dh.flyTo(landingsPlads, this.searchPoints.get(0));
 
@@ -121,7 +121,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 			// Flyv til landingsplads
 			dc.turnDrone(0-dc.getFlightData()[2]); // Drej dronen mod tavlevæggen 
 			dh.flyTo(findDronePos(), landingsPlads); // Flyv fra opdateret position til landingsplads
-			
+
 			// Land
 			dc.turnDrone(-90-dc.getFlightData()[2]); // Drej dronen mod fjerneste væg
 			dh.adjust(findDronePos(), landingsPlads);
@@ -145,7 +145,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 			}
 		}
 	}
-	
+
 	private void objectSearch() throws InterruptedException{	
 		final int ACCEPT_DIST = 50; // Acceptabel fejlmargin i position (cm)
 
@@ -176,19 +176,28 @@ public class OpgaveAlgoritme2 implements Runnable {
 	}
 
 	private Koordinat findDronePos(){
-		// TODO
-		if(qrcs.getQrt() != ""){
-			Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
+		Vector2 dp;
+		boolean posUpdated = false;
+		while(!posUpdated){
+			if(qrcs.getQrt() != ""){
+				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
+				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
 
-			Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
-
-			//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
-
-			dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
-			Log.writeLog("Dronepunkt "+ dronePunkt.x +  " , " + dronePunkt.y +"fundet.");
+				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+				Koordinat p1 = new Koordinat((int) punkter[0].x, (int) punkter[0].y);
+				Koordinat p2 = new Koordinat((int) punkter[1].x, (int) punkter[1].y);
+				Koordinat p3 = new Koordinat((int) punkter[2].x, (int) punkter[2].y);
+				double alpha = pn.getAngle(px); // Pixels mellem p1 og p2
+				double beta = pn.getAngle(px); // Pixels mellem p3 og p2
+				dp = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+				Log.writeLog("Dronepunkt: ("+ dp.x +  "," + dp.y +") fundet.");
+				posUpdated = true;
+			} else {
+				// TODO
+				
+			}
 		}
-		
-		Vector2 dp = punktNav.udregnDronePunkt(p1, p3, p2, alpha, beta);
+
 		return new Koordinat((int) dp.x, (int) dp.y);
 	}
 
