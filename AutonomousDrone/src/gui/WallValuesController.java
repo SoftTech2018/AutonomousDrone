@@ -50,6 +50,14 @@ public class WallValuesController {
 
 	@FXML
 	private TextField W00_00;
+	@FXML
+	private TextField W00_03;
+	@FXML
+	private TextField W00_04;
+	@FXML
+	private TextField W02_03;
+	@FXML
+	private TextField W02_04;
 
 	@FXML
 	private TextField W01_01;
@@ -84,9 +92,9 @@ public class WallValuesController {
 		xLength= Integer.parseInt(length.getText());
 		int[] size = {yWidth, xLength};
 		System.out.println("Gemmer");
-		String[] markings = { W00_00.getText(), W00_01.getText(), W00_02.getText(),
+		String[] markings = { W00_00.getText(), W00_01.getText(), W00_02.getText(),W00_03.getText(),W00_04.getText(),
 				W01_00.getText(), W01_01.getText(),W01_02.getText(), W01_03.getText(), W01_04.getText(),
-				W02_00.getText(), W02_01.getText(), W02_02.getText(),
+				W02_00.getText(), W02_01.getText(), W02_02.getText(),W02_03.getText(),W02_04.getText(),
 				W03_00.getText(), W03_03.getText(),W03_02.getText(), W03_03.getText(), W03_04.getText()};
 
 		Log.writeWallMarking(markings);

@@ -1,7 +1,12 @@
 package billedanalyse;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -9,7 +14,15 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.ColorTracker.MODE;
+import diverse.PunktNavigering;
+import diverse.QrFirkant;
+import diverse.circleCalc.Vector2;
+import diverse.koordinat.Koordinat;
+import diverse.koordinat.OpgaveRum;
+import drone.DroneControl;
 import drone.IDroneControl;
+import drone.OpgaveAlgoritme2;
+import gui.GuiStarter;
 import javafx.scene.image.Image;
 
 public class BilledAnalyse implements IBilledAnalyse, Runnable {
@@ -33,6 +46,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private Mat matFrame;
 	private QRCodeScanner qrs = new QRCodeScanner();
 
+	PunktNavigering punktNav = new PunktNavigering(); // DEBUG
+	OpgaveRum opgrum; // DEBUG
+
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
 		this.bm = new BilledManipulation();
@@ -42,6 +58,81 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		objTracker = new ObjectTracking(opFlow, bm);
 		colTracker = new ColorTracker();
 		colTracker.setMode(MODE.webcam);
+	}
+
+	public void setOpgaveRum(OpgaveRum opgRum){
+		this.opgrum = opgRum;
+	}
+
+	private void testDronePos(BufferedImage bufFrame, Mat frame){
+		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
+		if(qrFirkanter==null || qrFirkanter.isEmpty()){
+			return;
+		}
+		String qrText = qrs.imageUpdated(frame);
+		//		System.err.println("QR text: " + qrText);
+		if(qrText.equals("")){ // Der kan ikke læses nogen QR-kode
+			return;
+		}
+
+		// Tjek om den læste QR-kode matcher en fundet firkant i billedet
+		QrFirkant readQr = null;
+		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
+		Koordinat qrCentrum = new Koordinat(Integer.parseInt(qrTextArray[1]), Integer.parseInt((qrTextArray[2])));
+		for(QrFirkant qrF : qrFirkanter){
+			int dist = qrF.getCentrum().dist(qrCentrum);
+			if(dist < 50){
+				readQr = qrF;
+			}
+			//			System.out.println("DIST: " + dist + ", " + qrF.getCentrum());
+		}
+		if(readQr==null){
+			System.err.println("Ingen matchende firkant fundet!");
+			return;
+		}
+		readQr.setText(qrTextArray[0]);
+
+		// Find det rigtige koordinat på den aflæse vægmarkering
+		Vector2 v = this.opgrum.getMultiMarkings(readQr.getText())[1];
+		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
+		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
+
+		// Beregn distancen til QR koden
+		double dist = punktNav.calcDist(readQr.getHeight(), 420);
+		System.err.println("Distance beregnet til:" + dist);
+
+		// Find vinklen til QR koden
+		// Dronens YAW + vinklen i kameraet til QR-koden
+		int yaw = -1*dc.getFlightData()[2]; // Spejlvend YAW så vinklen passer med radianer
+		int imgAngle = punktNav.getAngle(readQr.deltaX()); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
+		int totalAngle = yaw - imgAngle;
+
+		//		System.err.println("Total vinkel:" + totalAngle);
+
+		Koordinat qrPlacering = readQr.getPlacering();
+		// Beregn dronens koordinat
+		Koordinat dp = new Koordinat((int) (dist*Math.cos(Math.toRadians(totalAngle))*0.1), 
+				(int) (dist*Math.sin(Math.toRadians(totalAngle))*0.1));
+		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
+		dp.setY(qrPlacering.getY() - dp.getY());
+		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
+		// Logisk tjek for om dronen befinder sig i rummet eller ej
+		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
+			this.opgrum.setDronePosition(dp);
+			playSound();
+		}
+	}
+
+	private void playSound(){
+		try{
+			Clip clip = AudioSystem.getClip();
+			AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+			GuiStarter.class.getResourceAsStream("beep.wav"));
+			clip.open(inputStream);
+			clip.start();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -288,6 +379,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		boolean interrupted = false;
 		while(!Thread.interrupted() || interrupted){
 			Long startTime = System.currentTimeMillis();
+			BufferedImage temp = null;
 			try {
 				if(webcam){	
 					if(webcamFrame==null){		
@@ -296,14 +388,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					img = this.webcamFrame;
 					bufimg = bm.mat2bufImg(img);
 				} else {
-					BufferedImage temp = dc.getbufImg();
+					temp = dc.getbufImg();
 					try{
 						// Er billedet forskelligt fra sidst behandlede billede?
 						if(temp != null && !bufimg.equals(temp)){ 
 							bufimg = temp;
 						} else { // Vent 5 ms, og start while løkke forfra
 							Thread.sleep(5);
-//							System.err.println("****** Venter 5 ms!");
+							//							System.err.println("****** Venter 5 ms!");
 							continue;
 						}
 					} catch (NullPointerException e){ // bufimg er null, men temp er ikke
@@ -339,16 +431,21 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				//frames[0] = img;
 				// Enable image filter?
 				if(greyScale){						
-//					frames[0] = bm.filterMat(frames[0]);						
+					//					frames[0] = bm.filterMat(frames[0]);						
 				}
 
 				//Enable QR-checkBox?
 				if(qr){
-//					findQR(matFrame);
-					frames[0] = bm.filterMat(img);
-				} else {
-					frames[0]=img;
-				}
+					this.testDronePos(temp, img);
+					//					findQR(img);
+					//					bm.filterMat(img);
+					//					bm.calcDist(img);
+					//					Mat testimg = bm.readQrSkewed(img);
+					//					findQR(testimg);
+					//					frames[0] = bm.filterMat(img);
+
+				} 
+				frames[0]=img;
 
 			} catch (NullPointerException e){
 				System.err.println("Intet billede modtaget til billedanalyse. Prøver igen om 50 ms.");
@@ -374,6 +471,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	public void findQR(Mat frame){
+		Mat out = new Mat();
+		frame.copyTo(out);
+		bm.toGray(frame);
 		qrs.imageUpdated(frame);
 	}
 

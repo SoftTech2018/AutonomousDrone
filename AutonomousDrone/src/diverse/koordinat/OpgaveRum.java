@@ -9,13 +9,12 @@ import java.util.ArrayList;
 
 import diverse.Log;
 import diverse.circleCalc.Vector2;
-import diverse.koordinat.Genstand.FARVE;
-import sun.security.ssl.KerberosClientKeyExchange;
+import diverse.koordinat.Genstand.COLOR;;
 
 
-/**
+/**Rettet 7/6 kl 9:30	
  * 
- * @author KimDrewes
+ * @author KimDrewess
  * Klasse der repræsenterer et OpgaveRum
  * OpgaveRum's objektet initialiseres ved at angive koordinater i cm
  * Vægmarkeringerne bliver indlæst fra wallmarks.txt (Bliver skrvet efter der indtastes i WallValues GUIen)
@@ -24,11 +23,13 @@ import sun.security.ssl.KerberosClientKeyExchange;
 public class OpgaveRum {
 
 	private Koordinat[][] rum;
+	private Koordinat dp; // dronePosition
 	private int længde = 0;
 	private int bredde = 0;
 	private boolean isMarkingOk = true;
 	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
 	private Koordinat obstacleCenter = null;
+	private int yaw;
 
 	public int getLength() {
 		return længde;
@@ -43,16 +44,16 @@ public class OpgaveRum {
 
 	// markings er et array af de 200 kende vægmarkeringer, bliver tildelt en koordinat vha setMarkings
 	WallMarking[] markings = {
-			new WallMarking("W00_00"),new WallMarking("W00_01"),
-			new WallMarking("W00_02"),new WallMarking("W00_03"),
-			new WallMarking("W00_04"),new WallMarking("W01_00"),
-			new WallMarking("W01_01"),new WallMarking("W01_02"),
-			new WallMarking("W01_03"),new WallMarking("W01_04"),
-			new WallMarking("W02_00"),new WallMarking("W02_01"),
-			new WallMarking("W02_02"),new WallMarking("W02_03"),
-			new WallMarking("W02_04"),new WallMarking("W03_00"),
-			new WallMarking("W03_01"),new WallMarking("W03_02"),
-			new WallMarking("W03_03"),new WallMarking("W03_04")
+			new WallMarking("W00.00"),new WallMarking("W00.01"),
+			new WallMarking("W00.02"),new WallMarking("W00.03"),
+			new WallMarking("W00.04"),new WallMarking("W01.00"),
+			new WallMarking("W01.01"),new WallMarking("W01.02"),
+			new WallMarking("W01.03"),new WallMarking("W01.04"),
+			new WallMarking("W02.00"),new WallMarking("W02.01"),
+			new WallMarking("W02.02"),new WallMarking("W02.03"),
+			new WallMarking("W02.04"),new WallMarking("W03.00"),
+			new WallMarking("W03.01"),new WallMarking("W03.02"),
+			new WallMarking("W03.03"),new WallMarking("W03.04")
 	};
 
 
@@ -68,10 +69,9 @@ public class OpgaveRum {
 		}
 		setMarkings();
 		
-		for (int i = 0; i < 963; i = i+100) {
-			for (int j = 0; j < 1078; j=j+100) {
-				System.out.println(i + " " + j);
-				addGenstandTilKoordinat(rum[i][j], new Genstand(FARVE.RØD));
+		for (int i = 0; i < bredde; i = i+100) {
+			for (int j = 0; j < længde; j=j+100) {
+				addGenstandTilKoordinat(rum[i][j], new Genstand(COLOR.RØD));
 			
 			}
 		}
@@ -137,8 +137,6 @@ public class OpgaveRum {
 			for(int i = 0; i< markings.length; i++){
 				try {
 					if((wallmark = br.readLine())!= null){
-						
-						System.out.println(wallmark);
 						String[] temp = wallmark.split(",");
 						int x = Integer.parseInt(temp[0]);
 						int y = Integer.parseInt(temp[1]);
@@ -187,7 +185,8 @@ public class OpgaveRum {
 				return i;
 			}
 		}
-		return -1;
+		throw new NullPointerException("Fejl");
+//		return -1;
 	}
 
 
@@ -197,6 +196,8 @@ public class OpgaveRum {
 	 * @return Returnere et Array med den aflæste QR Plakat, samt positionerne af dens naboer i form af Vektor2 objekter
 	 */
 	public Vector2[] getMultiMarkings(String markName){
+
+		
 		int i = getMarkeringNummer(markName);
 		Vector2 middle = markingKoordinater[i].getVector();
 
@@ -249,6 +250,18 @@ public class OpgaveRum {
 		return obstacleCenter;
 	}
 	
+	public void setDronePosition(Koordinat dp, int yaw){
+		this.dp = dp;
+		this.yaw = yaw;
+	}
+	
+	public Koordinat getDronePosition(){
+		return dp;
+	}
+	
+	public int getDroneYaw(){
+		return yaw;
+	}
 	
 }
 

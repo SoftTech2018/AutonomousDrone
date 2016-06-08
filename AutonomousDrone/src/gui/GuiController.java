@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,7 @@ import org.opencv.videoio.VideoWriter;
 import billedanalyse.BilledAnalyse;
 import billedanalyse.IBilledAnalyse;
 import diverse.TakePicture;
+import diverse.koordinat.OpgaveRum;
 import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme;
@@ -24,15 +26,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class GuiController {
-
+    
+	private OpgaveRum opgaveRum;
 	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
 
 	private final boolean TAKEPICTURE = false; // Sæt til true for at tage et testbillede via toggle funktionen
@@ -41,6 +48,9 @@ public class GuiController {
 	private IBilledAnalyse ba = new BilledAnalyse(dc);
 	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
 	private Thread opgThread, baThread;
+	
+	@FXML
+	private GuiRoom mapView;
 
 	@FXML
 	private Button strafeLeft_btn;// NUMPAD 7
@@ -97,8 +107,26 @@ public class GuiController {
 	@FXML
 	private Button startOpgAlgo;
 	
+	Stage secondaryStage;
+	
 	@FXML
 	public void setMapInfo(){
+		secondaryStage = new Stage();
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/WallValues.fxml"));
+		VBox root = null;
+		try {
+			root = (VBox) loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		WallValuesController controller = loader.getController();
+		controller.setParentController(this);
+		Scene scene = new Scene(root,850,570);
+		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		secondaryStage.setScene(scene);
+		secondaryStage.setTitle("Skynet 0.1");
+		secondaryStage.show();
 	}
 
 	// a timer for acquiring the video stream
@@ -130,6 +158,9 @@ public class GuiController {
 	// Analyserer vi test-video?
 	private boolean useTestVideo = false; 
 
+	
+	
+	
 	@FXML
 	private void initialize(){		
 		frames_choiceBox.setValue(30);
@@ -410,6 +441,7 @@ public class GuiController {
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						String QrText = ba.getQrt();
+						GuiController.this.mapView.drawVisible();
 						Platform.runLater(new Runnable(){
 							@Override
 							public void run() {
@@ -478,6 +510,7 @@ public class GuiController {
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
 						}
+						GuiController.this.mapView.drawVisible();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -749,6 +782,17 @@ public class GuiController {
 			System.out.println("Skriver til video-fil");
 			outVideo.write(frame);				
 		}
+	}
+	
+	
+	public void setGuiRoom() throws NumberFormatException, IOException{
+		opgaveRum = new OpgaveRum();
+         mapView.setOpgRoom(opgaveRum);
+        ba.setOpgaveRum(opgaveRum);
+	}
+	
+	public void closeMapInfo(){
+		secondaryStage.close();
 	}
 
 	// Define a variable to store the property
