@@ -128,8 +128,11 @@ public class GuiRoom extends Canvas{
 
 	public void drawDrone(){
 	
-		opgRum.setDronePosition(new Koordinat(0, 0)); // ment som test.
+//		opgRum.setDronePosition(new Koordinat(0, 0)); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
+		if(dp==null){
+			return;
+		}
 		Paint temp = gc.getFill();
 
 		double x = dp.getX()/zoomScale;
