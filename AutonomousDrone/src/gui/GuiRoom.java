@@ -3,9 +3,10 @@ package gui;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
+import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
+import diverse.koordinat.S2;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -18,6 +19,8 @@ public class GuiRoom extends Canvas{
 
 	private int xLength;
 	private int yLength;
+	S2 s2 = new S2(1,1,0,300);
+	
 	double zoomScale = 5;
 
 	OpgaveRum opgRum;
@@ -29,7 +32,9 @@ public class GuiRoom extends Canvas{
 		super(200,822);
 		gc = super.getGraphicsContext2D();
 		gc.fillRect(0, 0, 200, 300);
-
+		gc.setStroke(Color.WHITE);
+		s2.drawLine(gc, new Vector2(3, 3), new Vector2(100, 100));
+		gc.setStroke(Color.BLACK);
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -49,14 +54,14 @@ public class GuiRoom extends Canvas{
 
 	}
 
-	public void drawVisible(){
+	public void drawVisible(int yaw){
 
 		xLength = opgRum.getWidth();
 		yLength = opgRum.getLength();
 		double guiWidth = xLength/zoomScale;
 		double guiLength = yLength/zoomScale;
 		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 40, guiWidth, guiLength);
+		gc.fillRect(0, -40, guiWidth, guiLength);
 
 		gc.setStroke(Color.BLUE);
 		gc.setLineWidth(2);
@@ -111,13 +116,13 @@ public class GuiRoom extends Canvas{
 
 	public void clear() throws NumberFormatException, IOException{
 		gc.clearRect(0, 0, 300, 322);
-		drawVisible();
+		drawVisible(0);
 
 	}
 
 	public void setOpgRoom(OpgaveRum opgRum) {
 		this.opgRum = opgRum;
-		drawVisible();
+		drawVisible(0);
 
 	}
 
