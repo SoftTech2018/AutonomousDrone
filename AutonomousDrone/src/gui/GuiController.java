@@ -14,6 +14,7 @@ import org.opencv.videoio.VideoWriter;
 import billedanalyse.BilledAnalyse;
 import billedanalyse.IBilledAnalyse;
 import diverse.TakePicture;
+import diverse.koordinat.OpgaveRum;
 import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme;
@@ -39,7 +40,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GuiController {
-
+    
+	private OpgaveRum opgaveRum;
 	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
 
 	private final boolean TAKEPICTURE = false; // Sæt til true for at tage et testbillede via toggle funktionen
@@ -509,7 +511,7 @@ public class GuiController {
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
 						}
-						GuiController.this.mapView.drawVisible(null);
+						GuiController.this.mapView.drawVisible();
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]); // Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -783,8 +785,11 @@ public class GuiController {
 		}
 	}
 	
+	
 	public void setGuiRoom() throws NumberFormatException, IOException{
-        mapView.clear();
+		opgaveRum = new OpgaveRum();
+         mapView.setOpgRoom(opgaveRum);
+        
 	}
 	
 	public void closeMapInfo(){

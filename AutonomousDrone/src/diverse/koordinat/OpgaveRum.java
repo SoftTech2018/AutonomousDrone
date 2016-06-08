@@ -69,7 +69,6 @@ public class OpgaveRum {
 		
 		for (int i = 0; i < bredde; i = i+100) {
 			for (int j = 0; j < længde; j=j+100) {
-				System.out.println(i + " " + j);
 				addGenstandTilKoordinat(rum[i][j], new Genstand(COLOR.RØD));
 			
 			}
@@ -136,8 +135,6 @@ public class OpgaveRum {
 			for(int i = 0; i< markings.length; i++){
 				try {
 					if((wallmark = br.readLine())!= null){
-						
-						System.out.println(wallmark);
 						String[] temp = wallmark.split(",");
 						int x = Integer.parseInt(temp[0]);
 						int y = Integer.parseInt(temp[1]);

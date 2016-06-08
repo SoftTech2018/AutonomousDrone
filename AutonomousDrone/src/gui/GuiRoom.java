@@ -22,13 +22,13 @@ public class GuiRoom extends Canvas{
 	OpgaveRum opgRum;
 	GraphicsContext gc;
 
-
+	
+	
 	public GuiRoom() throws NumberFormatException, IOException{
 		super(200,822);
 		gc = super.getGraphicsContext2D();
-        gc.fillRect(0, 0, 200, 300);
-		opgRum = new OpgaveRum();
-		drawVisible(gc);
+		gc.fillRect(0, 0, 200, 300);
+	
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -48,25 +48,20 @@ public class GuiRoom extends Canvas{
 
 	}
 
-	public void drawVisible(GraphicsContext gc){
-		if(gc==null){
-			gc = this.gc;
-		}
+	public void drawVisible(){
+
 		xLength = opgRum.getWidth();
 		yLength = opgRum.getLength();
 		double guiWidth = xLength/zoomScale;
 		double guiLength = yLength/zoomScale;
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 40, guiWidth, guiLength);
-		
+
 		gc.setStroke(Color.BLUE);
 		gc.setLineWidth(2);
 		gc.strokeRect(4, 40, guiWidth, guiLength);
 		ArrayList<Koordinat> objects = opgRum.getFoundObjects();
 
-
-
-		
 		gc.setFill(Color.CYAN);
 
 		for (int i = 0; i < opgRum.markingKoordinater.length; i++) {
@@ -74,11 +69,11 @@ public class GuiRoom extends Canvas{
 
 				double x = (double) opgRum.markingKoordinater[i].getX()/zoomScale;
 				double y = (double) opgRum.markingKoordinater[i].getY()/zoomScale;
-             if(x > 180 || x == 0){
-				gc.fillRect(x+4, y+40, 2, 4 );	
-             }else{
-            	 gc.fillRect(x+4, y+40, 4, 2 );	
-             }
+				if(x > 180 || x == 0){
+					gc.fillRect(x+4, y+40, 2, 4 );	
+				}else{
+					gc.fillRect(x+4, y+40, 4, 2 );	
+				}
 			}
 
 		}
@@ -91,32 +86,37 @@ public class GuiRoom extends Canvas{
 			}
 
 		}
-		
+
 		gc.fillText("Room Map", 10, 10);
-		
+
 		gc.strokeLine(10, 20, 100/zoomScale, 20);
 		gc.strokeLine(10, 18, 10, 22);
 		gc.strokeLine(100/zoomScale, 18, 100/zoomScale, 22);
 		gc.fillText("1,m", 100/zoomScale+5 , 20);
-		
 
-		
+
+
 		Koordinat k;
 		if((k = opgRum.getObstacleCenter()) != null){
-//			System.err.println("******* K: " + k);
+			//			System.err.println("******* K: " + k);
 			gc.fillOval(k.getX()/zoomScale, (k.getY()/zoomScale)+40, 80/zoomScale, 80/zoomScale);
 		}
-	
-		
+
+
 	}
 
 
 
 	public void clear() throws NumberFormatException, IOException{
 		gc.clearRect(0, 0, 300, 322);
-		opgRum = new OpgaveRum();
-		drawVisible(gc);
+		drawVisible();
 
+	}
+
+	public void setOpgRoom(OpgaveRum opgRum) {
+		this.opgRum = opgRum;
+		drawVisible();
+		
 	}
 
 
