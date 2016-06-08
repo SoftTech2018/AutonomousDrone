@@ -5,7 +5,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.jfree.data.time.Second;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.videoio.VideoCapture;
@@ -35,7 +34,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -443,6 +441,7 @@ public class GuiController {
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						String QrText = ba.getQrt();
+						GuiController.this.mapView.drawVisible();
 						Platform.runLater(new Runnable(){
 							@Override
 							public void run() {
@@ -789,7 +788,7 @@ public class GuiController {
 	public void setGuiRoom() throws NumberFormatException, IOException{
 		opgaveRum = new OpgaveRum();
          mapView.setOpgRoom(opgaveRum);
-        
+        ba.setOpgaveRum(opgaveRum);
 	}
 	
 	public void closeMapInfo(){

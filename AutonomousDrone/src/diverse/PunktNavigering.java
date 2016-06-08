@@ -227,7 +227,7 @@ public class PunktNavigering {
 				}
 			}
 		}
-		System.out.println("Der er fundet: " + qrFirkanter.size() + " qrFirkanter");
+//		System.out.println("Der er fundet: " + qrFirkanter.size() + " qrFirkanter");
 		return qrFirkanter;
 	}
 

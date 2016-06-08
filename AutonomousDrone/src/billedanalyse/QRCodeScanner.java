@@ -22,7 +22,8 @@ public class QRCodeScanner
 	
 	public String qrt = "";
 	
-	public void imageUpdated(Mat frame){
+	public String imageUpdated(Mat frame){
+		String qrt = "";
 		Image image = toBufferedImage(frame);
 		LuminanceSource ls = new BufferedImageLuminanceSource((BufferedImage)image);
 		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(ls));
@@ -33,6 +34,16 @@ public class QRCodeScanner
 			Result result = qrReader.decode(bitmap);
 //			System.out.println("QR Code data is: "+result.getText());
 			qrt = result.getText();
+			int x = 0;
+			int y = 0;
+			for (ResultPoint rp : result.getResultPoints()){
+				x += rp.getX();
+				y += rp.getY();
+//				System.out.println("QR rp: (" + rp.getX() + "," + rp.getY() + ")");
+			}
+			x = (int) (x/result.getResultPoints().length);
+			y = (int) (y/result.getResultPoints().length);
+			qrt += "," + x + "," + y;
 		} catch (NotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -47,6 +58,7 @@ public class QRCodeScanner
 			System.out.println("--------");
 		}
 		qrReader.reset();
+		return qrt;
 	}
 	
 	public String imageUpdated(BufferedImage image){

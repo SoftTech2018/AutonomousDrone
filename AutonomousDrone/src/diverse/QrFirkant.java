@@ -19,9 +19,8 @@ public class QrFirkant {
 	
 	public double deltaX(){
 		double xKor = (p0.x+p1.x+p2.x+p3.x)/4;
-//		double yKor = (p0.y+p1.y+p2.y+p3.y)/4;
 
-		System.err.println("DeltaX: " + (xKor-360));
+//		System.err.println("DeltaX: " + (xKor-360));
 		return xKor - 360;
 	}
 	
@@ -29,10 +28,10 @@ public class QrFirkant {
 		double height1 = (p0.y - p3.y + p1.y - p2.y)/2;
 		double height2 = (p1.y - p0.y + p2.y - p3.y)/2;
 		if(height1>height2){
-			System.err.println("Højde: " + Math.abs(height1));
+//			System.err.println("Højde: " + Math.abs(height1));
 			return (int) Math.abs(height1);
 		} else {
-			System.err.println("Højde: " + Math.abs(height2));
+//			System.err.println("Højde: " + Math.abs(height2));
 			return (int) Math.abs(height2);
 		}
 	}
@@ -51,6 +50,12 @@ public class QrFirkant {
 
 	public void setPlacering(Koordinat placering) {
 		this.placering = placering;
+	}
+	
+	public Koordinat getCentrum(){
+		double xKor = (p0.x+p1.x+p2.x+p3.x)/4;
+		double yKor = (p0.y+p1.y+p2.y+p3.y)/4;
+		return new Koordinat((int) xKor, (int) yKor);
 	}
 	
 	

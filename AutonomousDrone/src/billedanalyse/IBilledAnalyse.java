@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
+import diverse.koordinat.OpgaveRum;
 import javafx.scene.image.Image;
 
 public interface IBilledAnalyse {
@@ -75,5 +76,7 @@ public interface IBilledAnalyse {
 	String getQrt();
 
 	Image mat2Image(Mat mat);
+
+	void setOpgaveRum(OpgaveRum opgaveRum);
 
 }
