@@ -29,6 +29,7 @@ public class OpgaveRum {
 	private boolean isMarkingOk = true;
 	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
 	private Koordinat obstacleCenter = null;
+	private int yaw;
 
 	public int getLength() {
 		return længde;
@@ -249,12 +250,17 @@ public class OpgaveRum {
 		return obstacleCenter;
 	}
 	
-	public void setDronePosition(Koordinat dp){
+	public void setDronePosition(Koordinat dp, int yaw){
 		this.dp = dp;
+		this.yaw = yaw;
 	}
 	
 	public Koordinat getDronePosition(){
 		return dp;
+	}
+	
+	public int getDroneYaw(){
+		return yaw;
 	}
 	
 }
