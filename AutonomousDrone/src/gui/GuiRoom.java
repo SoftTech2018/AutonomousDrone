@@ -13,14 +13,15 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 
 public class GuiRoom extends Canvas{
 
 
 	private int xLength;
 	private int yLength;
-	S2 s2 = new S2(1,1,0,300);
-	
+
+
 	double zoomScale = 5;
 
 	OpgaveRum opgRum;
@@ -32,8 +33,8 @@ public class GuiRoom extends Canvas{
 		super(200,822);
 		gc = super.getGraphicsContext2D();
 		gc.fillRect(0, 0, 200, 300);
-		gc.setStroke(Color.WHITE);
-		s2.drawLine(gc, new Vector2(3, 3), new Vector2(100, 100));
+		
+		
 		gc.setStroke(Color.BLACK);
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 
@@ -127,9 +128,11 @@ public class GuiRoom extends Canvas{
 	}
 
 	public void drawDrone(){
-	
-//		opgRum.setDronePosition(new Koordinat(0, 0)); // ment som test.
+
+		opgRum.setDronePosition(new Koordinat(200, 200), 100); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
+		
+		int yaw;
 		if(dp==null){
 			return;
 		}
@@ -138,16 +141,33 @@ public class GuiRoom extends Canvas{
 		double x = dp.getX()/zoomScale;
 		double y = dp.getY()/zoomScale;
 		double diameter = 25/zoomScale;
+
 		
+		if ((yaw = opgRum.getDroneYaw()) == -99999){
+			 yaw = 0;	
+		}
+		
+		double x1 = ((x-(diameter/2))-x * Math.cos(yaw)) + x +4;
+		double x2 = ((x-(diameter/2))-x * Math.cos(yaw)) + x +4;
+		double x3 = ((x+(diameter/2))-x * Math.cos(yaw)) + x +4;
+		double x4 = ((x+(diameter/2))-x * Math.cos(yaw)) + x +4;
+
+		double y1 = ((y-(diameter/2)) -y * Math.sin(yaw)) + y +40;
+		double y2 = ((y+(diameter/2)) -y * Math.sin(yaw)) + y +40;
+		double y3 = ((y-(diameter/2)) -y * Math.sin(yaw)) + y +40;
+		double y4 = ((y+(diameter/2)) -y * Math.sin(yaw)) + y +40;
+
+
+
 		gc.setFill(Color.WHITE); // sætter farven til at tegne 
-		
-		gc.fillOval(x-(diameter/2)+4, y-(diameter/2)+40,diameter,diameter );
-		gc.fillOval(x-(diameter/2)+4, y+(diameter/2)+40,diameter,diameter );
-		gc.fillOval(x+(diameter/2)+4, y-(diameter/2)+40,diameter,diameter );
-		gc.fillOval(x+(diameter/2)+4, y+(diameter/2)+40,diameter,diameter );
-	
+//		Circle frontleft = new Circle(x, y, 100, Color.WHITE);
+				gc.fillOval(x1, y1,diameter,diameter );
+				gc.fillOval(x2, y2,diameter,diameter );
+				gc.fillOval(x3, y3,diameter,diameter );
+				gc.fillOval(x4, y4,diameter,diameter );
+
 		gc.setFill(temp); // sætter farven tilbage til hvad den var
-		
+
 
 	}
 
