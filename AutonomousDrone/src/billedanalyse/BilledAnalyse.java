@@ -99,27 +99,27 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
-		//		System.err.println("Distance beregnet til:" + dist);
+		System.err.println("Distance beregnet til:" + dist);
 
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
-		int yaw = dc.getFlightData()[2];
+		int yaw = -1*dc.getFlightData()[2]; // Spejlvend YAW så vinklen passer med radianer
 		int imgAngle = punktNav.getAngle(readQr.deltaX()); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
-		int totalAngle = yaw + imgAngle;
+		int totalAngle = yaw - imgAngle;
 
 		//		System.err.println("Total vinkel:" + totalAngle);
 
 		Koordinat qrPlacering = readQr.getPlacering();
 		// Beregn dronens koordinat
-		Koordinat dp = new Koordinat((int) (dist*Math.cos(Math.toRadians(90-totalAngle))*0.1), 
-				(int) (dist*Math.sin(Math.toRadians(90-totalAngle))*0.1));
+		Koordinat dp = new Koordinat((int) (dist*Math.cos(Math.toRadians(totalAngle))*0.1), 
+				(int) (dist*Math.sin(Math.toRadians(totalAngle))*0.1));
 		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
 		dp.setY(qrPlacering.getY() - dp.getY());
 		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
-		playSound();
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
 			this.opgrum.setDronePosition(dp);
+			playSound();
 		}
 	}
 
