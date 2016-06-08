@@ -18,6 +18,7 @@ import org.opencv.imgproc.Moments;
 
 import billedanalyse.Squares.FARVE;
 import diverse.Log;
+import drone.IDroneControl;
 
 public class ColorTracker {
 
@@ -29,6 +30,7 @@ public class ColorTracker {
 	private static final double MAX_OBJECT_AREA = 6500; // Svarer ca. til flyvehøjde under 1 meter
 
 	private ArrayList<Squares> squares, squaresreturn;
+	private IDroneControl dc;
 	private Scalar minGreen;
 	private Scalar maxGreen;
 	private Scalar minRed;
@@ -189,7 +191,8 @@ public class ColorTracker {
 						farve = FARVE.GRØN;
 					}
 					long tid = System.currentTimeMillis();
-					squares.add(new Squares(farve, x, y, tid));
+					int[] data = dc.getFlightData();
+					squares.add(new Squares(farve, x, y, tid, data[2]));
 				}
 			}
 		}
