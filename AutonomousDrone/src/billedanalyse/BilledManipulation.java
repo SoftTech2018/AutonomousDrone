@@ -302,35 +302,54 @@ public class BilledManipulation {
 				List<Point> list = new ArrayList<Point>();
 //				Konverterer contours om til en liste af punkter for at finde koordinaterne
 				Converters.Mat_to_vector_Point(contours.get(i), list);
+				double x0 = list.get(0).x;
+				double x3 = list.get(3).x;
 				double l1 = afstand(list.get(0).x,list.get(1).x,list.get(0).y,list.get(1).y);
 				double l2 = afstand(list.get(1).x,list.get(2).x,list.get(1).y,list.get(2).y);
-				System.out.println("AREAL: "+l1*l2);
+//				System.out.println("l1 afstand: "+ l1);
+//				System.out.println("l2 afstand: "+ l2);
+//				System.out.println("AREAL: "+l1*l2);
+//				System.out.println("Checkfirkant "+checkFirkant(l1,l2));
 				if(checkFirkant(l1,l2)){
-//					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
+					System.out.println("Check true ");
+//					Imgproc.putText(out, "0", new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
+//					Imgproc.putText(out, "1", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
+//					Imgproc.putText(out, "2", new Point(list.get(2).x, list.get(2).y), 1, 5, new Scalar(255, 255, 255), 2);
+//					Imgproc.putText(out, "3", new Point(list.get(3).x, list.get(3).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
 					//QR kode punkter på originale billede
-					Point p1 = new Point(list.get(0).x,list.get(0).y);
-					Point p2 = new Point(list.get(1).x,list.get(1).y);
-					Point p3 = new Point(list.get(2).x,list.get(2).y);
-					Point p4 = new Point(list.get(3).x,list.get(3).y);
-//				Point p1 = new Point(list.get(0).x+500,list.get(0).y+500);
-//				Point p2 = new Point(list.get(1).x,list.get(1).y+500);
-//				Point p3 = new Point(list.get(2).x,list.get(2).y);
-//				Point p4 = new Point(list.get(3).x,list.get(3).y);
+					Point p0 = new Point(list.get(0).x,list.get(0).y);
+					Point p1 = new Point(list.get(1).x,list.get(1).y);
+					Point p2 = new Point(list.get(2).x,list.get(2).y);
+					Point p3 = new Point(list.get(3).x,list.get(3).y);
+////				Point p1 = new Point(list.get(0).x+500,list.get(0).y+500);
+////				Point p2 = new Point(list.get(1).x,list.get(1).y+500);
+////				Point p3 = new Point(list.get(2).x,list.get(2).y);
+////				Point p4 = new Point(list.get(3).x,list.get(3).y);
 					
 					List<Point> qrPunkter = new ArrayList<Point>();
+					qrPunkter.add(p0);
 					qrPunkter.add(p1);
 					qrPunkter.add(p2);
 					qrPunkter.add(p3);
-					qrPunkter.add(p4);
+//					System.out.println("X0: "+x0 + " og X3: "+ x3);
 					List<Point> qrNyePunkter = new ArrayList<Point>();
-					qrNyePunkter.add(new Point(0,0));
-					qrNyePunkter.add(new Point(0,qr.cols()));
-					qrNyePunkter.add(new Point(qr.rows(),qr.cols()));
-					qrNyePunkter.add(new Point(qr.rows(),0));
-					
+					if(x0>x3){
+//						System.out.println("X3 er større");
+						qrNyePunkter.add(new Point(qr.cols(),0));
+						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+						qrNyePunkter.add(new Point(0,qr.rows()));
+						qrNyePunkter.add(new Point(0,0));						
+					} else {
+//						System.out.println("X3 er mindre");
+						qrNyePunkter.add(new Point(0,0));
+						qrNyePunkter.add(new Point(0,qr.rows()));
+						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+						qrNyePunkter.add(new Point(qr.cols(),0));
+					}
+//					
 					MatOfPoint2f mp = new MatOfPoint2f();
 					MatOfPoint2f mp2 = new MatOfPoint2f();
 					mp.fromList(qrPunkter);
@@ -339,8 +358,8 @@ public class BilledManipulation {
 					Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
 					
 					Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-					System.out.println("HØJDE "+ test3.size().height + " og Bredde "+test3.size().width);
-					BufferedImage testimg = mat2bufImg(test3); 
+//					System.out.println("HØJDE "+ test3.size().height + " og Bredde "+test3.size().width);
+//					BufferedImage testimg = mat2bufImg(test3); 
 //					File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
 //					try { ImageIO.write(testimg, "JPEG", f); 
 //					} catch (IOException e1) {
@@ -362,7 +381,7 @@ public class BilledManipulation {
 		if(l1>l2){
 			ratio = l1/l2;
 		} else {
-			ratio = l2/l2;
+			ratio = l2/l1;
 		}
 
 		if(ratio>1.3 && ratio<2.9 && l1*l2<80000){

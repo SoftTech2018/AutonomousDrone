@@ -23,7 +23,7 @@ public class QRCodeScanner
 	public String qrt = "";
 	
 	public String imageUpdated(Mat frame){
-		String qrt = "";
+//		String qrt = "";
 		Image image = toBufferedImage(frame);
 		LuminanceSource ls = new BufferedImageLuminanceSource((BufferedImage)image);
 		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(ls));
@@ -62,7 +62,7 @@ public class QRCodeScanner
 	}
 	
 	public String imageUpdated(BufferedImage image){
-		String qrt = "";
+//		String qrt = "";
 		LuminanceSource ls = new BufferedImageLuminanceSource(image);
 		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(ls));
 		QRCodeReader qrReader = new QRCodeReader();	
