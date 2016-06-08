@@ -122,8 +122,8 @@ public class GuiRoom extends Canvas{
 	}
 
 	public void drawDrone(){
-		System.err.println("********************** ***********************");
-		opgRum.setDronePosition(new Koordinat(300, 400)); // ment som test.
+	
+		opgRum.setDronePosition(new Koordinat(0, 0)); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
 		Paint temp = gc.getFill();
 
@@ -133,10 +133,10 @@ public class GuiRoom extends Canvas{
 		
 		gc.setFill(Color.WHITE); // sætter farven til at tegne 
 		
-		gc.fillOval(x-(diameter/2), y-(diameter/2),diameter,diameter );
-		gc.fillOval(x-(diameter/2), y+(diameter/2),diameter,diameter );
-		gc.fillOval(x+(diameter/2), y-(diameter/2),diameter,diameter );
-		gc.fillOval(x+(diameter/2), y+(diameter/2),diameter,diameter );
+		gc.fillOval(x-(diameter/2)+4, y-(diameter/2)+40,diameter,diameter );
+		gc.fillOval(x-(diameter/2)+4, y+(diameter/2)+40,diameter,diameter );
+		gc.fillOval(x+(diameter/2)+4, y-(diameter/2)+40,diameter,diameter );
+		gc.fillOval(x+(diameter/2)+4, y+(diameter/2)+40,diameter,diameter );
 	
 		gc.setFill(temp); // sætter farven tilbage til hvad den var
 		
