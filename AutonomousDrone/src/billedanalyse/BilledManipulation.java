@@ -3,8 +3,12 @@ package billedanalyse;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -260,6 +264,8 @@ public class BilledManipulation {
 	}
 	
 	public Mat readQrSkewed(Mat mat){
+		Mat newPic = new Mat();
+		mat.copyTo(newPic);
 		Mat out = new Mat();
 		mat.copyTo(out);
 		Mat temp = new Mat();
@@ -279,7 +285,7 @@ public class BilledManipulation {
 		Imgproc.findContours(temp, contours, new Mat(), Imgproc.RETR_TREE,Imgproc.CHAIN_APPROX_SIMPLE);
 
 //		List<MatOfPoint> contoursFound = new ArrayList<MatOfPoint>();
-		System.out.println("Contour størrelse: "+contours.size());
+//		System.out.println("Contour størrelse: "+contours.size());
 		
 		//Løber Contours igennem
 		for(int i=0; i<contours.size(); i++){
@@ -292,53 +298,77 @@ public class BilledManipulation {
 			//Konverterer MatOfPoint2f til MatOfPoint
 			mop2.convertTo(contours.get(i), CvType.CV_32S);
 			
-			if(contours.get(i).total()==4 && Imgproc.contourArea(contours.get(i))>5000){ //&& Imgproc.contourArea(contours.get(i))>150{
+			if(contours.get(i).total()==4 && Imgproc.contourArea(contours.get(i))>3000){ //&& Imgproc.contourArea(contours.get(i))>150{
 				List<Point> list = new ArrayList<Point>();
 //				Konverterer contours om til en liste af punkter for at finde koordinaterne
 				Converters.Mat_to_vector_Point(contours.get(i), list);
-				//QR kode punkter på originale billede
-				Point p1 = new Point(list.get(0).x,list.get(0).y);
-				Point p2 = new Point(list.get(1).x,list.get(1).y);
-				Point p3 = new Point(list.get(2).x,list.get(2).y);
-				Point p4 = new Point(list.get(3).x,list.get(3).y);
-				
-				List<Point> qrPunkter = new ArrayList<Point>();
-				qrPunkter.add(p1);
-				qrPunkter.add(p2);
-				qrPunkter.add(p3);
-				qrPunkter.add(p4);
-				List<Point> qrNyePunkter = new ArrayList<Point>();
-				qrNyePunkter.add(new Point(0,0));
-				qrNyePunkter.add(new Point(0,qr.cols()));
-				qrNyePunkter.add(new Point(qr.rows(),qr.cols()));
-				qrNyePunkter.add(new Point(qr.rows(),0));
-				
-				MatOfPoint2f mp = new MatOfPoint2f();
-				MatOfPoint2f mp2 = new MatOfPoint2f();
-				mp.fromList(qrPunkter);
-				mp2.fromList(qrNyePunkter);
-				
-				Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
-				
-				Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-				
-//				double l1 = afstand(list.get(0).x,list.get(1).x,list.get(0).y,list.get(1).y);
-//				double l2 = afstand(list.get(1).x,list.get(2).x,list.get(1).y,list.get(2).y);
-//				if(checkFirkant(l1,l2)){
-//					Imgproc.putText(out, Double.toString((int)l1/l2), new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
+				double l1 = afstand(list.get(0).x,list.get(1).x,list.get(0).y,list.get(1).y);
+				double l2 = afstand(list.get(1).x,list.get(2).x,list.get(1).y,list.get(2).y);
+				System.out.println("AREAL: "+l1*l2);
+				if(checkFirkant(l1,l2)){
+//					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
+//					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
-//				}
-//				BufferedImage testimg = mat2bufImg(test3); 
-//				File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
-//				try { ImageIO.write(testimg, "JPEG", f); 
-//				} catch (IOException e1) {
-//				}
+					//QR kode punkter på originale billede
+					Point p1 = new Point(list.get(0).x,list.get(0).y);
+					Point p2 = new Point(list.get(1).x,list.get(1).y);
+					Point p3 = new Point(list.get(2).x,list.get(2).y);
+					Point p4 = new Point(list.get(3).x,list.get(3).y);
+//				Point p1 = new Point(list.get(0).x+500,list.get(0).y+500);
+//				Point p2 = new Point(list.get(1).x,list.get(1).y+500);
+//				Point p3 = new Point(list.get(2).x,list.get(2).y);
+//				Point p4 = new Point(list.get(3).x,list.get(3).y);
+					
+					List<Point> qrPunkter = new ArrayList<Point>();
+					qrPunkter.add(p1);
+					qrPunkter.add(p2);
+					qrPunkter.add(p3);
+					qrPunkter.add(p4);
+					List<Point> qrNyePunkter = new ArrayList<Point>();
+					qrNyePunkter.add(new Point(0,0));
+					qrNyePunkter.add(new Point(0,qr.cols()));
+					qrNyePunkter.add(new Point(qr.rows(),qr.cols()));
+					qrNyePunkter.add(new Point(qr.rows(),0));
+					
+					MatOfPoint2f mp = new MatOfPoint2f();
+					MatOfPoint2f mp2 = new MatOfPoint2f();
+					mp.fromList(qrPunkter);
+					mp2.fromList(qrNyePunkter);
+					
+					Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+					
+					Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
+					System.out.println("HØJDE "+ test3.size().height + " og Bredde "+test3.size().width);
+					BufferedImage testimg = mat2bufImg(test3); 
+					File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
+					try { ImageIO.write(testimg, "JPEG", f); 
+					} catch (IOException e1) {
+					}
+				}
 				return test3;
-				
 			}
 		}
 		return out;
+	}
+	
+	private double afstand(double x1, double x2, double y1, double y2){
+		double result = Math.sqrt(Math.pow((x2-x1),2)+Math.pow((y2-y1),2));
+		return result;
+	}
+
+	private boolean checkFirkant(double l1, double l2){
+		double ratio;
+		if(l1>l2){
+			ratio = l1/l2;
+		} else {
+			ratio = l2/l2;
+		}
+
+		if(ratio>1.3 && ratio<2.9 && l1*l2<80000){
+			return true;
+		}
+		return false;
 	}
 
 }
