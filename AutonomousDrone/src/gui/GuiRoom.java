@@ -11,6 +11,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class GuiRoom extends Canvas{
 
@@ -22,13 +23,13 @@ public class GuiRoom extends Canvas{
 	OpgaveRum opgRum;
 	GraphicsContext gc;
 
-	
-	
+
+
 	public GuiRoom() throws NumberFormatException, IOException{
 		super(200,822);
 		gc = super.getGraphicsContext2D();
 		gc.fillRect(0, 0, 200, 300);
-	
+
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -102,6 +103,7 @@ public class GuiRoom extends Canvas{
 			gc.fillOval(k.getX()/zoomScale, (k.getY()/zoomScale)+40, 80/zoomScale, 80/zoomScale);
 		}
 
+		drawDrone();
 
 	}
 
@@ -116,9 +118,30 @@ public class GuiRoom extends Canvas{
 	public void setOpgRoom(OpgaveRum opgRum) {
 		this.opgRum = opgRum;
 		drawVisible();
-		
+
 	}
 
+	public void drawDrone(){
+		System.err.println("********************** ***********************");
+		opgRum.setDronePosition(new Koordinat(300, 400)); // ment som test.
+		Koordinat dp = opgRum.getDronePosition();
+		Paint temp = gc.getFill();
+
+		double x = dp.getX()/zoomScale;
+		double y = dp.getY()/zoomScale;
+		double diameter = 25/zoomScale;
+		
+		gc.setFill(Color.WHITE); // sætter farven til at tegne 
+		
+		gc.fillOval(x-(diameter/2), y-(diameter/2),diameter,diameter );
+		gc.fillOval(x-(diameter/2), y+(diameter/2),diameter,diameter );
+		gc.fillOval(x+(diameter/2), y-(diameter/2),diameter,diameter );
+		gc.fillOval(x+(diameter/2), y+(diameter/2),diameter,diameter );
+	
+		gc.setFill(temp); // sætter farven tilbage til hvad den var
+		
+
+	}
 
 
 

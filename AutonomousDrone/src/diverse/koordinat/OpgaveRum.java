@@ -23,6 +23,7 @@ import diverse.koordinat.Genstand.COLOR;;
 public class OpgaveRum {
 
 	private Koordinat[][] rum;
+	private Koordinat dp; // dronePosition
 	private int længde = 0;
 	private int bredde = 0;
 	private boolean isMarkingOk = true;
@@ -248,6 +249,13 @@ public class OpgaveRum {
 		return obstacleCenter;
 	}
 	
+	public void setDronePosition(Koordinat dp){
+		this.dp = dp;
+	}
+	
+	public Koordinat getDronePosition(){
+		return dp;
+	}
 	
 }
 
