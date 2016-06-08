@@ -341,10 +341,10 @@ public class BilledManipulation {
 					Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
 					System.out.println("HØJDE "+ test3.size().height + " og Bredde "+test3.size().width);
 					BufferedImage testimg = mat2bufImg(test3); 
-					File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
-					try { ImageIO.write(testimg, "JPEG", f); 
-					} catch (IOException e1) {
-					}
+//					File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
+//					try { ImageIO.write(testimg, "JPEG", f); 
+//					} catch (IOException e1) {
+//					}
 				}
 				return test3;
 			}

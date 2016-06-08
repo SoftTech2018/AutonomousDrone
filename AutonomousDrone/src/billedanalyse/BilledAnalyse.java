@@ -65,7 +65,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	private void testDronePos(BufferedImage bufFrame, Mat frame){
-		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
+		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(bm.readQrSkewed(frame));
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
 			return;
 		}
@@ -118,7 +118,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
-			this.opgrum.setDronePosition(dp);
+			this.opgrum.setDronePosition(dp, -1*yaw);
 			playSound();
 		}
 	}
