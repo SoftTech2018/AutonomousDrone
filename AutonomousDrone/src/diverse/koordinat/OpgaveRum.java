@@ -262,7 +262,7 @@ public class OpgaveRum {
 	public double getDroneYaw(){
 		return yaw;
 	}
-	
+	//
 }
 
 
