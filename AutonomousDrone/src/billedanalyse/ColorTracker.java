@@ -28,7 +28,7 @@ public class ColorTracker {
 	private static final double MIN_OBJECT_AREA = 800; // Svarer ca. til flyvehøjde på 2,5-3 meter
 	private static final double MAX_OBJECT_AREA = 6500; // Svarer ca. til flyvehøjde under 1 meter
 
-	private ArrayList<Squares> squares;
+	private ArrayList<Squares> squares, squaresreturn;
 	private Scalar minGreen;
 	private Scalar maxGreen;
 	private Scalar minRed;
@@ -116,7 +116,6 @@ public class ColorTracker {
 	 * @return
 	 */
 	public Mat findColorObjects(Mat org){
-		squares = new ArrayList<>(); // Nulstil arraylisten hver gang denne metode kaldes
 		this.org = org;
 		org.copyTo(temp);
 
@@ -189,7 +188,8 @@ public class ColorTracker {
 					} else {
 						farve = FARVE.GRØN;
 					}
-					squares.add(new Squares(farve, x, y));
+					long tid = System.currentTimeMillis();
+					squares.add(new Squares(farve, x, y, tid));
 				}
 			}
 		}
@@ -205,6 +205,9 @@ public class ColorTracker {
 	}
 
 	public ArrayList<Squares> getSquares() {
-		return squares;
+		ArrayList<Squares> clone = new ArrayList<Squares>();
+	    for(Squares item: squares) clone.add(item);
+		squares = new ArrayList<>(); // Nulstil arraylisten hver gang denne metode kaldes
+		return clone;
 	}
 }

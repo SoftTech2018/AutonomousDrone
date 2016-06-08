@@ -40,7 +40,7 @@ public class GradTest implements Runnable{
 	}
 	
 	public void startTest() throws InterruptedException {
-		dc.strafeRight(700);
+		dc.strafeLeft(700);
 		Thread.sleep(500);
 		dc.hover();
 	}
