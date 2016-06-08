@@ -54,7 +54,7 @@ public class GuiRoom extends Canvas{
 
 	}
 
-	public void drawVisible(int yaw){
+	public void drawVisible(){
 
 		xLength = opgRum.getWidth();
 		yLength = opgRum.getLength();
@@ -116,13 +116,13 @@ public class GuiRoom extends Canvas{
 
 	public void clear() throws NumberFormatException, IOException{
 		gc.clearRect(0, 0, 300, 322);
-		drawVisible(0);
+		drawVisible();
 
 	}
 
 	public void setOpgRoom(OpgaveRum opgRum) {
 		this.opgRum = opgRum;
-		drawVisible(0);
+		drawVisible();
 
 	}
 
