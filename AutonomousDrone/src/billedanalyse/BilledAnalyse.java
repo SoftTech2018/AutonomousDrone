@@ -41,13 +41,15 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, downCam;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator;
 	private Mat webcamFrame;
 	private Mat matFrame;
-	private QRCodeScanner qrs = new QRCodeScanner();
+	private QRCodeScanner qrs;
 
-	PunktNavigering punktNav = new PunktNavigering(); // DEBUG
-	OpgaveRum opgrum; // DEBUG
+	private PunktNavigering punktNav;
+	private OpgaveRum opgrum;
+	private Koordinat droneKoordinat;
+	private long droneKoordinatUpdated;
 
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
@@ -58,13 +60,15 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		objTracker = new ObjectTracking(opFlow, bm);
 		colTracker = new ColorTracker();
 		colTracker.setMode(MODE.webcam);
+		this.punktNav = new PunktNavigering();
+		this.qrs = new QRCodeScanner();
 	}
 
 	public void setOpgaveRum(OpgaveRum opgRum){
 		this.opgrum = opgRum;
 	}
 
-	private void testDronePos(BufferedImage bufFrame, Mat frame){
+	private void findDronePos(Mat frame){
 		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
 			return;
@@ -87,19 +91,19 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			//			System.out.println("DIST: " + dist + ", " + qrF.getCentrum());
 		}
 		if(readQr==null){
-			System.err.println("Ingen matchende firkant fundet!");
+//			System.err.println("Ingen matchende firkant fundet!");
 			return;
 		}
 		readQr.setText(qrTextArray[0]);
 
 		// Find det rigtige koordinat på den aflæse vægmarkering
 		Vector2 v = this.opgrum.getMultiMarkings(readQr.getText())[1];
-		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
+//		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
 		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
 
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
-		System.err.println("Distance beregnet til:" + dist);
+//		System.err.println("Distance beregnet til:" + dist);
 
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
@@ -118,9 +122,23 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
-			this.opgrum.setDronePosition(dp, -1*yaw);
+			this.opgrum.setDronePosition(dp, Math.toRadians(-1*yaw));
 			playSound();
+			setDroneKoordinat(dp);
 		}
+	}
+	
+	private void setDroneKoordinat(Koordinat drone){
+		this.droneKoordinat = drone;
+		this.droneKoordinatUpdated = System.currentTimeMillis();
+	}
+	
+	@Override
+	public Koordinat getDroneKoordinat(){
+		if(System.currentTimeMillis() - droneKoordinatUpdated > 500){
+			return null;
+		} 
+		return droneKoordinat;
 	}
 
 	private void playSound(){
@@ -365,6 +383,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void setOpticalFlow(boolean opticalFlow){
 		this.opticalFlow = opticalFlow;
 	}
+	
+	@Override
+	public void setDroneLocator(boolean drone){
+		this.droneLocator = drone;
+	}
 
 	@Override
 	public Mat[] getImages(){
@@ -433,10 +456,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(greyScale){						
 					//					frames[0] = bm.filterMat(frames[0]);						
 				}
+				
+				if(droneLocator){
+					this.findDronePos(img);
+				}
 
 				//Enable QR-checkBox?
 				if(qr){
-					this.testDronePos(temp, img);
+					this.findDronePos(img);
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);

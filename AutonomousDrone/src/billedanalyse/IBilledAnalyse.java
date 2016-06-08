@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
+import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
 import javafx.scene.image.Image;
 
@@ -78,5 +79,9 @@ public interface IBilledAnalyse {
 	Image mat2Image(Mat mat);
 
 	void setOpgaveRum(OpgaveRum opgaveRum);
+
+	Koordinat getDroneKoordinat();
+
+	void setDroneLocator(boolean drone);
 
 }
