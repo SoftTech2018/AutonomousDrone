@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
+import diverse.koordinat.M2;
 import diverse.koordinat.OpgaveRum;
 import diverse.koordinat.S2;
 import javafx.event.EventHandler;
@@ -129,10 +130,12 @@ public class GuiRoom extends Canvas{
 
 	public void drawDrone(){
 
-		opgRum.setDronePosition(new Koordinat(200, 200), 100); // ment som test.
+		opgRum.setDronePosition(new Koordinat(200, 200), Math.PI/3); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
 		
-		int yaw;
+		
+		
+		double yaw;
 		if(dp==null){
 			return;
 		}
@@ -146,25 +149,38 @@ public class GuiRoom extends Canvas{
 		if ((yaw = opgRum.getDroneYaw()) == -99999){
 			 yaw = 0;	
 		}
+		M2 M= new M2(Math.cos(yaw), -Math.sin(yaw),
+                Math.sin(yaw),  Math.cos(yaw));
 		
-		double x1 = ((x-(diameter/2))-x * Math.cos(yaw)) + x +4;
-		double x2 = ((x-(diameter/2))-x * Math.cos(yaw)) + x +4;
-		double x3 = ((x+(diameter/2))-x * Math.cos(yaw)) + x +4;
-		double x4 = ((x+(diameter/2))-x * Math.cos(yaw)) + x +4;
+		double x1 = (x-(diameter/2)) +4;
+		double x2 = (x-(diameter/2)) +4;
+		double x3 = (x+(diameter/2)) +4;
+		double x4 = (x+(diameter/2)) +4;
 
-		double y1 = ((y-(diameter/2)) -y * Math.sin(yaw)) + y +40;
-		double y2 = ((y+(diameter/2)) -y * Math.sin(yaw)) + y +40;
-		double y3 = ((y-(diameter/2)) -y * Math.sin(yaw)) + y +40;
-		double y4 = ((y+(diameter/2)) -y * Math.sin(yaw)) + y +40;
+		double y1 = (y-(diameter/2)) +40;
+		double y2 = (y+(diameter/2)) +40;
+		double y3 = (y-(diameter/2)) +40;
+		double y4 = (y+(diameter/2)) +40;
+		
+		Vector2 v1 = new Vector2(x1, y1);
+		Vector2 v2 = new Vector2(x2, y2);
+		Vector2 v3 = new Vector2(x3, y3);
+		Vector2 v4 = new Vector2(x4, y4);
 
+		Vector2 P = v1.add(v2).add(v3).add(v4).scale(1.0/4);
+		
+		v1 = M.mul(v1.sub(P)).add(P);
+		v2 = M.mul(v2.sub(P)).add(P);
+		v3 = M.mul(v3.sub(P)).add(P);
+		v4 = M.mul(v4.sub(P)).add(P);
 
 
 		gc.setFill(Color.WHITE); // sætter farven til at tegne 
 //		Circle frontleft = new Circle(x, y, 100, Color.WHITE);
-				gc.fillOval(x1, y1,diameter,diameter );
-				gc.fillOval(x2, y2,diameter,diameter );
-				gc.fillOval(x3, y3,diameter,diameter );
-				gc.fillOval(x4, y4,diameter,diameter );
+				gc.fillOval(v1.x, v1.y,diameter,diameter );
+				gc.fillOval(v2.x, v2.y,diameter,diameter );
+				gc.fillOval(v3.x, v3.y,diameter,diameter );
+				gc.fillOval(v4.x, v4.y,diameter,diameter );
 
 		gc.setFill(temp); // sætter farven tilbage til hvad den var
 

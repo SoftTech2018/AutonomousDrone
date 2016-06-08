@@ -6,7 +6,7 @@ public class M2 {
 	public double a,b,
 				  c,d;
 	
-	M2(double a, double b,
+	public M2(double a, double b,
 	   double c, double d){
 		this.a = a;this.b=b;
 		this.c = c;this.d=d;
