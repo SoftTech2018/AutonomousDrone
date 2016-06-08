@@ -65,11 +65,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	private void testDronePos(BufferedImage bufFrame, Mat frame){
-		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(bm.readQrSkewed(frame));
+		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
 			return;
 		}
-		String qrText = qrs.imageUpdated(frame);
+		String qrText = qrs.imageUpdated(bm.readQrSkewed(frame));
 		//		System.err.println("QR text: " + qrText);
 		if(qrText.equals("")){ // Der kan ikke læses nogen QR-kode
 			return;
