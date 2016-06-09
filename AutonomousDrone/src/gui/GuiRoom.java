@@ -21,6 +21,7 @@ public class GuiRoom extends Canvas{
 
 	private int xLength;
 	private int yLength;
+	private double minYaw = 0;
 
 
 	double zoomScale = 5;
@@ -34,23 +35,18 @@ public class GuiRoom extends Canvas{
 		super(200,822);
 		gc = super.getGraphicsContext2D();
 		gc.fillRect(0, 0, 200, 300);
-		
-		
+
+
 		gc.setStroke(Color.BLACK);
 		this.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent event) {
 
-				try {
-					clear();
-				} catch (NumberFormatException e) {
-					e.printStackTrace();
 
-				} catch (IOException e) {
-					e.printStackTrace();
-
-				}
+				minYaw = minYaw + Math.PI/3;
+				drawVisible();
+				System.out.println(minYaw);
 			}
 		});
 
@@ -130,10 +126,11 @@ public class GuiRoom extends Canvas{
 
 	public void drawDrone(){
 
-//		opgRum.setDronePosition(new Koordinat(200, 200), Math.PI/3); // ment som test.
+//		opgRum.setDronePosition(new Koordinat(200, 200), minYaw); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
-		
-		
+
+
+
 		double yaw;
 		if(dp==null){
 			return;
@@ -144,55 +141,70 @@ public class GuiRoom extends Canvas{
 		double y = dp.getY()/zoomScale;
 		double diameter = 25/zoomScale;
 
-		
+
 		if ((yaw = opgRum.getDroneYaw()) == -99999){
-			 yaw = 0;	
+			yaw = 0;	
 		}
 		M2 M= new M2(Math.cos(yaw), -Math.sin(yaw),
-                Math.sin(yaw),  Math.cos(yaw));
-		
-		double x1 = (x-(diameter/2)) +4;
-		double x2 = (x-(diameter/2)) +4;
-		double x3 = (x+(diameter/2)) +4;
-		double x4 = (x+(diameter/2)) +4;
+				Math.sin(yaw),  Math.cos(yaw));
 
-		double y1 = (y-(diameter/2)) +40;
-		double y2 = (y+(diameter/2)) +40;
-		double y3 = (y-(diameter/2)) +40;
-		double y4 = (y+(diameter/2)) +40;
-		
+
+		double x1 = (x-(diameter/2)) +5;
+		double x2 = (x-(diameter/2)) +5;
+		double x3 = (x+(diameter/2)) +5;
+		double x4 = (x+(diameter/2)) +5;
+
+		double y1 = (y-(diameter/2)) +41;
+		double y2 = (y+(diameter/2)) +41;
+		double y3 = (y-(diameter/2)) +41;
+		double y4 = (y+(diameter/2)) +41;
+
+
+
 		Vector2 v1 = new Vector2(x1, y1);
 		Vector2 v2 = new Vector2(x2, y2);
 		Vector2 v3 = new Vector2(x3, y3);
 		Vector2 v4 = new Vector2(x4, y4);
 
+
 		Vector2 P = v1.add(v2).add(v3).add(v4).scale(1.0/4);
-		
+
+		double dx1 = P.x;
+		double dy1 = P.y;
+		double dx2 = P.x-10;
+		double dy2 = P.y;
+
+		Vector2 dv = new Vector2(dx2, dy2);
+		dv = M.mul(dv.sub(P)).add(P);
+
+
+
 		v1 = M.mul(v1.sub(P)).add(P);
 		v2 = M.mul(v2.sub(P)).add(P);
 		v3 = M.mul(v3.sub(P)).add(P);
 		v4 = M.mul(v4.sub(P)).add(P);
 
 
+		System.out.println("omdrejningspunktet P(" + P.x +"," +P.y+")");
+		System.out.println("Dronens position er d(" + x +"," +y +")");
+
+
 		gc.setFill(Color.WHITE); // sætter farven til at tegne 
-//		Circle frontleft = new Circle(x, y, 100, Color.WHITE);
-				gc.fillOval(v1.x, v1.y,diameter,diameter );
-				gc.fillOval(v2.x, v2.y,diameter,diameter );
-				gc.fillOval(v3.x, v3.y,diameter,diameter );
-				gc.fillOval(v4.x, v4.y,diameter,diameter );
+		gc.setStroke(Color.WHITE);
+
+		gc.fillOval(v1.x-3, v1.y-2,diameter,diameter );
+		gc.fillOval(v2.x-3, v2.y-2,diameter,diameter );
+		gc.fillOval(v3.x-3, v3.y-2,diameter,diameter );
+		gc.fillOval(v4.x-3, v4.y-2,diameter,diameter );
+		gc.strokeLine(P.x, P.y, dv.x, dv.y);
+		
+
+
 
 		gc.setFill(temp); // sætter farven tilbage til hvad den var
 
 
 	}
-
-
-
-
-
-
-
-
 
 }
 
