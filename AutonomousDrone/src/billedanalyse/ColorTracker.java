@@ -41,6 +41,7 @@ public class ColorTracker {
 	private ArrayList<ColorSetting> csList;
 
 	public ColorTracker(IDroneControl dc){	
+		squares = new ArrayList<Squares>();
 		this.dc = dc;
 		tempGreen = new Mat();
 		temp = new Mat();
