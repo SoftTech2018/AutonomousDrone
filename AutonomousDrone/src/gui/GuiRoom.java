@@ -32,9 +32,9 @@ public class GuiRoom extends Canvas{
 
 
 	public GuiRoom() throws NumberFormatException, IOException{
-		super(200,822);
+		super(300,450);
 		gc = super.getGraphicsContext2D();
-		gc.fillRect(0, 0, 200, 300);
+		gc.fillRect(0, 0, 300, 300);
 
 
 		gc.setStroke(Color.BLACK);
@@ -44,7 +44,7 @@ public class GuiRoom extends Canvas{
 			public void handle(MouseEvent event) {
 
 
-				minYaw = minYaw + Math.PI/3;
+				minYaw = minYaw + 0.1;
 				drawVisible();
 				System.out.println(minYaw);
 			}
@@ -53,68 +53,80 @@ public class GuiRoom extends Canvas{
 	}
 
 	public void drawVisible(){
+		clear();
 
 		xLength = opgRum.getWidth();
 		yLength = opgRum.getLength();
 		double guiWidth = xLength/zoomScale;
 		double guiLength = yLength/zoomScale;
 		gc.setFill(Color.BLACK);
-		gc.fillRect(0, -40, guiWidth, guiLength);
 
+
+		//Tegner vægge
 		gc.setStroke(Color.BLUE);
 		gc.setLineWidth(2);
-		gc.strokeRect(4, 40, guiWidth, guiLength);
+		gc.strokeRect(54, 40, guiWidth, guiLength);
 		ArrayList<Koordinat> objects = opgRum.getFoundObjects();
 
-		gc.setFill(Color.CYAN);
 
+		//Tegner vægmarkeringer
+		gc.setFill(Color.CYAN);
 		for (int i = 0; i < opgRum.markingKoordinater.length; i++) {
 			if(opgRum.markingKoordinater[i] != null){
 
 				double x = (double) opgRum.markingKoordinater[i].getX()/zoomScale;
 				double y = (double) opgRum.markingKoordinater[i].getY()/zoomScale;
 				if(x > 180 || x == 0){
-					gc.fillRect(x+4, y+40, 2, 4 );	
+					gc.fillRect(x+54, y+40, 2, 4 );	
 				}else{
-					gc.fillRect(x+4, y+40, 4, 2 );	
+					gc.fillRect(x+54, y+40, 4, 2 );	
 				}
 			}
 
 		}
-		if(objects.size() > 0){
 
-			for (int i = 0; i < objects.size(); i++) {
-				Koordinat koord = objects.get(i);
-				gc.setFill(Color.RED);
-				gc.fillRect((koord.getX()/5)+4, (koord.getY()/5)+40, 2, 2);
-			}
-
-		}
-
+		// GuiText
 		gc.fillText("Room Map", 10, 10);
-
 		gc.strokeLine(10, 20, 100/zoomScale, 20);
 		gc.strokeLine(10, 18, 10, 22);
 		gc.strokeLine(100/zoomScale, 18, 100/zoomScale, 22);
-		gc.fillText("1,m", 100/zoomScale+5 , 20);
+		gc.fillText("1m", 100/zoomScale+5 , 20);
+
+		gc.fillText("W0", 150, 267);
+		gc.fillText("W3", 35, 150);
+		gc.fillText("W2", 150, 38);
+		gc.fillText("W1", 250, 150);
+
+
 
 
 
 		Koordinat k;
 		if((k = opgRum.getObstacleCenter()) != null){
 			//			System.err.println("******* K: " + k);
-			gc.fillOval(k.getX()/zoomScale, (k.getY()/zoomScale)+40, 80/zoomScale, 80/zoomScale);
+			gc.fillOval(k.getX()/zoomScale+50, (k.getY()/zoomScale)+90, 80/zoomScale, 80/zoomScale);
 		}
 
-		drawDrone();
 
+
+		if(objects.size() > 0){
+
+			for (int i = 0; i < objects.size(); i++) {
+				Koordinat koord = objects.get(i);
+				gc.setFill(Color.RED);
+				gc.fillRect((koord.getX()/5)+54, (koord.getY()/5)+40, 2, 2);
+			}
+
+		}
+		drawDrone();
 	}
 
 
 
-	public void clear() throws NumberFormatException, IOException{
-		gc.clearRect(0, 0, 300, 322);
-		drawVisible();
+	public void clear() {
+		gc.setFill(Color.BLACK);
+		gc.fillRect(0, 0, 250, 300);
+
 
 	}
 
@@ -124,9 +136,9 @@ public class GuiRoom extends Canvas{
 
 	}
 
-	public void drawDrone(){
+	private void drawDrone(){
 
-//		opgRum.setDronePosition(new Koordinat(200, 200), minYaw); // ment som test.
+//		opgRum.setDronePosition(new Koordinat(200, 900), minYaw); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
 
 
@@ -189,15 +201,14 @@ public class GuiRoom extends Canvas{
 		System.out.println("Dronens position er d(" + x +"," +y +")");
 
 
-		gc.setFill(Color.WHITE); // sætter farven til at tegne 
-		gc.setStroke(Color.WHITE);
+		gc.setFill(Color.RED); // sætter farven til at tegne 
+	
 
-		gc.fillOval(v1.x-3, v1.y-2,diameter,diameter );
-		gc.fillOval(v2.x-3, v2.y-2,diameter,diameter );
-		gc.fillOval(v3.x-3, v3.y-2,diameter,diameter );
-		gc.fillOval(v4.x-3, v4.y-2,diameter,diameter );
-		gc.strokeLine(P.x, P.y, dv.x, dv.y);
-		
+		gc.fillOval(v1.x+47, v1.y-2,diameter,diameter );
+		gc.fillOval(v2.x+47, v2.y-2,diameter,diameter );
+		gc.setFill(Color.WHITE);
+		gc.fillOval(v3.x+47, v3.y-2,diameter,diameter );
+		gc.fillOval(v4.x+47, v4.y-2,diameter,diameter );
 
 
 
