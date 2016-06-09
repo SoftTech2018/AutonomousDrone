@@ -44,8 +44,9 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private Vector2 dronePunkt = null;
 	private ArrayList<Koordinat> searchPoints;
 	private ArrayList<Squares> squarePoints;
-	private Koordinat landingsPlads, papKasse;
+	private Koordinat landingsPlads, papKasse, baneStart;
 	long stopTid, startTid;
+	private double mspercm = 10.8; //Forholdet mellem milisekunder og afstand tilbagelagt
 
 
 	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
@@ -142,9 +143,20 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private void getSquaresPositioner(ArrayList<Squares> squares) {
 		stopTid = System.currentTimeMillis();
 		for(Squares item: squares) {
-			long squaresdif =+ startTid - item.getTid();
+			long squaresdif = startTid - item.getTid();
+			int afstand = (int) (squaresdif/mspercm); //TODO Skal lægges til som vector i koordinatsystemet
+			Koordinat dronePos = baneStart;
+					
+			if (baneStart.getY() < 500) {
+				dronePos.setY(baneStart.getY() + afstand);
+			} else if (baneStart.getY() > 500) {
+				dronePos.setY(baneStart.getY() - afstand);
+			}
 			
-			//Kald Christians metode med udregnet squaresdif 
+			//Kald Christians metode med koordinator for dronen, koordinator for square i billedet, 
+			// yaw værdien
+			
+			
 		}
 		
 		
@@ -172,6 +184,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 		// Find dronepos
 		Koordinat dronePos = findDronePos();
+		baneStart = findDronePos();
 
 		// Strafe højre/venstre
 		for(int i=0; i<8; i++){
