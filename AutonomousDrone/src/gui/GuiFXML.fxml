@@ -46,7 +46,7 @@
          </rowConstraints>
       </GridPane>
       <ImageView fx:id="currentFrame" fitHeight="276.0" fitWidth="338.0" layoutX="10.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true" />
-      <AnchorPane layoutX="649.0" minHeight="0.0" minWidth="0.0" prefHeight="432.0" prefWidth="191.0">
+      <AnchorPane layoutX="700.0" minHeight="0.0" minWidth="0.0" prefHeight="432.0" prefWidth="191.0">
          <children>
             <CheckBox fx:id="grey_checkBox" layoutX="10.0" layoutY="57.0" mnemonicParsing="false" onAction="#colorChange" text="Enable Filter" />
             <Label layoutX="10.0" layoutY="13.0" text="Frames/Second:" />

@@ -25,7 +25,7 @@ public class GuiStarter extends Application{
 				AnchorPane root = (AnchorPane) loader.load();
 			GuiController controller = loader.getController();
 			controller.setGuiRoom(); // Laver opgaverum, og sætter OpgaveRum i GuiRoom
-			Scene scene = new Scene(root,850,570);
+			Scene scene = new Scene(root,950,570);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Skynet 0.1");
