@@ -42,7 +42,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	protected boolean doStop = false;
 	private boolean flying = false;
 	private Vector2 dronePunkt = null;
-	private ArrayList<Koordinat> searchPoints;
+	private ArrayList<Koordinat> searchPoints, ObjectCoords;
 	private ArrayList<Squares> squarePoints;
 	private Koordinat landingsPlads, papKasse, baneStart;
 	long stopTid, startTid;
@@ -156,7 +156,9 @@ public class OpgaveAlgoritme2 implements Runnable {
 			//Kald Christians metode med koordinator for dronen, koordinator for square i billedet, 
 			// yaw værdien
 			
-			
+			//Indsæt hver Koordinat der kommer tilbage fra metoden i et Koordinat Array
+			//ObjectCoords
+			//Eller log hvert Koordinat i Log.txt
 		}
 		
 		
