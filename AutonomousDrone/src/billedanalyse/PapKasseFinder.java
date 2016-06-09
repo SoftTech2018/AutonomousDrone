@@ -30,16 +30,9 @@ public class PapKasseFinder {
 	 * @return Koordinaterne for centrum af de identificerede papkasser. Returnerer null hvis intet blev fundet
 	 */
 	public Mat findPapkasse(Mat org){
-		//		UtilImageIO.saveImage(toBufferedImage(org), UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse.png"));
 
-		org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse12.jpg")));
+		//		org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse12.jpg")));
 
-		//		ShowImages.showWindow(toBufferedImage(linetemp),"Title",true);
-
-		//		Mat out = new Mat();
-		//		org.copyTo(out);
-		//		Mat temp = new Mat();
-		//		org.copyTo(temp);
 
 		Mat out = new Mat();
 		org.copyTo(out);
@@ -90,24 +83,11 @@ public class PapKasseFinder {
 				double area = moment.get_m00();
 				int x = (int)(moment.get_m10() / area);
 				int y = (int)(moment.get_m01() / area);
-				if(area>1000){					
-					double eup = Math.pow((moment.get_mu20()-moment.get_mu02()), 2)-(4*Math.pow(moment.get_mu11(), 2));
-					double edown = Math.pow((moment.get_mu20()+moment.get_mu02()), 2);
-					double e = eup/edown;
-					//					System.err.println("i: "+i);
-					//					System.err.println("e: "+e);
-					//					System.err.println("e_up: "+eup);
-					//					System.err.println("e_down: "+edown);
-					//					System.err.println("mu20: "+moment.get_mu20());
-					//					System.err.println("mu02: "+moment.get_mu02());
-					//					System.err.println("mu11: "+moment.get_mu11());
-					//					System.err.println("mu diff: "+Math.abs(moment.get_mu20()-moment.get_mu02()));
-					//					System.out.println();
+				if(area>1000){
 					double mudiff = Math.abs(moment.get_mu20()-moment.get_mu02());
 					if (mudiff<150000){
 						centers.add(new Point(x,y));
 						Imgproc.drawContours(org, contours, i, new Scalar(255,0,0), 3);
-						//						Imgproc.putText(org, ""+i, new Point(x,y), 1, 2, new Scalar(255, 255, 255), 2);
 						Imgproc.rectangle(out, new Point(x-(Math.sqrt(area)/2), y-(Math.sqrt(area)/2)), new Point(x+(Math.sqrt(area)/2), y+(Math.sqrt(area)/2)), new Scalar(255,0,0), 3);						
 					}					
 				}
@@ -130,7 +110,7 @@ public class PapKasseFinder {
 		}		
 
 		//		UtilImageIO.saveImage(toBufferedImage(org), UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse.png"));
-		ShowImages.showWindow(toBufferedImage(org),"Title",true);
+		//		ShowImages.showWindow(toBufferedImage(org),"Title",true);
 		return out;
 	}
 
