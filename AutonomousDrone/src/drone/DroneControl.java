@@ -280,17 +280,17 @@ public class DroneControl implements IDroneControl {
 	 */
 	@Override
 	public void turnLeft() throws InterruptedException{
-		this.turnDrone(-90);
-//		if(DRONE_DEBUG){
-//			System.out.println("DroneControl: Drejer Venstre");
-//		}
-//		if(!timeMode){
-//			cmd.spinLeft(SPEED*8);
-//		} else {
-//			cmd.spinLeft(SPEED*8).doFor(DURATION);	
-//			Thread.sleep(DURATION);
-//		}
-		//		cmd.hover();
+//		this.turnDrone(-90);
+		if(DRONE_DEBUG){
+			System.out.println("DroneControl: Drejer Venstre");
+		}
+		if(!timeMode){
+			cmd.spinLeft(SPEED*8);
+		} else {
+			cmd.spinLeft(SPEED*8).doFor(DURATION);	
+			Thread.sleep(DURATION);
+		}
+//				cmd.hover();
 	}
 
 	/* (non-Javadoc)
@@ -392,7 +392,7 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void flyDrone(double dist) {
-		final int FACTOR = 10; //Tidsfaktor
+		final double FACTOR = 10; //Tidsfaktor
 		if(dist>0){
 			cmd.forward(SPEED).doFor((long) (FACTOR*dist));				
 		} else {
@@ -402,14 +402,14 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void strafeRight(int dist) {
-		final long FACTOR = 10; // TODO
-		cmd.goRight(SPEED).doFor(FACTOR*dist);
+		final double FACTOR = 1.1; 
+		cmd.goRight(SPEED).doFor((long) (FACTOR*dist));
 	}
 
 	@Override
 	public void strafeLeft(int dist) {
-		final long FACTOR = 10; // TODO
-		cmd.goLeft(SPEED).doFor(FACTOR*dist);
+		final double FACTOR = 1.1; 
+		cmd.goLeft(SPEED).doFor((long) (FACTOR*dist));
 	}
 	
 

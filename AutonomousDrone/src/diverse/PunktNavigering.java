@@ -204,9 +204,9 @@ public class PunktNavigering {
 					Koordinat centrum = new Koordinat((int) xKor,(int) yKor);
 					if(cKor.isEmpty()){
 						cKor.add(centrum);
-						Imgproc.putText(out, Double.toString((int)l1/l2), new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
-						Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
-						Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
+//						Imgproc.putText(out, Double.toString((int)l1/l2), new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
+//						Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
+//						Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
 						
 						QrFirkant qr = new QrFirkant(list.get(0), list.get(1), list.get(2), list.get(3));
 						qrFirkanter.add(qr);
@@ -241,7 +241,7 @@ public class PunktNavigering {
 		if(l1>l2){
 			ratio = l1/l2;
 		} else {
-			ratio = l2/l2;
+			ratio = l2/l1;
 		}
 
 		if(ratio>1.3 && ratio<2.9 && l1*l2<80000){

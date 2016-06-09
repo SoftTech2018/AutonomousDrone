@@ -75,35 +75,44 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		}
 		String qrText = qrs.imageUpdated(bm.readQrSkewed(frame));
 		//		System.err.println("QR text: " + qrText);
-		if(qrText.equals("")){ // Der kan ikke læses nogen QR-kode
+		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
 			return;
 		}
 
 		// Tjek om den læste QR-kode matcher en fundet firkant i billedet
 		QrFirkant readQr = null;
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
-		Koordinat qrCentrum = new Koordinat(Integer.parseInt(qrTextArray[1]), Integer.parseInt((qrTextArray[2])));
+		Koordinat qrCentrum = bm.getQrCenter();
+		readQr = qrFirkanter.get(0);
+		int minDist = readQr.getCentrum().dist(qrCentrum);
 		for(QrFirkant qrF : qrFirkanter){
 			int dist = qrF.getCentrum().dist(qrCentrum);
-			if(dist < 50){
+			if(dist < minDist){
 				readQr = qrF;
 			}
-			//			System.out.println("DIST: " + dist + ", " + qrF.getCentrum());
 		}
-		if(readQr==null){
-//			System.err.println("Ingen matchende firkant fundet!");
+
+		//			Imgproc.putText(frame, Integer.toString(minDist), new Point(readQr.getCentrum().getX(), readQr.getCentrum().getY()), 1, 2.0, new Scalar(255,0,0),3);
+		//			Imgproc.circle(frame, new Point(readQr.getCentrum().getX(), readQr.getCentrum().getY()), 50, new Scalar(255,0,0), 5);
+		//			Imgproc.circle(frame, new Point(qrCentrum.getX(), qrCentrum.getY()), 10, new Scalar(255,0,0), 5);
+		//			Imgproc.line(frame, new Point(readQr.getCentrum().getX(), readQr.getCentrum().getY()), new Point(qrCentrum.getX(), qrCentrum.getY()), new Scalar(255,0,0), 3);
+		//			System.err.println("DIST: " + minDist + " - (" + qrCentrum.getX() + "," + qrCentrum.getY() + ")");
+		//			System.err.println("QR centrum: (" + qrCentrum.getX() + "," + qrCentrum.getY() + ")");
+		//			System.err.println("QrFirkant centrum: (" + readQr.getCentrum().getX() + "," + readQr.getCentrum().getY() + ")");
+		if(minDist > 50){
+			System.err.println("Ingen matchende firkant fundet!");
 			return;
 		}
 		readQr.setText(qrTextArray[0]);
 
 		// Find det rigtige koordinat på den aflæse vægmarkering
 		Vector2 v = this.opgrum.getMultiMarkings(readQr.getText())[1];
-//		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
+		//		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
 		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
 
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
-//		System.err.println("Distance beregnet til:" + dist);
+		//		System.err.println("Distance beregnet til:" + dist);
 
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
@@ -119,7 +128,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				(int) (dist*Math.sin(Math.toRadians(totalAngle))*0.1));
 		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
 		dp.setY(qrPlacering.getY() - dp.getY());
-		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
+		//		System.err.println("DroneKoordinat: (" + qrPlacering.getX() + "," + qrPlacering.getY() + ")");
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
 			this.opgrum.setDronePosition(dp, Math.toRadians(-1*yaw));
@@ -127,12 +136,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			setDroneKoordinat(dp);
 		}
 	}
-	
+
 	private void setDroneKoordinat(Koordinat drone){
 		this.droneKoordinat = drone;
 		this.droneKoordinatUpdated = System.currentTimeMillis();
 	}
-	
+
 	@Override
 	public Koordinat getDroneKoordinat(){
 		if(System.currentTimeMillis() - droneKoordinatUpdated > 500){
@@ -145,7 +154,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		try{
 			Clip clip = AudioSystem.getClip();
 			AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-			GuiStarter.class.getResourceAsStream("beep.wav"));
+					GuiStarter.class.getResourceAsStream("beep.wav"));
 			clip.open(inputStream);
 			clip.start();
 		} catch (Exception e){
@@ -383,7 +392,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void setOpticalFlow(boolean opticalFlow){
 		this.opticalFlow = opticalFlow;
 	}
-	
+
 	@Override
 	public void setDroneLocator(boolean drone){
 		this.droneLocator = drone;
@@ -456,21 +465,21 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(greyScale){						
 					//					frames[0] = bm.filterMat(frames[0]);						
 				}
-				
+
 				if(droneLocator){
 					this.findDronePos(img);
 				}
 
 				//Enable QR-checkBox?
 				if(qr){
-//					this.findDronePos(img);
+					this.findDronePos(img);
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
-										Mat testimg = bm.readQrSkewed(img);
-										findQR(testimg);
-										frames[2]=testimg;
-//										frames[0] = bm.filterMat(img);
+					//										Mat testimg = bm.readQrSkewed(img);
+					//										findQR(testimg);
+					//										frames[2]=testimg;
+					//										frames[0] = bm.filterMat(img);
 
 				} 
 				frames[0]=img;
@@ -501,7 +510,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void findQR(Mat frame){
 		Mat out = new Mat();
 		frame.copyTo(out);
-//		bm.toGray(frame);
+		//		bm.toGray(frame);
 		qrs.imageUpdated(frame);
 	}
 

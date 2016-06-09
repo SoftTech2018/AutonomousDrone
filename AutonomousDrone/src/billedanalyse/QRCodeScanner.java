@@ -32,7 +32,7 @@ public class QRCodeScanner
 //		hints.put(DecodeHintType.TRY_HARDER, null);
 		try {
 			Result result = qrReader.decode(bitmap);
-//			System.out.println("QR Code data is: "+result.getText());
+			System.out.println("QR Code data is: "+result.getText());
 			qrt = result.getText();
 			int x = 0;
 			int y = 0;
@@ -46,16 +46,16 @@ public class QRCodeScanner
 			qrt += "," + x + "," + y;
 		} catch (NotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("--------");
+//			e.printStackTrace();
+//			System.out.println("--------");
 		} catch (ChecksumException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("--------");
+//			e.printStackTrace();
+//			System.out.println("--------");
 		} catch (FormatException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("--------");
+//			e.printStackTrace();
+//			System.out.println("--------");
 		}
 		qrReader.reset();
 		return qrt;

@@ -130,9 +130,8 @@ public class GuiRoom extends Canvas{
 
 	public void drawDrone(){
 
-		opgRum.setDronePosition(new Koordinat(200, 200), Math.PI/3); // ment som test.
+//		opgRum.setDronePosition(new Koordinat(200, 200), Math.PI/3); // ment som test.
 		Koordinat dp = opgRum.getDronePosition();
-		
 		
 		
 		double yaw;
