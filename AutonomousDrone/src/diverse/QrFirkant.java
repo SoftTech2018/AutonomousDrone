@@ -35,6 +35,16 @@ public class QrFirkant {
 			return (int) Math.abs(height2);
 		}
 	}
+	
+	public int getWidth(){
+		double width1 = (p0.x - p3.x + p1.x - p2.x)/2;
+		double width2 = (p1.x - p0.x + p2.x - p3.x)/2;
+		if(width1>width2){
+			return (int) Math.abs(width1);
+		} else {
+			return (int) Math.abs(width2);
+		}
+	}
 
 	public String getText() {
 		return text;
@@ -58,5 +68,33 @@ public class QrFirkant {
 		return new Koordinat((int) xKor, (int) yKor);
 	}
 	
+	public int getAreal(){
+		double l1 = afstand(p0.x,p1.x,p0.y,p1.y);
+		double l2 = afstand(p1.x,p2.x,p1.y,p2.y);
+		int areal = (int) (l1*l2);
+		return areal;
+	}
+	
+	//Hjælpemetode til getAreal
+	private double afstand(double x1, double x2, double y1, double y2){
+		double result = Math.sqrt(Math.pow((x2-x1),2)+Math.pow((y2-y1),2));
+		return result;
+	}
+	
+	public Point getPoint0(){
+		return p0;
+	}
+	
+	public Point getPoint1(){
+		return p1;
+	}
+	
+	public Point getPoint2(){
+		return p2;
+	}
+	
+	public Point getPoint3(){
+		return p3;
+	}
 	
 }

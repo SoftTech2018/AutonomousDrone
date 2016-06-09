@@ -41,6 +41,7 @@ public class BilledManipulation {
 	private MatOfKeyPoint kp;
 	private FeatureDetector detect;
 	private DescriptorExtractor extractor;
+	private Koordinat qrCenter;
 
 	public BilledManipulation(){
 		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
@@ -265,8 +266,7 @@ public class BilledManipulation {
 	}
 	
 	public Mat readQrSkewed(Mat mat){
-		Mat newPic = new Mat();
-		mat.copyTo(newPic);
+
 		Mat out = new Mat();
 		mat.copyTo(out);
 		Mat temp = new Mat();
@@ -277,18 +277,16 @@ public class BilledManipulation {
 		
 		//QR TING:
 		Mat qr = new Mat();
-		qr = Mat.zeros(400, 400, CvType.CV_32S);
-		Mat test3 = new Mat(400,400,temp.type());
+		qr = Mat.zeros(560, 400, CvType.CV_32S);
+		Mat test3 = new Mat(560,400,temp.type());
 		ArrayList<QrFirkant> firkant = new ArrayList<QrFirkant>();
+		QrFirkant firkanten;
 		
 		//Contours gemmes i array
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		//Finder Contours
 
 		Imgproc.findContours(temp, contours, new Mat(), Imgproc.RETR_TREE,Imgproc.CHAIN_APPROX_SIMPLE);
-
-//		List<MatOfPoint> contoursFound = new ArrayList<MatOfPoint>();
-//		System.out.println("Contour størrelse: "+contours.size());
 		
 		//Løber Contours igennem
 		for(int i=0; i<contours.size(); i++){
@@ -301,11 +299,12 @@ public class BilledManipulation {
 			//Konverterer MatOfPoint2f til MatOfPoint
 			mop2.convertTo(contours.get(i), CvType.CV_32S);
 			
-			if(contours.get(i).total()==4 && Imgproc.contourArea(contours.get(i))>3000){ //&& Imgproc.contourArea(contours.get(i))>150{
+			if(contours.get(i).total()==4 && Imgproc.contourArea(contours.get(i))>2000){ //&& Imgproc.contourArea(contours.get(i))>150{
 				List<Point> list = new ArrayList<Point>();
 //				Konverterer contours om til en liste af punkter for at finde koordinaterne
 				Converters.Mat_to_vector_Point(contours.get(i), list);
 				
+				//Contour koordinaterne der danner en firkant
 				double x0 = list.get(0).x;
 				double x1 = list.get(1).x;
 				double x2 = list.get(2).x;
@@ -317,12 +316,8 @@ public class BilledManipulation {
 				
 				double l1 = afstand(list.get(0).x,list.get(1).x,list.get(0).y,list.get(1).y);
 				double l2 = afstand(list.get(1).x,list.get(2).x,list.get(1).y,list.get(2).y);
-//				System.out.println("l1 afstand: "+ l1);
-//				System.out.println("l2 afstand: "+ l2);
-//				System.out.println("AREAL: "+l1*l2);
-//				System.out.println("Checkfirkant "+checkFirkant(l1,l2));
 				if(checkFirkant(l1,l2)){
-//					firkant.add(new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3)));
+					firkant.add(new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3)));
 //					System.out.println("Check true ");
 //					Imgproc.putText(out, "0", new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, "1", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
@@ -333,40 +328,41 @@ public class BilledManipulation {
 //					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
 					
 					//QR kode punkter på originale billede
-					Point p0 = new Point(list.get(0).x,list.get(0).y);
-					Point p1 = new Point(list.get(1).x,list.get(1).y);
-					Point p2 = new Point(list.get(2).x,list.get(2).y);
-					Point p3 = new Point(list.get(3).x,list.get(3).y);
-					
-					List<Point> qrPunkter = new ArrayList<Point>();
-					qrPunkter.add(p0);
-					qrPunkter.add(p1);
-					qrPunkter.add(p2);
-					qrPunkter.add(p3);
-//					System.out.println("X0: "+x0 + " og X3: "+ x3);
-					List<Point> qrNyePunkter = new ArrayList<Point>();
-					if(x0>x3){
-//						System.out.println("X3 er større");
-						qrNyePunkter.add(new Point(qr.cols(),0));
-						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-						qrNyePunkter.add(new Point(0,qr.rows()));
-						qrNyePunkter.add(new Point(0,0));						
-					} else {
-//						System.out.println("X3 er mindre");
-						qrNyePunkter.add(new Point(0,0));
-						qrNyePunkter.add(new Point(0,qr.rows()));
-						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-						qrNyePunkter.add(new Point(qr.cols(),0));
-					}
+//					Point p0 = new Point(list.get(0).x,list.get(0).y);
+//					Point p1 = new Point(list.get(1).x,list.get(1).y);
+//					Point p2 = new Point(list.get(2).x,list.get(2).y);
+//					Point p3 = new Point(list.get(3).x,list.get(3).y);
 //					
-					MatOfPoint2f mp = new MatOfPoint2f();
-					MatOfPoint2f mp2 = new MatOfPoint2f();
-					mp.fromList(qrPunkter);
-					mp2.fromList(qrNyePunkter);
+//					List<Point> qrPunkter = new ArrayList<Point>();
+//					qrPunkter.add(p0);
+//					qrPunkter.add(p1);
+//					qrPunkter.add(p2);
+//					qrPunkter.add(p3);
+////					System.out.println("X0: "+x0 + " og X3: "+ x3);
+//					List<Point> qrNyePunkter = new ArrayList<Point>();
+//					if(x0>x3){
+////						System.out.println("X3 er større");
+//						qrNyePunkter.add(new Point(qr.cols(),0));
+//						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+//						qrNyePunkter.add(new Point(0,qr.rows()));
+//						qrNyePunkter.add(new Point(0,0));						
+//					} else {
+////						System.out.println("X3 er mindre");
+//						qrNyePunkter.add(new Point(0,0));
+//						qrNyePunkter.add(new Point(0,qr.rows()));
+//						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+//						qrNyePunkter.add(new Point(qr.cols(),0));
+//					}
+////					
+//					MatOfPoint2f mp = new MatOfPoint2f();
+//					MatOfPoint2f mp2 = new MatOfPoint2f();
+//					mp.fromList(qrPunkter);
+//					mp2.fromList(qrNyePunkter);
+//					
+//					Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+//					
+//					Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
 					
-					Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
-					
-					Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
 //					System.out.println("HØJDE "+ test3.size().height + " og Bredde "+test3.size().width);
 //					BufferedImage testimg = mat2bufImg(test3); 
 //					File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
@@ -374,10 +370,61 @@ public class BilledManipulation {
 //					} catch (IOException e1) {
 //					}
 				}
-				return test3;
+//				return test3;
 			}
-		}
-		return out;
+		} // her slutter første for-løkke
+		if(firkant.size()!=0){
+			int maxA = firkant.get(0).getAreal();
+			int id=0;
+			for (int i = 1; i < firkant.size(); i++) {
+				//bruger qr med største areal
+				if(firkant.get(i).getAreal()>maxA){
+					maxA = firkant.get(i).getAreal();
+					id = i;
+				}
+			}			
+			firkanten = firkant.get(id);
+			qrCenter = firkanten.getCentrum();
+			//QR-kode på originalt billede
+			Point p0 = firkanten.getPoint0();
+			Point p1 = firkanten.getPoint1();
+			Point p2 = firkanten.getPoint2();
+			Point p3 = firkanten.getPoint3();
+			
+			List<Point> qrPunkter = new ArrayList<Point>();
+			qrPunkter.add(p0);
+			qrPunkter.add(p1);
+			qrPunkter.add(p2);
+			qrPunkter.add(p3);
+			
+			List<Point> qrNyePunkter = new ArrayList<Point>();
+			if(firkanten.getPoint0().x>firkanten.getPoint3().x){
+//				System.out.println("X3 er større");
+				qrNyePunkter.add(new Point(qr.cols(),0));
+				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+				qrNyePunkter.add(new Point(0,qr.rows()));
+				qrNyePunkter.add(new Point(0,0));						
+			} else {
+//				System.out.println("X3 er mindre");
+				qrNyePunkter.add(new Point(0,0));
+				qrNyePunkter.add(new Point(0,qr.rows()));
+				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+				qrNyePunkter.add(new Point(qr.cols(),0));
+			}
+//			
+			MatOfPoint2f mp = new MatOfPoint2f();
+			MatOfPoint2f mp2 = new MatOfPoint2f();
+			mp.fromList(qrPunkter);
+			mp2.fromList(qrNyePunkter);
+			
+			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+			
+			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
+			
+			return test3;
+		} 
+		
+		return mat;
 	}
 	
 	private double afstand(double x1, double x2, double y1, double y2){
@@ -397,6 +444,10 @@ public class BilledManipulation {
 			return true;
 		}
 		return false;
+	}
+	
+	public Koordinat getQrCenter(){
+		return qrCenter;
 	}
 
 }
