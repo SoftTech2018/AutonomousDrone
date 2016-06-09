@@ -28,6 +28,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.utils.Converters;
 
+import diverse.QrFirkant;
 import diverse.koordinat.Koordinat;
 import javafx.scene.image.Image;
 
@@ -278,6 +279,8 @@ public class BilledManipulation {
 		Mat qr = new Mat();
 		qr = Mat.zeros(400, 400, CvType.CV_32S);
 		Mat test3 = new Mat(400,400,temp.type());
+		ArrayList<QrFirkant> firkant = new ArrayList<QrFirkant>();
+		
 		//Contours gemmes i array
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		//Finder Contours
@@ -302,8 +305,16 @@ public class BilledManipulation {
 				List<Point> list = new ArrayList<Point>();
 //				Konverterer contours om til en liste af punkter for at finde koordinaterne
 				Converters.Mat_to_vector_Point(contours.get(i), list);
+				
 				double x0 = list.get(0).x;
+				double x1 = list.get(1).x;
+				double x2 = list.get(2).x;
 				double x3 = list.get(3).x;
+				double y0 = list.get(0).y;
+				double y1 = list.get(1).y;
+				double y2 = list.get(2).y;
+				double y3 = list.get(3).y;
+				
 				double l1 = afstand(list.get(0).x,list.get(1).x,list.get(0).y,list.get(1).y);
 				double l2 = afstand(list.get(1).x,list.get(2).x,list.get(1).y,list.get(2).y);
 //				System.out.println("l1 afstand: "+ l1);
@@ -311,7 +322,8 @@ public class BilledManipulation {
 //				System.out.println("AREAL: "+l1*l2);
 //				System.out.println("Checkfirkant "+checkFirkant(l1,l2));
 				if(checkFirkant(l1,l2)){
-					System.out.println("Check true ");
+//					firkant.add(new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3)));
+//					System.out.println("Check true ");
 //					Imgproc.putText(out, "0", new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, "1", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, "2", new Point(list.get(2).x, list.get(2).y), 1, 5, new Scalar(255, 255, 255), 2);
@@ -319,15 +331,12 @@ public class BilledManipulation {
 //					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
+					
 					//QR kode punkter på originale billede
 					Point p0 = new Point(list.get(0).x,list.get(0).y);
 					Point p1 = new Point(list.get(1).x,list.get(1).y);
 					Point p2 = new Point(list.get(2).x,list.get(2).y);
 					Point p3 = new Point(list.get(3).x,list.get(3).y);
-////				Point p1 = new Point(list.get(0).x+500,list.get(0).y+500);
-////				Point p2 = new Point(list.get(1).x,list.get(1).y+500);
-////				Point p3 = new Point(list.get(2).x,list.get(2).y);
-////				Point p4 = new Point(list.get(3).x,list.get(3).y);
 					
 					List<Point> qrPunkter = new ArrayList<Point>();
 					qrPunkter.add(p0);

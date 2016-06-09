@@ -463,13 +463,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-					this.findDronePos(img);
+//					this.findDronePos(img);
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
-					//					Mat testimg = bm.readQrSkewed(img);
-					//					findQR(testimg);
-					//					frames[0] = bm.filterMat(img);
+										Mat testimg = bm.readQrSkewed(img);
+										findQR(testimg);
+										frames[2]=testimg;
+//										frames[0] = bm.filterMat(img);
 
 				} 
 				frames[0]=img;
@@ -500,7 +501,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void findQR(Mat frame){
 		Mat out = new Mat();
 		frame.copyTo(out);
-		bm.toGray(frame);
+//		bm.toGray(frame);
 		qrs.imageUpdated(frame);
 	}
 
