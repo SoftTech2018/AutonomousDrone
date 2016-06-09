@@ -68,11 +68,11 @@ public class OpgaveRum {
 			}
 		}
 		setMarkings();
-		
+
 		for (int i = 0; i < bredde; i = i+100) {
 			for (int j = 0; j < længde; j=j+100) {
 				addGenstandTilKoordinat(rum[i][j], new Genstand(COLOR.RØD));
-			
+
 			}
 		}
 
@@ -140,9 +140,9 @@ public class OpgaveRum {
 						String[] temp = wallmark.split(",");
 						int x = Integer.parseInt(temp[0]);
 						int y = Integer.parseInt(temp[1]);
-					
+
 						markingKoordinater[i]= new Koordinat(x, y);
-						
+
 					}
 
 				} catch (Exception e) {
@@ -186,7 +186,7 @@ public class OpgaveRum {
 			}
 		}
 		throw new NullPointerException("Fejl");
-//		return -1;
+		//		return -1;
 	}
 
 
@@ -197,7 +197,7 @@ public class OpgaveRum {
 	 */
 	public Vector2[] getMultiMarkings(String markName){
 
-		
+
 		int i = getMarkeringNummer(markName);
 		Vector2 middle = markingKoordinater[i].getVector();
 
@@ -233,9 +233,9 @@ public class OpgaveRum {
 	public void setObstacleCenter(Koordinat k){
 		obstacleCenter = rum[k.getX()][k.getY()];
 	}
-	
+
 	public boolean erForhindring(Koordinat k){
-		
+
 		Vector2 obstacle = obstacleCenter.getVector();
 		Vector2 searchPoint = k.getVector();
 		Vector2 temp = obstacle.sub(searchPoint);
@@ -243,26 +243,71 @@ public class OpgaveRum {
 		if(afstand > 80){
 			return true;
 		}
-		
+
 		return false;
 	}
 	public Koordinat getObstacleCenter(){
 		return obstacleCenter;
 	}
-	
+
 	public void setDronePosition(Koordinat dp, double yaw){
 		this.dp = dp;
 		this.yaw = yaw;
 	}
-	
+
 	public Koordinat getDronePosition(){
 		return dp;
 	}
-	
+
 	public double getDroneYaw(){
 		return yaw;
 	}
-	//
+
+	public void rotateCoordinate(int x, int y, int yaw, Koordinat drone){
+
+		int phi = 270;
+
+		if(yaw < 91){
+			phi+=yaw;
+		} else if(yaw > 90) {
+			phi = yaw - 90;
+		}
+
+		double factor = 2.5;
+		double dronex = drone.getX();
+		double droney = drone.getY();
+
+		y*=-1;
+		double cosphi = Math.cos(Math.toRadians(phi));
+		double sinphi = Math.sin(Math.toRadians(phi));
+
+		double[][] rotmat = {
+				{cosphi,sinphi,x},
+				{-sinphi,cosphi,y}
+		};
+
+		double n = rotmat[0][0], m = rotmat[1][0];
+		for(int i = 0; i < rotmat.length - 1 ; ++i) {
+			for(int j = 0 ; j < rotmat[0].length ; ++j) {
+				rotmat[i+1][j] = n*rotmat[i+1][j] - m*rotmat[i][j];
+				rotmat[i][j] = rotmat[i][j]/n;
+			}
+		}
+
+		double y2 = rotmat[1][2] / rotmat[1][1];
+		double x2 = rotmat[0][2] - rotmat[0][1]*y2;
+		droney*=-1;
+		double xny = x2+dronex;
+		double yny = y2+droney;
+
+		yny*=-1;
+
+		xny/=factor;
+		yny/=factor;
+
+		System.out.println("x2: "+xny);
+		System.out.println("y2: "+yny);
+	}
 }
 
 
