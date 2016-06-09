@@ -110,11 +110,16 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}
 			}
 
+			dc.up();
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
 
+			System.err.println("Lander!"); // DEBUG
 			// Find papkasse-position
-
+			dc.land(); // DEBUG
+			if(true)
+				return;
+			
 			this.dh = new DroneHelper(dc, papKasse);
 
 			// Flyv til start
@@ -212,31 +217,53 @@ public class OpgaveAlgoritme2 implements Runnable {
 		}
 	}
 
-	private Koordinat findDronePos(){
-		Vector2 dp;
+	private Koordinat findDronePos() throws InterruptedException{
+		Thread.sleep(2000);
 		boolean posUpdated = false;
-		while(!posUpdated){
-			if(qrcs.getQrt() != ""){
-				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
-				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
-
-				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
-				Koordinat p1 = new Koordinat((int) punkter[0].x, (int) punkter[0].y);
-				Koordinat p2 = new Koordinat((int) punkter[1].x, (int) punkter[1].y);
-				Koordinat p3 = new Koordinat((int) punkter[2].x, (int) punkter[2].y);
-				double alpha = pn.getAngle(px); // Pixels mellem p1 og p2
-				double beta = pn.getAngle(px); // Pixels mellem p3 og p2
-				dp = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
-				Log.writeLog("Dronepunkt: ("+ dp.x +  "," + dp.y +") fundet.");
-				posUpdated = true;
-			} else {
-				// TODO
-				
+		Koordinat drone;
+		if((drone = ba.getDroneKoordinat()) != null){
+			System.err.println("Drone position fundet!");
+			return drone;
+		} else { 
+			int startYaw = dc.getFlightData()[2];
+			int turns = 0;
+			while(!posUpdated && turns < 4 ){
+				dc.turnLeft();
+				turns++;
+				dc.hover();
+				Thread.sleep(5000); // Vent på dronen udfører kommandoen og vi får et rent billede
+				if((drone = ba.getDroneKoordinat()) != null){
+					posUpdated = true;
+					System.err.println("Drone position fundet!");
+					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
+				}
 			}
 		}
+		
+		return drone;
+		
+//		Vector2 dp;
+//		while(!posUpdated){
+//			if(qrcs.getQrt() != ""){
+//				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
+//				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
+//
+//				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+//				Koordinat p1 = new Koordinat((int) punkter[0].x, (int) punkter[0].y);
+//				Koordinat p2 = new Koordinat((int) punkter[1].x, (int) punkter[1].y);
+//				Koordinat p3 = new Koordinat((int) punkter[2].x, (int) punkter[2].y);
+//				double alpha = pn.getAngle(px); // Pixels mellem p1 og p2
+//				double beta = pn.getAngle(px); // Pixels mellem p3 og p2
+//				dp = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+//				Log.writeLog("Dronepunkt: ("+ dp.x +  "," + dp.y +") fundet.");
+//				posUpdated = true;
+//			} else {
+//				// TODO
+//				
+//			}
+		}
 
-		return new Koordinat((int) dp.x, (int) dp.y);
-	}
+
 	
 	public Koordinat findDronePos2(){
 		// Find højden på firkanten rundt om QR koden
@@ -389,7 +416,12 @@ public class OpgaveAlgoritme2 implements Runnable {
 	public void run() {
 //		try {
 		while(true){
-			this.findDronePos2();			
+			try {
+				this.startOpgaveAlgoritme();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
 		}
 //		} catch (InterruptedException e) {
 //			this.destroy();

@@ -17,6 +17,7 @@ import diverse.koordinat.OpgaveRum;
 import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme;
+import drone.OpgaveAlgoritme2;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -626,6 +627,10 @@ public class GuiController {
 
 	@FXML
 	void takeoff(ActionEvent event) {
+//		new Thread(new OpgaveAlgoritme2(dc, ba)).start();
+//		if(true)
+//			return;
+		
 		if(flying){
 			if(GuiStarter.GUI_DEBUG){
 				System.out.println("Dronen lander!");

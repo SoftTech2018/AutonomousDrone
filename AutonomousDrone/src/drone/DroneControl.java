@@ -8,9 +8,13 @@ import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.CommandManager;
 import de.yadrone.base.command.LEDAnimation;
+import de.yadrone.base.command.VideoChannel;
+import de.yadrone.base.command.VideoCodec;
 import de.yadrone.base.navdata.Altitude;
 import de.yadrone.base.navdata.AltitudeListener;
 import de.yadrone.base.navdata.AttitudeListener;
+import de.yadrone.base.navdata.MagnetoData;
+import de.yadrone.base.navdata.MagnetoListener;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
 import javafx.scene.image.Image;
@@ -58,6 +62,7 @@ public class DroneControl implements IDroneControl {
 			cmd.setMaxAltitude(MAXALT);		
 			imageCapture();	
 			startNavListener();
+			cmd.setVideoCodec(VideoCodec.H264_720P);
 		}
 	}
 
@@ -77,6 +82,13 @@ public class DroneControl implements IDroneControl {
 			@Override
 			public void windCompensation(float arg0, float arg1) {	}
 		});
+//		ndm.addMagnetoListener(new MagnetoListener(){
+//
+//			@Override
+//			public void received(MagnetoData arg0) {
+//				System.err.println("MagnetoData: " + arg0);
+//			}
+//		});
 		
 		// Nedenstående giver altid 0
 //		ndm.addAltitudeListener(new AltitudeListener(){
@@ -102,6 +114,7 @@ public class DroneControl implements IDroneControl {
 					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
 				}
 				DroneControl.this.setImg(arg0);
+				System.out.println("Billede dimensioner: " + arg0.getHeight() + "," + arg0.getWidth());
 //				bufImgOut = arg0;
 //				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	
 			}		
@@ -410,6 +423,11 @@ public class DroneControl implements IDroneControl {
 	public void strafeLeft(int dist) {
 		final double FACTOR = 1.1; 
 		cmd.goLeft(SPEED).doFor((long) (FACTOR*dist));
+	}
+
+	@Override
+	public void turnDroneTo(int targetYaw) {
+		this.turnDrone(targetYaw-this.yaw);
 	}
 	
 

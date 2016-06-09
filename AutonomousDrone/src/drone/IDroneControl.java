@@ -53,4 +53,6 @@ public interface IDroneControl {
 
 	void strafeLeft(int i);
 
+	void turnDroneTo(int startYaw);
+
 }

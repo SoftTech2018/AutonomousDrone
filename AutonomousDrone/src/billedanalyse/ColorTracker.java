@@ -40,7 +40,8 @@ public class ColorTracker {
 	private Mat org, out, tempGreen, temp;
 	private ArrayList<ColorSetting> csList;
 
-	public ColorTracker(){	
+	public ColorTracker(IDroneControl dc){	
+		this.dc = dc;
 		tempGreen = new Mat();
 		temp = new Mat();
 		try {

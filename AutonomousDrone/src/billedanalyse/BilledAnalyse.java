@@ -30,7 +30,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	/*
 	 * Definerer DEBUG-mode for billedmodulet (der udskrives til konsollen).
 	 */
-	protected static final boolean BILLED_DEBUG = false;
+	protected static final boolean BILLED_DEBUG = true;
 
 	private BilledManipulation bm;
 
@@ -58,7 +58,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		frames = new Mat[3];
 		this.opFlow = new OpticalFlow(bm);
 		objTracker = new ObjectTracking(opFlow, bm);
-		colTracker = new ColorTracker();
+		colTracker = new ColorTracker(dc);
 		colTracker.setMode(MODE.webcam);
 		this.punktNav = new PunktNavigering();
 		this.qrs = new QRCodeScanner();
@@ -128,7 +128,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				(int) (dist*Math.sin(Math.toRadians(totalAngle))*0.1));
 		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
 		dp.setY(qrPlacering.getY() - dp.getY());
-		//		System.err.println("DroneKoordinat: (" + qrPlacering.getX() + "," + qrPlacering.getY() + ")");
+		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
 			this.opgrum.setDronePosition(dp, Math.toRadians(-1*yaw));
