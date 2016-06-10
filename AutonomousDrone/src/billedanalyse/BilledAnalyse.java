@@ -16,6 +16,7 @@ import org.opencv.imgproc.Imgproc;
 import billedanalyse.ColorTracker.MODE;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
+import diverse.circleCalc.Circle;
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
@@ -71,10 +72,33 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	private void findDronePos2(Mat frame){
-		ArrayList<QrFirkant> list = bm.dronePos2(frame,qrs);
+		Circle circle1, circle2;
+		Mat temp = new Mat();
+		frame.copyTo(temp);
+		ArrayList<QrFirkant> list = bm.dronePos2(frame);
 		if(list==null){
 			return;
 		}
+		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
+		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
+			return;
+		}
+		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
+		QrFirkant readQr = null;
+		QrFirkant readQr2 = null;
+		readQr = bm.getFirkanten();
+		readQr.setText(qrTextArray[0]);
+		
+		readQr2 = bm.getFirkanten2();
+		//Finder distance og koordinater for QR-firkanten
+		Vector2 v1 = this.opgrum.getMultiMarkings(readQr.getText())[1];
+		// Beregn distancen til QR koden
+		double dist1 = punktNav.calcDist(readQr.getHeight(), 420);
+		//Laver cirkel for læst qr kode
+		circle1 = new Circle(v1,dist1);
+		
+		
+		
 	}
 	
 	private void findDronePos(Mat frame){
@@ -495,7 +519,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					//										findQR(testimg);
 					//										frames[2]=testimg;
 					//										frames[0] = bm.filterMat(img);
-
+					this.findDronePos2(img);
 				} 
 				frames[0]=img;
 

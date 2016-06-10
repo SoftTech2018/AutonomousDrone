@@ -42,7 +42,7 @@ public class BilledManipulation {
 	private FeatureDetector detect;
 	private DescriptorExtractor extractor;
 	private Koordinat qrCenter;
-	private QrFirkant firkanten;
+	private QrFirkant firkanten, firkanten2;
 
 	public BilledManipulation(){
 		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
@@ -429,7 +429,10 @@ public class BilledManipulation {
 		return mat;
 	}
 	
-	public ArrayList<QrFirkant> dronePos2(Mat mat, QRCodeScanner qrs){
+	//metode der finder firkanter og QR kode i forbindelse med at finde dronens position i forhold til 2 qr koder
+	public ArrayList<QrFirkant> dronePos2(Mat mat){
+		firkanten = null;
+		firkanten2 = null;
 		Mat out = new Mat();
 		mat.copyTo(out);
 		Mat out2 = new Mat();
@@ -438,9 +441,9 @@ public class BilledManipulation {
 		mat.copyTo(temp);
 		
 		//Qr ting
-			Mat qr = new Mat();
-			qr = Mat.zeros(560, 400, CvType.CV_32S);
-			Mat test3 = new Mat(560,400,temp.type());
+//			Mat qr = new Mat();
+//			qr = Mat.zeros(560, 400, CvType.CV_32S);
+//			Mat test3 = new Mat(560,400,temp.type());
 		
 		temp = toGray(temp);
 		Imgproc.GaussianBlur(temp, temp, new Size(5,5), -1);
@@ -512,48 +515,90 @@ public class BilledManipulation {
 			qrFirkant2.add(firkant1);
 			qrFirkant2.add(firkant2);
 			
-			Point p0 = firkant1.getPoint0();
-			Point p1 = firkant1.getPoint1();
-			Point p2 = firkant1.getPoint2();
-			Point p3 = firkant1.getPoint3();
+			//Sætter vores fundne firkanten således at de kan hentes fra get-metode
+			firkanten = firkant1;
+			firkanten2 = firkant2;
 			
-			List<Point> qrPunkter = new ArrayList<Point>();
-			qrPunkter.add(p0);
-			qrPunkter.add(p1);
-			qrPunkter.add(p2);
-			qrPunkter.add(p3);
-			
-			List<Point> qrNyePunkter = new ArrayList<Point>();
-			if(firkant1.getPoint0().x>firkant1.getPoint3().x){
-//				System.out.println("X3 er større");
-				qrNyePunkter.add(new Point(qr.cols(),0));
-				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-				qrNyePunkter.add(new Point(0,qr.rows()));
-				qrNyePunkter.add(new Point(0,0));						
-			} else {
-//				System.out.println("X3 er mindre");
-				qrNyePunkter.add(new Point(0,0));
-				qrNyePunkter.add(new Point(0,qr.rows()));
-				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-				qrNyePunkter.add(new Point(qr.cols(),0));
-			}
+//			Point p0 = firkant1.getPoint0();
+//			Point p1 = firkant1.getPoint1();
+//			Point p2 = firkant1.getPoint2();
+//			Point p3 = firkant1.getPoint3();
 //			
-			MatOfPoint2f mp = new MatOfPoint2f();
-			MatOfPoint2f mp2 = new MatOfPoint2f();
-			mp.fromList(qrPunkter);
-			mp2.fromList(qrNyePunkter);
-			
-			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
-			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-			
-			//Qr afsnit ligger i test3
-			String qrText = qrs.imageUpdated(test3);
-			//		System.err.println("QR text: " + qrText);
-			if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
-				return null;
-			}
+//			List<Point> qrPunkter = new ArrayList<Point>();
+//			qrPunkter.add(p0);
+//			qrPunkter.add(p1);
+//			qrPunkter.add(p2);
+//			qrPunkter.add(p3);
+//			
+//			List<Point> qrNyePunkter = new ArrayList<Point>();
+//			if(firkant1.getPoint0().x>firkant1.getPoint3().x){
+////				System.out.println("X3 er større");
+//				qrNyePunkter.add(new Point(qr.cols(),0));
+//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+//				qrNyePunkter.add(new Point(0,qr.rows()));
+//				qrNyePunkter.add(new Point(0,0));						
+//			} else {
+////				System.out.println("X3 er mindre");
+//				qrNyePunkter.add(new Point(0,0));
+//				qrNyePunkter.add(new Point(0,qr.rows()));
+//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+//				qrNyePunkter.add(new Point(qr.cols(),0));
+//			}
+////			
+//			MatOfPoint2f mp = new MatOfPoint2f();
+//			MatOfPoint2f mp2 = new MatOfPoint2f();
+//			mp.fromList(qrPunkter);
+//			mp2.fromList(qrNyePunkter);
+//			
+//			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+//			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
+//			
+//			//Qr afsnit ligger i test3
+//			String qrText = qrs.imageUpdated(test3);
+//			//		System.err.println("QR text: " + qrText);
+//			if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
+//				return null;
+//			}
+			return qrFirkant2;
 		}
-		return qrFirkant2;
+		return null;
+	}
+	
+	public String warpQrImage(QrFirkant firkant1, QRCodeScanner qrs, Mat mat){
+		Mat qr = new Mat();
+		qr = Mat.zeros(560, 400, CvType.CV_32S);
+		Mat test3 = new Mat(560,400,mat.type());
+		Point p0 = firkant1.getPoint0();
+		Point p1 = firkant1.getPoint1();
+		Point p2 = firkant1.getPoint2();
+		Point p3 = firkant1.getPoint3();
+		
+		List<Point> qrPunkter = new ArrayList<Point>();
+		qrPunkter.add(p0);
+		qrPunkter.add(p1);
+		qrPunkter.add(p2);
+		qrPunkter.add(p3);
+		
+		List<Point> qrNyePunkter = new ArrayList<Point>();
+		if(firkant1.getPoint0().x>firkant1.getPoint3().x){
+			qrNyePunkter.add(new Point(qr.cols(),0));
+			qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+			qrNyePunkter.add(new Point(0,qr.rows()));
+			qrNyePunkter.add(new Point(0,0));						
+		} else {
+			qrNyePunkter.add(new Point(0,0));
+			qrNyePunkter.add(new Point(0,qr.rows()));
+			qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+			qrNyePunkter.add(new Point(qr.cols(),0));
+		}
+		MatOfPoint2f mp = new MatOfPoint2f();
+		MatOfPoint2f mp2 = new MatOfPoint2f();
+		mp.fromList(qrPunkter);
+		mp2.fromList(qrNyePunkter);
+		
+		Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+		Imgproc.warpPerspective(mat, test3, warp, new Size(qr.cols(),qr.rows()));
+		return qrs.imageUpdated(test3);
 	}
 	
 	private double afstand(double x1, double x2, double y1, double y2){
@@ -581,6 +626,10 @@ public class BilledManipulation {
 	
 	public QrFirkant getFirkanten() {
 		return firkanten;
+	}
+	
+	public QrFirkant getFirkanten2() {
+		return firkanten2;
 	}
 
 }
