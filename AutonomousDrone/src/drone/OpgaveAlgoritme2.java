@@ -144,9 +144,10 @@ public class OpgaveAlgoritme2 implements Runnable {
 			destroy();
 		}
 	}
-	/** Modtager et array af squares der gennemløbes og sendes videre til opgaveRum,
+	/** Modtager et array af squares der gennemløbes og sendes videre til behandling i OpgaveRum,
 	 *  som returnerer et koordinat for hver square der gennemløbes 
-	 *  i square-arrayet
+	 *  i square-arrayet. Herefter gennemløbes koordinat-arrayet og tjek for objekternes position udføres 
+	 *  og sendes til OpgaveRum så de kan ses i GUI'en
 	 * @param squares
 	 */
 	private void getSquaresPositioner(ArrayList<Squares> squares) {
