@@ -70,7 +70,13 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		this.opgrum = opgRum;
 	}
 
-
+	private void findDronePos2(Mat frame){
+		ArrayList<QrFirkant> list = bm.dronePos2(frame,qrs);
+		if(list==null){
+			return;
+		}
+	}
+	
 	private void findDronePos(Mat frame){
 		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
