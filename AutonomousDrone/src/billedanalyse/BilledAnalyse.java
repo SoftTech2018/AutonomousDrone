@@ -42,7 +42,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator = true;
 	private Mat webcamFrame;
 	private Mat matFrame;
 	private QRCodeScanner qrs;
@@ -481,7 +481,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-					this.findDronePos(img);
+//					this.findDronePos(img);
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
