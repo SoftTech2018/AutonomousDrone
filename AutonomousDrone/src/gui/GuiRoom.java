@@ -197,8 +197,8 @@ public class GuiRoom extends Canvas{
 		v4 = M.mul(v4.sub(P)).add(P);
 
 
-		System.out.println("omdrejningspunktet P(" + P.x +"," +P.y+")");
-		System.out.println("Dronens position er d(" + x +"," +y +")");
+//		System.out.println("omdrejningspunktet P(" + P.x +"," +P.y+")");
+//		System.out.println("Dronens position er d(" + x +"," +y +")");
 
 
 		gc.setFill(Color.RED); // sætter farven til at tegne 

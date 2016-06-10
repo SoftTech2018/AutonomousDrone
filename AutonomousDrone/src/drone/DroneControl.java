@@ -114,7 +114,7 @@ public class DroneControl implements IDroneControl {
 					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
 				}
 				DroneControl.this.setImg(arg0);
-				System.out.println("Billede dimensioner: " + arg0.getHeight() + "," + arg0.getWidth());
+//				System.out.println("Billede dimensioner: " + arg0.getHeight() + "," + arg0.getWidth());
 //				bufImgOut = arg0;
 //				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	
 			}		

@@ -156,7 +156,8 @@ public class PunktNavigering {
 	 * @return Distancen til objektet
 	 */
 	public double calcDist(int pixels, int realHeight){
-		return 1.34927 * (realHeight*360)/pixels;
+		System.err.println("Pixels: " + pixels);
+		return 1.34927 * (realHeight*720)/pixels;
 	}
 	
 	public ArrayList<QrFirkant> findQR(Mat mat) {

@@ -70,6 +70,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		this.opgrum = opgRum;
 	}
 
+
 	private void findDronePos(Mat frame){
 		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
@@ -84,16 +85,16 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		// Tjek om den læste QR-kode matcher en fundet firkant i billedet
 		QrFirkant readQr = null;
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
-		Koordinat qrCentrum = bm.getQrCenter();
-		readQr = qrFirkanter.get(0);
-		int minDist = readQr.getCentrum().dist(qrCentrum);
-		for(QrFirkant qrF : qrFirkanter){
-			int dist = qrF.getCentrum().dist(qrCentrum);
-			if(dist < minDist){
-				readQr = qrF;
-			}
-		}
-
+		readQr = bm.getFirkanten();
+		//		Koordinat qrCentrum = bm.getQrCenter();
+		//		readQr = qrFirkanter.get(0);
+		//		int minDist = readQr.getCentrum().dist(qrCentrum);
+		//		for(QrFirkant qrF : qrFirkanter){
+		//			int dist = qrF.getCentrum().dist(qrCentrum);
+		//			if(dist < minDist){
+		//				readQr = qrF;
+		//			}
+		//		}
 		//			Imgproc.putText(frame, Integer.toString(minDist), new Point(readQr.getCentrum().getX(), readQr.getCentrum().getY()), 1, 2.0, new Scalar(255,0,0),3);
 		//			Imgproc.circle(frame, new Point(readQr.getCentrum().getX(), readQr.getCentrum().getY()), 50, new Scalar(255,0,0), 5);
 		//			Imgproc.circle(frame, new Point(qrCentrum.getX(), qrCentrum.getY()), 10, new Scalar(255,0,0), 5);
@@ -101,8 +102,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//			System.err.println("DIST: " + minDist + " - (" + qrCentrum.getX() + "," + qrCentrum.getY() + ")");
 		//			System.err.println("QR centrum: (" + qrCentrum.getX() + "," + qrCentrum.getY() + ")");
 		//			System.err.println("QrFirkant centrum: (" + readQr.getCentrum().getX() + "," + readQr.getCentrum().getY() + ")");
-		if(minDist > 50){
-			System.err.println("Ingen matchende firkant fundet!");
+		//		if(minDist > 25){
+		//			System.err.println("Ingen matchende firkant fundet!");
+		//			return;
+		//		}
+		if(readQr==null){
 			return;
 		}
 		readQr.setText(qrTextArray[0]);
@@ -114,13 +118,15 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
-		//		System.err.println("Distance beregnet til:" + dist);
+		//		System.err.println("Distance:" + dist * 0.1);
+		//		Imgproc.putText(frame, Integer.toString((int) (dist*0.1)), new Point(readQr.getCentrum().getX(), readQr.getCentrum().getY()), 1, 4, new Scalar(255,0,0), 5);
 
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
 		int yaw = -1*dc.getFlightData()[2]; // Spejlvend YAW så vinklen passer med radianer
 		int imgAngle = punktNav.getAngle(readQr.deltaX()); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
 		int totalAngle = yaw - imgAngle;
+
 
 		//		System.err.println("Total vinkel:" + totalAngle);
 
@@ -130,7 +136,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				(int) (dist*Math.sin(Math.toRadians(totalAngle))*0.1));
 		dp.setX(qrPlacering.getX() - dp.getX()); //Forskyder i forhold til QR-kodens rigtige markering
 		dp.setY(qrPlacering.getY() - dp.getY());
-		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
+		//		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
 			this.opgrum.setDronePosition(dp, Math.toRadians(-1*yaw));
@@ -459,7 +465,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				if(objTrack){
 					//					frames[2] = objTracker.trackSurfObject(bufimg);
-//					frames[2] = this.papkassefinder.findPapkasse(img);
+					//					frames[2] = this.papkassefinder.findPapkasse(img);
 					frames[2] = this.colTracker.findColorObjects(img);
 				} 
 

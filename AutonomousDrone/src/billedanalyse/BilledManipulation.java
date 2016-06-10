@@ -42,6 +42,7 @@ public class BilledManipulation {
 	private FeatureDetector detect;
 	private DescriptorExtractor extractor;
 	private Koordinat qrCenter;
+	private QrFirkant firkanten;
 
 	public BilledManipulation(){
 		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
@@ -266,6 +267,7 @@ public class BilledManipulation {
 	}
 	
 	public Mat readQrSkewed(Mat mat){
+		firkanten = null;
 
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -280,7 +282,7 @@ public class BilledManipulation {
 		qr = Mat.zeros(560, 400, CvType.CV_32S);
 		Mat test3 = new Mat(560,400,temp.type());
 		ArrayList<QrFirkant> firkant = new ArrayList<QrFirkant>();
-		QrFirkant firkanten;
+
 		
 		//Contours gemmes i array
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -448,6 +450,10 @@ public class BilledManipulation {
 	
 	public Koordinat getQrCenter(){
 		return qrCenter;
+	}
+	
+	public QrFirkant getFirkanten() {
+		return firkanten;
 	}
 
 }
