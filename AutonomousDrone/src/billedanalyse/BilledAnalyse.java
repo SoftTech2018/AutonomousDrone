@@ -38,6 +38,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private IDroneControl dc;
 	private ObjectTracking objTracker;
 	private ColorTracker colTracker;
+	private PapKasseFinder papkassefinder;
 
 	private Image[] imageToShow;
 	private Mat[] frames;
@@ -60,6 +61,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		objTracker = new ObjectTracking(opFlow, bm);
 		colTracker = new ColorTracker(dc);
 		colTracker.setMode(MODE.webcam);
+		papkassefinder = new PapKasseFinder();
 		this.punktNav = new PunktNavigering();
 		this.qrs = new QRCodeScanner();
 	}
@@ -457,6 +459,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				if(objTrack){
 					//					frames[2] = objTracker.trackSurfObject(bufimg);
+//					frames[2] = this.papkassefinder.findPapkasse(img);
 					frames[2] = this.colTracker.findColorObjects(img);
 				} 
 
