@@ -143,8 +143,8 @@ public class PunktNavigering {
 	}
 		
 	public int getAngle(double distance){
-		int width = 720;
-		int angle = 93;
+		int width = 1280;
+		int angle = 69;
 				
 		return (int) ((angle/width)*distance);
 	}
