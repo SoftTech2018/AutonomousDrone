@@ -265,7 +265,7 @@ public class OpgaveRum {
 
 	public Koordinat rotateCoordinate(int x, int y, long yaw, Koordinat drone){
 
-		int phi = 270;
+		long phi = 270;
 
 		if(yaw < 91){
 			phi+=yaw;

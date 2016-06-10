@@ -15,7 +15,7 @@ public class TestAfWallMarkings extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/WallValues.fxml"));
 		VBox root = (VBox) loader.load();
-		WallValuesController controller = loader.getController();
+		WallValuesController controller = (WallValuesController) loader.getController();
 		Scene scene = new Scene(root,600,570);
 
 		primaryStage.setScene(scene);

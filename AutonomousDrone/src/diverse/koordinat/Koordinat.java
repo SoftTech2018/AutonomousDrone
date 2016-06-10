@@ -14,7 +14,7 @@ public class Koordinat {
 	Vector2 v;
 	private int x;
 	private int y;
-	private ArrayList<Genstand> genstande = new ArrayList<>();
+	private Genstand genstand = null;
 	private WallMarking marking = null;
 
 	/**
@@ -66,25 +66,18 @@ public class Koordinat {
 	 * 
 	 * @return Returnerer en ArrayListe med de genstande der er fundet
 	 */
-	public ArrayList<Genstand> getGenstande() {
-		return genstande;
+	public Genstand getGenstande() {
+		return genstand;
 	}
 	/**
 	 * 
 	 * @param genstand TIlføjer en genstand til koordinatet
 	 */
 	public void addGenstand(Genstand genstand){
-		genstande.add(genstand);
+		this.genstand = genstand;
 	}
 	
-	/**
-	 * 
-	 * @return Returnerer antallet af genstande fundet på koordinatet
-	 */
-	public int getAntalGenstande(){
-		int antal = genstande.size();
-		return antal;
-	}
+	
 	
 	/**
 	 * 
@@ -103,7 +96,7 @@ public class Koordinat {
 	}
 
 	public String toString(){
-		return "("+x+","+y+")" + " indeholder" + getAntalGenstande() + ", " + genstande;
+		return "("+x+","+y+")" + " indeholder " + genstand;
 	}
 	
 	public Vector2 getVector(){
