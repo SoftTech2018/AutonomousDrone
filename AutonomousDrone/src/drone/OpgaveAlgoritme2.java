@@ -162,13 +162,29 @@ public class OpgaveAlgoritme2 implements Runnable {
 				dronePos.setY(baneStart.getY() - afstand);
 			}
 			
-			//Behandler 
-			Koordinat objectcoord = opgrum.rotateCoordinate(item.x, item.y, item.getYaw(), dronePos);
+			Koordinat objectcoord = opgrum.rotateCoordinate(item, dronePos);
 			objectCoords.add(objectcoord);
-			//Indsæt hver Koordinat der kommer tilbage fra metoden i et Koordinat Array
-			//ObjectCoords
-			//Eller log hvert Koordinat i Log.txt
 		}	
+		Koordinat lastCoord = null;
+		for (int i = 0; i < objectCoords.size(); i++) {
+			Koordinat item = objectCoords.get(i);
+			
+			//Tjek for om det er det første objekt i arrayet
+			if (i == 0) { 
+				opgrum.addGenstandTilKoordinat(item, item.getGenstande());
+				lastCoord = item;
+			} 
+			//Tjek for om objektet ikke ligger for tæt på objektet før
+			else if (Math.abs(item.getX()-lastCoord.getX()) > 10 && Math.abs(item.getY()-lastCoord.getY()) > 10) {
+				opgrum.addGenstandTilKoordinat(item, item.getGenstande());
+				lastCoord = item;
+			} 
+			//Hvis objektet er for tæt på sættes det til null
+			else { 
+				item = null;
+			}
+			}
+		
 	}
 
 	private void createPoints(){
