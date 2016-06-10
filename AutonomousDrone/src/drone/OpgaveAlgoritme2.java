@@ -42,7 +42,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	protected boolean doStop = false;
 	private boolean flying = false;
 	private Vector2 dronePunkt = null;
-	private ArrayList<Koordinat> searchPoints, ObjectCoords;
+	private ArrayList<Koordinat> searchPoints, objectCoords;
 	private ArrayList<Squares> squarePoints;
 	private Koordinat landingsPlads, papKasse, baneStart;
 	long stopTid, startTid;
@@ -144,12 +144,16 @@ public class OpgaveAlgoritme2 implements Runnable {
 			destroy();
 		}
 	}
-	
+	/** Modtager et array af squares der gennemløbes og sendes videre til opgaveRum,
+	 *  som returnerer et koordinat for hver square der gennemløbes 
+	 *  i square-arrayet
+	 * @param squares
+	 */
 	private void getSquaresPositioner(ArrayList<Squares> squares) {
 		stopTid = System.currentTimeMillis();
 		for(Squares item: squares) {
 			long squaresdif = startTid - item.getTid();
-			int afstand = (int) (squaresdif/mspercm); //TODO Skal lægges til som vector i koordinatsystemet
+			int afstand = (int) (squaresdif/mspercm); 
 			Koordinat dronePos = baneStart;
 					
 			if (baneStart.getY() < 500) {
@@ -158,15 +162,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 				dronePos.setY(baneStart.getY() - afstand);
 			}
 			
-			//Kald Christians metode med koordinator for dronen, koordinator for square i billedet, 
-			// yaw værdien
-			
+			//Behandler 
+			Koordinat objectcoord = opgrum.rotateCoordinate(item.x, item.y, item.getYaw(), dronePos);
+			objectCoords.add(objectcoord);
 			//Indsæt hver Koordinat der kommer tilbage fra metoden i et Koordinat Array
 			//ObjectCoords
 			//Eller log hvert Koordinat i Log.txt
-		}
-		
-		
+		}	
 	}
 
 	private void createPoints(){

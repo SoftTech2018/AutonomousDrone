@@ -263,7 +263,7 @@ public class OpgaveRum {
 		return yaw;
 	}
 
-	public void rotateCoordinate(int x, int y, int yaw, Koordinat drone){
+	public Koordinat rotateCoordinate(int x, int y, long yaw, Koordinat drone){
 
 		int phi = 270;
 
@@ -304,6 +304,8 @@ public class OpgaveRum {
 
 		System.out.println("x2: "+xny);
 		System.out.println("y2: "+yny);
+		
+		return null;
 	}
 }
 
