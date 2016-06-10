@@ -17,6 +17,7 @@ import billedanalyse.ColorTracker.MODE;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
 import diverse.circleCalc.Circle;
+import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
@@ -86,21 +87,41 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
 		QrFirkant readQr = null;
 		QrFirkant readQr2 = null;
+
+
 		readQr = bm.getFirkanten();
 		readQr.setText(qrTextArray[0]);
-		
+
 		readQr2 = bm.getFirkanten2();
+
+		Koordinat qrKoord1 = readQr.getCentrum();
+		Koordinat qrKoord2 = readQr2.getCentrum();
 		//Finder distance og koordinater for QR-firkanten
 		Vector2 v1 = this.opgrum.getMultiMarkings(readQr.getText())[1];
+		Vector2 v2 ;
 		// Beregn distancen til QR koden
 		double dist1 = punktNav.calcDist(readQr.getHeight(), 420);
 		//Laver cirkel for læst qr kode
 		circle1 = new Circle(v1,dist1);
+
+		if(qrKoord1.getX() > qrKoord2.getX()){
+			v2 = this.opgrum.getMultiMarkings(readQr.getText())[0];
+		}else{
+			v2 = this.opgrum.getMultiMarkings(readQr.getText())[2];
+		}
+
+		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420);
+		circle2 = new Circle(v2, dist2);
 		
-		
-		
+		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
+		System.err.println(cci.getIntersectionPoints().length);
+		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
+			System.err.println(cci.getIntersectionPoints()[i]);
+			
+		}
+
 	}
-	
+
 	private void findDronePos(Mat frame){
 		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
@@ -511,7 +532,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-//					this.findDronePos(img);
+					//					this.findDronePos(img);
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
