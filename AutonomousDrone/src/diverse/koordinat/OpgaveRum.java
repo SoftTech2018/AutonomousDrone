@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import diverse.Log;
 import diverse.circleCalc.Vector2;
-import diverse.koordinat.Genstand.COLOR;;
+import diverse.koordinat.Genstand.GENSTAND_FARVE;;
 
 
 /**Rettet 7/6 kl 9:30	
@@ -71,7 +71,7 @@ public class OpgaveRum {
 
 		for (int i = 0; i < bredde; i = i+100) {
 			for (int j = 0; j < længde; j=j+100) {
-				addGenstandTilKoordinat(rum[i][j], new Genstand(COLOR.RØD));
+				addGenstandTilKoordinat(rum[i][j], new Genstand(GENSTAND_FARVE.RØD));
 
 			}
 		}
