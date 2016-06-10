@@ -282,8 +282,8 @@ public class OpgaveRum {
 		double sinphi = Math.sin(Math.toRadians(phi));
 
 		double[][] rotmat = {
-				{cosphi,sinphi,x},
-				{-sinphi,cosphi,y}
+				{cosphi,sinphi,x/factor},
+				{-sinphi,cosphi,y/factor}
 		};
 
 		double n = rotmat[0][0], m = rotmat[1][0];
@@ -301,9 +301,6 @@ public class OpgaveRum {
 		double yny = y2+droney;
 
 		yny*=-1;
-
-		xny/=factor;
-		yny/=factor;
 
 		System.out.println("x2: "+xny);
 		System.out.println("y2: "+yny);
