@@ -30,6 +30,10 @@ public class OpgaveRum {
 	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
 	private Koordinat obstacleCenter = null;
 	private double yaw = -99999;
+	
+	private Vector2[] circleMarkings = new Vector2[2];
+	private double[] circleDist =  new double[2];
+	private double dist1,dist2;
 
 	public int getLength() {
 		return længde;
@@ -306,6 +310,23 @@ public class OpgaveRum {
 		System.out.println("y2: "+yny);
 		
 		return null;
+	}
+
+	public void setCircleInfo(Vector2 v1, Vector2 v2, double dist1, double dist2){
+		circleMarkings[0] = v1;
+		circleMarkings[1] = v2;
+		circleDist[0] = dist1;
+		circleDist[1] = dist2;
+	
+	}
+
+	public double[] getCircleDists() {
+		return circleDist;
+	}
+
+
+	public Vector2[] getCircleCenters() {
+		return circleMarkings;
 	}
 }
 

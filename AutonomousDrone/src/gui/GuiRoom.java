@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -119,6 +120,10 @@ public class GuiRoom extends Canvas{
 
 		}
 		drawDrone();
+		drawCircles();
+		
+	
+	
 	}
 
 
@@ -216,6 +221,26 @@ public class GuiRoom extends Canvas{
 
 
 	}
+	
+    public void drawCircles(){
+    	
+    	// Test skal efterlades udkommenteret
+//    	opgRum.setCircleInfo(new Vector2(188, 1055), new Vector2(338, 1060), 100, 300);
+    	
+    	double dist1 = opgRum.getCircleDists()[0]/zoomScale;
+    	double dist2 = opgRum.getCircleDists()[1]/zoomScale;
+    	Vector2 v1 = opgRum.getCircleCenters()[0];
+    	Vector2 v2 = opgRum.getCircleCenters()[1];
+    	double r1 = dist1/2;
+    	double r2 = dist2/2;
+    	double x1 = v1.x/zoomScale-r1+54;
+    	double y1 = v1.y/zoomScale-r1+40;
+    	double x2 = v2.x/zoomScale-r2+54;
+    	double y2 = v2.y/zoomScale-r2+40;
+    	gc.strokeOval(x1, y1, dist1, dist1);
+		gc.strokeOval(x2, y2, dist2, dist2); 
+		
+    }
 
 }
 

@@ -100,9 +100,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		Vector2 v1 = this.opgrum.getMultiMarkings(readQr.getText())[1];
 		Vector2 v2 ;
 		// Beregn distancen til QR koden
-		double dist1 = punktNav.calcDist(readQr.getHeight(), 420);
+		double dist1 = punktNav.calcDist(readQr.getHeight(), 300);
 		//Laver cirkel for læst qr kode
-		circle1 = new Circle(v1,dist1);
+		circle1 = new Circle(new Vector2(188,1055), 300);
 
 		if(qrKoord1.getX() > qrKoord2.getX()){
 			v2 = this.opgrum.getMultiMarkings(readQr.getText())[0];
@@ -110,8 +110,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			v2 = this.opgrum.getMultiMarkings(readQr.getText())[2];
 		}
 
-		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420);
-		circle2 = new Circle(v2, dist2);
+		double dist2 = punktNav.calcDist(readQr2.getHeight(), 300);
+		circle2 = new Circle(new Vector2(338,1060), 300);
 		
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
 		System.err.println(cci.getIntersectionPoints().length);
@@ -119,6 +119,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			System.err.println(cci.getIntersectionPoints()[i]);
 			
 		}
+		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 
 	}
 
