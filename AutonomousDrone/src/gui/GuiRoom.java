@@ -9,6 +9,7 @@ import diverse.koordinat.Koordinat;
 import diverse.koordinat.M2;
 import diverse.koordinat.OpgaveRum;
 import diverse.koordinat.S2;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -120,7 +121,8 @@ public class GuiRoom extends Canvas{
 
 		}
 		drawDrone();
-//		drawCircles();
+		
+		drawCircles();
 		
 	
 	
@@ -215,26 +217,27 @@ public class GuiRoom extends Canvas{
 		gc.fillOval(v3.x+47, v3.y-2,diameter,diameter );
 		gc.fillOval(v4.x+47, v4.y-2,diameter,diameter );
 
-
-
 		gc.setFill(temp); // sætter farven tilbage til hvad den var
-
-
+		
+		
 	}
 	
     public void drawCircles(){
     	
     	// Test skal efterlades udkommenteret
 //    	opgRum.setCircleInfo(new Vector2(188, 1055), new Vector2(338, 1060), 100, 300);
-    	if(null == opgRum.getCircleCenters()){
+    	if(!opgRum.isCircleFlag()){
     		return;
     	}
     	
     	
     	double dist1 = opgRum.getCircleDists()[0]/zoomScale;
+   
     	double dist2 = opgRum.getCircleDists()[1]/zoomScale;
+     	System.out.println(dist1 + ", " + dist2);
     	Vector2 v1 = opgRum.getCircleCenters()[0];
     	Vector2 v2 = opgRum.getCircleCenters()[1];
+    	System.out.println(v1 + ", " + v2);
     	double r1 = dist1/2;
     	double r2 = dist2/2;
     	double x1 = v1.x/zoomScale-r1+54;

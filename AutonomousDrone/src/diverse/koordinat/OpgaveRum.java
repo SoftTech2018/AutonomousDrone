@@ -31,6 +31,7 @@ public class OpgaveRum {
 	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
 	private Koordinat obstacleCenter = null;
 	private double yaw = -99999;
+	private boolean circleFlag = false;
 	
 	private Vector2[] circleMarkings = new Vector2[2];
 	private double[] circleDist =  new double[2];
@@ -322,6 +323,7 @@ public class OpgaveRum {
 		circleMarkings[1] = v2;
 		circleDist[0] = dist1;
 		circleDist[1] = dist2;
+		circleFlag = true;
 	
 	}
 
@@ -332,6 +334,10 @@ public class OpgaveRum {
 
 	public Vector2[] getCircleCenters() {
 		return circleMarkings;
+	}
+	
+	public boolean isCircleFlag(){
+		return circleFlag;
 	}
 }
 
