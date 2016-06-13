@@ -423,7 +423,9 @@ public class BilledManipulation {
 			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
 			
 			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-			
+//			Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
+			//DETTE SKAL ÆNDRES I FORHOLD TIL LYS-STYRKEN I LOKALET
+//			Imgproc.threshold(test3, test3, 125, 255, Imgproc.THRESH_BINARY);
 			return test3;
 		} 
 		
