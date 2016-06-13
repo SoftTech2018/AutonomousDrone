@@ -120,7 +120,7 @@ public class GuiRoom extends Canvas{
 
 		}
 		drawDrone();
-		drawCircles();
+//		drawCircles();
 		
 	
 	
@@ -226,6 +226,10 @@ public class GuiRoom extends Canvas{
     	
     	// Test skal efterlades udkommenteret
 //    	opgRum.setCircleInfo(new Vector2(188, 1055), new Vector2(338, 1060), 100, 300);
+    	if(null == opgRum.getCircleCenters()){
+    		return;
+    	}
+    	
     	
     	double dist1 = opgRum.getCircleDists()[0]/zoomScale;
     	double dist2 = opgRum.getCircleDists()[1]/zoomScale;
