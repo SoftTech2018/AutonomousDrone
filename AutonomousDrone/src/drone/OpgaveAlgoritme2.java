@@ -51,6 +51,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 
 	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
+		Log.writeLog("Opgavealgoritme oprettet");
 		this.dc = dc;
 		this.ba = ba;
 		this.punktNav = new PunktNavigering();
@@ -114,9 +115,45 @@ public class OpgaveAlgoritme2 implements Runnable {
 			dc.up();
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
+			
+			if(landingsPlads!=null){
+				int yaw = dc.getFlightData()[2];
+				Log.writeLog("Placering fundet: " + landingsPlads.getX() + "," + landingsPlads.getY());
+				Log.writeLog("YAW: " + yaw);
+				if(yaw > 0 && yaw < 45){
+					// baglæns
+					dc.backward();
+				} else if (yaw > 45 && yaw < 90){
+					// baglæns
+					dc.backward();
+				} else if (yaw > 90 && yaw < 135){
+					// strafe højre
+					dc.right();
+				} else if (yaw > 135 && yaw < 180){
+					// strafe højre
+					dc.right();
+				} else if (yaw > -45 && yaw < 0){
+					// strafe venstra
+					dc.left();
+				} else if (yaw > -90 && yaw < -45){
+					// strafe venstra
+					dc.left();
+				} else if (yaw > -135 && yaw < -90){
+					// lige ud
+					dc.forward();
+				} else if (yaw > -180 && yaw < -135){
+					// lige ud
+					dc.forward();
+				}
+				landingsPlads = this.findDronePos();
+				if(landingsPlads!=null){
+					Log.writeLog("Placering fundet: " + landingsPlads.getX() + "," + landingsPlads.getY());	
+				}
+			}
 
-			System.err.println("Lander!"); // DEBUG
 			// Find papkasse-position
+			
+			dc.turnDroneTo(0); // Drej dronen så den peger mod vinduet
 			dc.land(); // DEBUG
 			if(true)
 				return;
@@ -239,6 +276,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private Koordinat findDronePos() throws InterruptedException{
 		Thread.sleep(2000);
 		boolean posUpdated = false;
+		long start = System.currentTimeMillis();
 		Koordinat drone;
 		if((drone = ba.getDroneKoordinat()) != null){
 			System.err.println("Drone position fundet!");
@@ -247,14 +285,16 @@ public class OpgaveAlgoritme2 implements Runnable {
 			int startYaw = dc.getFlightData()[2];
 			int turns = 0;
 			while(!posUpdated && turns < 4 ){
+				Log.writeLog("Drejer dronen: " + (System.currentTimeMillis() - start)/1000);
 				dc.turnLeft();
 				turns++;
 				dc.hover();
 				Thread.sleep(5000); // Vent på dronen udfører kommandoen og vi får et rent billede
 				if((drone = ba.getDroneKoordinat()) != null){
 					posUpdated = true;
-					System.err.println("Drone position fundet!");
-					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
+					Log.writeLog("Drone position fundet: " + drone);
+					return drone;
+//					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
 				}
 			}
 		}
@@ -434,14 +474,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 	@Override
 	public void run() {
 		//		try {
-		while(true){
 			try {
 				this.startOpgaveAlgoritme();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
-		}
+		
 		//		} catch (InterruptedException e) {
 		//			this.destroy();
 		//			return;
