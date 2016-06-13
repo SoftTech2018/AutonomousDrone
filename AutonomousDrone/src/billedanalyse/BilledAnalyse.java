@@ -76,31 +76,45 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		Circle circle1, circle2;
 		Mat temp = new Mat();
 		frame.copyTo(temp);
+		//Returnerer liste med de to firkanter
 		ArrayList<QrFirkant> list = bm.dronePos2(frame);
 		if(list==null){
+			System.out.println("TOM firkant liste");
 			return;
 		}
+		System.out.println("Liste størrelse "+list.size());
+		//Returnerer biledet, osm QR læseren skal læse
 		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
+			System.out.println("QR kode < 3");
 			return;
 		}
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
-		QrFirkant readQr = null;
-		QrFirkant readQr2 = null;
+//		System.out.println("0"+qrTextArray[0]);
+//		System.out.println("1"+qrTextArray[1]);
+//		System.out.println("2"+qrTextArray[2]);
+		QrFirkant readQr;
+		QrFirkant readQr2;
 
 
-		readQr = bm.getFirkanten();
+//		readQr = bm.getFirkanten();
+		readQr = list.get(0);
 		readQr.setText(qrTextArray[0]);
 
-		readQr2 = bm.getFirkanten2();
+//		readQr2 = bm.getFirkanten2();
+		readQr2 = list.get(1);
 
+		//Finder centrumkoordinat for firkanterne
 		Koordinat qrKoord1 = readQr.getCentrum();
 		Koordinat qrKoord2 = readQr2.getCentrum();
+		
 		//Finder distance og koordinater for QR-firkanten
 		Vector2 v1 = this.opgrum.getMultiMarkings(readQr.getText())[1];
 		Vector2 v2 ;
 		// Beregn distancen til QR koden
 		double dist1 = punktNav.calcDist(readQr.getHeight(), 420);
+//		System.out.println("Dist1 "+dist1);
+//		System.out.println("Højde 1 "+readQr.getHeight());
 		//Laver cirkel for læst qr kode
 		circle1 = new Circle(v1, dist1);
 
@@ -111,17 +125,19 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		}
 
 		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420);
+//		System.out.println("Dist2 "+dist2);
+//		System.out.println("Højde 2 "+readQr2.getHeight());
 		circle2 = new Circle(v2, dist2);
-
+		
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
-		System.err.println(cci.getIntersectionPoints().length);
-		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
-			System.err.println(cci.getIntersectionPoints()[i]);
-
-		}
-		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
+//		System.err.println(cci.getIntersectionPoints().length);
+//		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
+//			System.err.println(cci.getIntersectionPoints()[i]);
+//			
+//		}
+//		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
-
+		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
 	}
 
 	private void findDronePos(Mat frame){

@@ -498,14 +498,14 @@ public class BilledManipulation {
 			//Finder største areal
 			for (int i = 1; i < qrFirkant.size(); i++) {
 				//bruger qr med største areal
-				if(qrFirkant.get(i).getAreal()>maxA){
+				if(qrFirkant.get(i).getAreal()>=maxA){
 					maxA = qrFirkant.get(i).getAreal();
 					id = i;
 				}				
 			}
 			//Finder næst største areal
 			for (int i = 0; i < qrFirkant.size(); i++) {
-				if(qrFirkant.get(i).getAreal()<=maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
+				if(qrFirkant.get(i).getAreal()<maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
 					nextMaxA = qrFirkant.get(i).getAreal();
 					id2 = i;
 				}
@@ -515,50 +515,9 @@ public class BilledManipulation {
 			qrFirkant2.add(firkant1);
 			qrFirkant2.add(firkant2);
 			
-			//Sætter vores fundne firkanten således at de kan hentes fra get-metode
-			firkanten = firkant1;
-			firkanten2 = firkant2;
-			
-//			Point p0 = firkant1.getPoint0();
-//			Point p1 = firkant1.getPoint1();
-//			Point p2 = firkant1.getPoint2();
-//			Point p3 = firkant1.getPoint3();
-//			
-//			List<Point> qrPunkter = new ArrayList<Point>();
-//			qrPunkter.add(p0);
-//			qrPunkter.add(p1);
-//			qrPunkter.add(p2);
-//			qrPunkter.add(p3);
-//			
-//			List<Point> qrNyePunkter = new ArrayList<Point>();
-//			if(firkant1.getPoint0().x>firkant1.getPoint3().x){
-////				System.out.println("X3 er større");
-//				qrNyePunkter.add(new Point(qr.cols(),0));
-//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-//				qrNyePunkter.add(new Point(0,qr.rows()));
-//				qrNyePunkter.add(new Point(0,0));						
-//			} else {
-////				System.out.println("X3 er mindre");
-//				qrNyePunkter.add(new Point(0,0));
-//				qrNyePunkter.add(new Point(0,qr.rows()));
-//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-//				qrNyePunkter.add(new Point(qr.cols(),0));
-//			}
-////			
-//			MatOfPoint2f mp = new MatOfPoint2f();
-//			MatOfPoint2f mp2 = new MatOfPoint2f();
-//			mp.fromList(qrPunkter);
-//			mp2.fromList(qrNyePunkter);
-//			
-//			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
-//			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-//			
-//			//Qr afsnit ligger i test3
-//			String qrText = qrs.imageUpdated(test3);
-//			//		System.err.println("QR text: " + qrText);
-//			if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
-//				return null;
-//			}
+			if(qrFirkant2.size()!=2 || !checkAreal(firkant1,firkant2) || !checkCentrum(firkant1,firkant2)){
+				return null;
+			}
 			return qrFirkant2;
 		}
 		return null;
@@ -604,6 +563,27 @@ public class BilledManipulation {
 	private double afstand(double x1, double x2, double y1, double y2){
 		double result = Math.sqrt(Math.pow((x2-x1),2)+Math.pow((y2-y1),2));
 		return result;
+	}
+	
+	private boolean checkAreal(QrFirkant f1, QrFirkant f2){
+		int f1a = f1.getAreal();
+		int f2a = f2.getAreal();
+		int ratio = (int) (f1a*0.75);
+		if(f2a > ratio){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean checkCentrum(QrFirkant f1, QrFirkant f2){
+		Koordinat f1k = f1.getCentrum();
+		Koordinat f2k = f2.getCentrum();
+		if(f2k.getX()>f1k.getX()+100 || f2k.getX()<f1k.getX()-100){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private boolean checkFirkant(double l1, double l2){
