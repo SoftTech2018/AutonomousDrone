@@ -112,19 +112,19 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		Vector2 v1 = this.opgrum.getMultiMarkings(readQr.getText())[1];
 		Vector2 v2 ;
 		// Beregn distancen til QR koden
-		double dist1 = punktNav.calcDist(readQr.getHeight(), 420);
+		double dist1 = punktNav.calcDist(readQr.getHeight(), 420)/10;
 //		System.out.println("Dist1 "+dist1);
 //		System.out.println("Højde 1 "+readQr.getHeight());
 		//Laver cirkel for læst qr kode
 		circle1 = new Circle(v1, dist1);
 
 		if(qrKoord1.getX() > qrKoord2.getX()){
-			v2 = this.opgrum.getMultiMarkings(readQr.getText())[0];
-		}else{
 			v2 = this.opgrum.getMultiMarkings(readQr.getText())[2];
+		}else{
+			v2 = this.opgrum.getMultiMarkings(readQr.getText())[0];
 		}
 
-		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420);
+		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420)/10;
 //		System.out.println("Dist2 "+dist2);
 //		System.out.println("Højde 2 "+readQr2.getHeight());
 		circle2 = new Circle(v2, dist2);
