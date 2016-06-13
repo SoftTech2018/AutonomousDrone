@@ -28,6 +28,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.utils.Converters;
 
+import boofcv.alg.feature.detect.extract.NonMaxBlockRelaxed.Max;
 import diverse.QrFirkant;
 import diverse.koordinat.Koordinat;
 import javafx.scene.image.Image;
@@ -491,9 +492,9 @@ public class BilledManipulation {
 		}
 		ArrayList<QrFirkant> qrFirkant2 = new ArrayList<QrFirkant>();
 		if(qrFirkant.size()>=2){
-			System.err.println("qrFirkant>0");
-			int maxA = qrFirkant.get(0).getAreal();
-			int nextMaxA = qrFirkant.get(0).getAreal();
+			System.err.println("Der er " + qrFirkant.size() + " firkanter i qrFirkant");
+			int maxA = 0;
+			int nextMaxA = 0;
 			int id=0;
 			int id2=0;
 			//Finder største areal
@@ -509,7 +510,7 @@ public class BilledManipulation {
 			//Finder næst største areal
 			for (int i = 0; i < qrFirkant.size(); i++) {
 				if(qrFirkant.get(i).getAreal()<=maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
-					if(checkCentrum(qrFirkant.get(id),qrFirkant.get(i))){
+					if(checkCentrum(qrFirkant.get(id), qrFirkant.get(i))){
 						System.err.println("nextMaxA");
 						nextMaxA = qrFirkant.get(i).getAreal();
 						id2 = i;						
@@ -522,15 +523,17 @@ public class BilledManipulation {
 			qrFirkant2.add(firkant2);
 			
 			if(qrFirkant2.size()!=2){// || !checkAreal(firkant1,firkant2) || !checkCentrum(firkant1,firkant2)
-				System.out.println("fejl 1");
+				System.err.println("fejl 1");
 				return null;
 			}
 			if(!checkAreal(firkant1,firkant2)){
-				System.out.println("fejl 2");
+				System.err.println("fejl 2");
 				return null;
 			}
 			if(!checkCentrum(firkant1,firkant2)){
-				System.out.println("fejl 3");
+				System.err.println("fejl 3");
+				System.err.println("Firkant 1 = " + firkant1.getCentrum().getX());
+				System.err.println("Firkant 2 = " + firkant2.getCentrum().getX());
 				return null;
 			}
 			return qrFirkant2;

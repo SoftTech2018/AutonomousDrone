@@ -120,7 +120,6 @@ public class GuiRoom extends Canvas{
 
 		}
 		drawDrone();
-		
 		drawCircles();
 		
 	
@@ -229,15 +228,15 @@ public class GuiRoom extends Canvas{
     	}
     	
     	
-    	double dist1 = opgRum.getCircleDists()[0]/zoomScale;
+    	double r1 = opgRum.getCircleDists()[0]/zoomScale;
    
-    	double dist2 = opgRum.getCircleDists()[1]/zoomScale;
-     	System.out.println(dist1 + ", " + dist2);
+    	double r2 = opgRum.getCircleDists()[1]/zoomScale;
+     	System.out.println(r1 + ", " + r2);
     	Vector2 v1 = opgRum.getCircleCenters()[0];
     	Vector2 v2 = opgRum.getCircleCenters()[1];
 //    	System.out.println(v1 + ", " + v2);
-    	double r1 = dist1/2;
-    	double r2 = dist2/2;
+    	double dist1 = r1*2;
+    	double dist2 = r2*2;
     	double x1 = v1.x/zoomScale-r1+54;
     	double y1 = v1.y/zoomScale-r1+40;
     	double x2 = v2.x/zoomScale-r2+54;

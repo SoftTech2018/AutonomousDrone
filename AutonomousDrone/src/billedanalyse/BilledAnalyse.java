@@ -119,9 +119,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		circle1 = new Circle(v1, dist1);
 
 		if(qrKoord1.getX() > qrKoord2.getX()){
-			v2 = this.opgrum.getMultiMarkings(readQr.getText())[2];
-		}else{
 			v2 = this.opgrum.getMultiMarkings(readQr.getText())[0];
+		}else{
+			v2 = this.opgrum.getMultiMarkings(readQr.getText())[2];
 		}
 
 		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420)/10;
@@ -130,12 +130,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		circle2 = new Circle(v2, dist2);
 		
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
-//		System.err.println(cci.getIntersectionPoints().length);
-//		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
-//			System.err.println(cci.getIntersectionPoints()[i]);
+		System.err.println(cci.getIntersectionPoints().length);
+		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
+			System.err.println(cci.getIntersectionPoints()[i]);
 //			
-//		}
-//		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
+		}
+		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
 		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
 	}
