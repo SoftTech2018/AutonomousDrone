@@ -31,8 +31,13 @@ public class OpticalFlow {
 	 * Listen er renset for usandsynlige matches.
 	 * @return ArrayList af vektorer
 	 */
-	public ArrayList<Vektor> getVektorArray(){		
-		return vList;
+	public ArrayList<Vektor> getVektorArray(){	
+		ArrayList<Vektor> v2 = new ArrayList();
+		for(Vektor v: vList){
+			v2.add(v);
+		}
+		vList.clear();
+		return v2;
 	}
 	
 	private Mat trackObject(Mat frame) {

@@ -514,6 +514,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				if(opticalFlow){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
+					
 				}
 
 				if(objTrack){
