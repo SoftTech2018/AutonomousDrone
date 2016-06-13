@@ -617,4 +617,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public Image mat2Image(Mat mat) {
 		return bm.mat2Image(mat);
 	}
+
+	@Override
+	public ArrayList<Squares> getColorSquares() {
+		return colTracker.getSquares();
+	}
 }

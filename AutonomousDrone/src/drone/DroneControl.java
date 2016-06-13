@@ -394,9 +394,9 @@ public class DroneControl implements IDroneControl {
 		int vinkel;
 		while((vinkel = (targetYaw-this.yaw)) > VINKELFEJL || vinkel < -VINKELFEJL){
 			if(vinkel<0){ // Vi skal dreje til venstre
-				cmd.spinLeft(SPEED*4).doFor(FACTOR);
+				cmd.spinLeft(SPEED*2).doFor(FACTOR);
 			} else if(vinkel>0){ // Vi skal dreje til højre
-				cmd.spinRight(SPEED*4).doFor(FACTOR);
+				cmd.spinRight(SPEED*2).doFor(FACTOR);
 			}
 			System.err.println("Justerer vinkel: " + vinkel);
 		}

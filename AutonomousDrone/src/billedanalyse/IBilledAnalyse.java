@@ -84,4 +84,6 @@ public interface IBilledAnalyse {
 
 	void setDroneLocator(boolean drone);
 
+	ArrayList<Squares> getColorSquares();
+
 }
