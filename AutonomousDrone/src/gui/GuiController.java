@@ -229,21 +229,19 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}
-
 		optFlow_checkBox.setDisable(!cameraActive);
 		objTracking_checkBox.setDisable(!cameraActive);
 		testVideo_checkBox.setDisable(!cameraActive);
 
-		// Hvis kameraet er inaktivt, skal det aktiveres. Ergo startes en tråd med billedanalyse
-		if(!cameraActive){
-			baThread = new Thread((BilledAnalyse) ba);
-			baThread.start();
-		} else { // Kameraet slukkes, billedanalyse stoppes.
-			baThread.interrupt();
-		}
-
 		if(event == null || !event.getSource().equals(startOpgAlgo)){
-//			startOpgAlgo.setDisable(!cameraActive);
+			// Hvis kameraet er inaktivt, skal det aktiveres. Ergo startes en tråd med billedanalyse
+			if(!cameraActive){
+				baThread = new Thread((BilledAnalyse) ba);
+				baThread.start();
+			} else { // Kameraet slukkes, billedanalyse stoppes.
+				baThread.interrupt();
+			}
+			
 			if(useTestVideo){
 				startTestVideoStream();
 			} else{

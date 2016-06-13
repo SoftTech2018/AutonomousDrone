@@ -112,12 +112,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420);
 		circle2 = new Circle(v2, dist2);
-		
+
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
 		System.err.println(cci.getIntersectionPoints().length);
 		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
 			System.err.println(cci.getIntersectionPoints()[i]);
-			
+
 		}
 		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
@@ -219,7 +219,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			clip.open(inputStream);
 			clip.start();
 		} catch (Exception e){
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 
