@@ -1,6 +1,6 @@
 package gui;
 
-import java.awt.Rectangle;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,15 +8,14 @@ import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.M2;
 import diverse.koordinat.OpgaveRum;
-import diverse.koordinat.S2;
-import javafx.concurrent.Task;
+
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
+
 
 public class GuiRoom extends Canvas{
 
@@ -188,8 +187,7 @@ public class GuiRoom extends Canvas{
 
 		Vector2 P = v1.add(v2).add(v3).add(v4).scale(1.0/4);
 
-		double dx1 = P.x;
-		double dy1 = P.y;
+
 		double dx2 = P.x-10;
 		double dy2 = P.y;
 

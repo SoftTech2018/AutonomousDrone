@@ -211,10 +211,10 @@ public class OpgaveRum {
 		Vector2 right;
 
 		if(i == 0){
-			left =  markingKoordinater[15].getVector();
+			left =  markingKoordinater[19].getVector();
 			right = markingKoordinater[1].getVector();
-		}else if(i == 15){
-			left = markingKoordinater[14].getVector();
+		}else if(i == 19){
+			left = markingKoordinater[18].getVector();
 			right = markingKoordinater[0].getVector();
 		}else{
 			left = markingKoordinater[i-1].getVector();

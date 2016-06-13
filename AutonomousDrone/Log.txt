@@ -106,3 +106,22 @@ Wed Apr 27 14:53:18 CEST 2016: Væg Markering fundet på :66,66
 Wed Apr 27 14:53:18 CEST 2016: Væg Markering fundet på :77,77
 Wed Apr 27 14:53:18 CEST 2016: Væg Markering fundet på :88,88
 Wed Apr 27 14:53:18 CEST 2016: Væg Markering fundet på :99,99
+Mon Jun 13 09:11:54 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:14:11 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:15:48 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:24:09 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:24:51 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:25:14 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:30:52 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 09:37:50 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 10:57:05 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 10:57:41 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 10:58:29 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 10:59:18 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:00:41 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:13:57 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:14:17 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:20:34 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:21:18 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:22:17 CEST 2016: Opgavealgoritme oprettet
+Mon Jun 13 11:24:21 CEST 2016: Opgavealgoritme oprettet
