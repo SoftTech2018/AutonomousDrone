@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import billedanalyse.Squares;
 import diverse.Log;
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Genstand.COLOR;;
@@ -263,8 +264,12 @@ public class OpgaveRum {
 		return yaw;
 	}
 
-	public Koordinat rotateCoordinate(int x, int y, long yaw, Koordinat drone){
+	public Koordinat rotateCoordinate(Squares sqs, Koordinat drone){
 
+		int yaw = sqs.yaw;
+		int x = sqs.x;
+		int y = sqs.y;
+		
 		long phi = 270;
 
 		if(yaw < 91){
@@ -305,7 +310,7 @@ public class OpgaveRum {
 		System.out.println("x2: "+xny);
 		System.out.println("y2: "+yny);
 		
-		return null;
+		return new Koordinat((int)xny, (int)yny);
 	}
 }
 
