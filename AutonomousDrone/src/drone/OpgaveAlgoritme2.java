@@ -56,6 +56,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		this.ba = ba;
 		this.punktNav = new PunktNavigering();
 		this.createPoints();
+		this.dh = new DroneHelper(dc, papKasse);
 	}
 
 	/**
@@ -112,42 +113,50 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}
 			}
 
+
 			dc.up();
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
 			
 			if(landingsPlads!=null){
 				int yaw = dc.getFlightData()[2];
-				Log.writeLog("Placering fundet: " + landingsPlads.getX() + "," + landingsPlads.getY());
+				Log.writeLog("StartPlacering fundet: (" + landingsPlads.getX() + "," + landingsPlads.getY()+ ")");
 				Log.writeLog("YAW: " + yaw);
-				if(yaw > 0 && yaw < 45){
-					// baglæns
-					dc.backward();
-				} else if (yaw > 45 && yaw < 90){
-					// baglæns
-					dc.backward();
-				} else if (yaw > 90 && yaw < 135){
-					// strafe højre
-					dc.right();
-				} else if (yaw > 135 && yaw < 180){
-					// strafe højre
-					dc.right();
-				} else if (yaw > -45 && yaw < 0){
-					// strafe venstra
-					dc.left();
-				} else if (yaw > -90 && yaw < -45){
-					// strafe venstra
-					dc.left();
-				} else if (yaw > -135 && yaw < -90){
-					// lige ud
-					dc.forward();
-				} else if (yaw > -180 && yaw < -135){
-					// lige ud
-					dc.forward();
-				}
+				dc.toggleCamera();
+				Thread.sleep(3000);
+				Log.writeLog("Kamera skiftet. Påbegynder flyvning.");
+				dh.flyTo(landingsPlads, new Koordinat(500,500)); // Flyv til midten af rummet (ca)
+				
+//				if(yaw > 0 && yaw < 45){
+//					// baglæns
+//					dc.backward();
+//				} else if (yaw > 45 && yaw < 90){
+//					// baglæns
+//					dc.backward();
+//				} else if (yaw > 90 && yaw < 135){
+//					// strafe højre
+//					dc.right();
+//				} else if (yaw > 135 && yaw < 180){
+//					// strafe højre
+//					dc.right();
+//				} else if (yaw > -45 && yaw < 0){
+//					// strafe venstra
+//					dc.left();
+//				} else if (yaw > -90 && yaw < -45){
+//					// strafe venstra
+//					dc.left();
+//				} else if (yaw > -135 && yaw < -90){
+//					// lige ud
+//					dc.forward();
+//				} else if (yaw > -180 && yaw < -135){
+//					// lige ud
+//					dc.forward();
+//				}
+				dc.toggleCamera();
+				Thread.sleep(3000);
 				landingsPlads = this.findDronePos();
 				if(landingsPlads!=null){
-					Log.writeLog("Placering fundet: " + landingsPlads.getX() + "," + landingsPlads.getY());	
+					Log.writeLog("SlutPlacering fundet: (" + landingsPlads.getX() + "," + landingsPlads.getY() + ")");	
 				}
 			}
 
@@ -158,7 +167,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 			if(true)
 				return;
 
-			this.dh = new DroneHelper(dc, papKasse);
+			
 
 			// Flyv til start
 			dh.flyTo(landingsPlads, this.searchPoints.get(0));

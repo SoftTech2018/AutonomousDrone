@@ -41,7 +41,7 @@ public class DroneControl implements IDroneControl {
 	private NavDataManager ndm;
 	
 	//TurnLeft og TurnRight ganges med faktor 8-10, up og down ganges med faktor 5
-	private final int SPEED = 10; /* % */ 
+	private final int SPEED = 20; /* % */ 
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 3000; /* mm */
 	private final int DURATION = 5000; /* ms */
@@ -195,9 +195,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Flyver Op");
 		}
 		if(!timeMode){
-			cmd.up(SPEED*5);
+			cmd.up(SPEED*3);
 		} else {
-			cmd.up(SPEED*5).doFor(DURATION);
+			cmd.up(SPEED*3).doFor(DURATION);
 			Thread.sleep(DURATION);
 		}
 
@@ -213,9 +213,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Flyver Ned");
 		}
 		if(!timeMode){
-			cmd.down(SPEED*5);
+			cmd.down(SPEED*3);
 		} else {
-			cmd.down(SPEED*5).doFor(DURATION);		
+			cmd.down(SPEED*3).doFor(DURATION);		
 			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
@@ -299,9 +299,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Drejer Venstre");
 		}
 		if(!timeMode){
-			cmd.spinLeft(SPEED*8);
+			cmd.spinLeft(SPEED*4);
 		} else {
-			cmd.spinLeft(SPEED*8); //.doFor(DURATION);	
+			cmd.spinLeft(SPEED*4); //.doFor(DURATION);	
 			Thread.sleep(DURATION);
 		}
 //				cmd.hover();
@@ -316,9 +316,9 @@ public class DroneControl implements IDroneControl {
 			System.out.println("DroneControl: Drejer Højre");
 		}
 		if(!timeMode){
-			cmd.spinRight(SPEED*10);
+			cmd.spinRight(SPEED*4);
 		} else {
-			cmd.spinRight(SPEED*10).doFor(DURATION);	
+			cmd.spinRight(SPEED*4); //.doFor(DURATION);	
 			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
@@ -385,18 +385,18 @@ public class DroneControl implements IDroneControl {
 		}
 		
 		if(rotVinkel < 0){// Drej til venstre
-			cmd.spinLeft(SPEED).doFor((long) Math.abs((FACTOR*rotVinkel)));
+			cmd.spinLeft(SPEED*4).doFor((long) Math.abs((FACTOR*rotVinkel)/4));
 		} else {// Drej til højre
-			cmd.spinRight(SPEED).doFor((long) Math.abs((FACTOR*rotVinkel)));
+			cmd.spinRight(SPEED*4).doFor((long) Math.abs((FACTOR*rotVinkel)/4));
 		}
 		
 		// Korrektion, finjustering af sigte
 		int vinkel;
 		while((vinkel = (targetYaw-this.yaw)) > VINKELFEJL || vinkel < -VINKELFEJL){
 			if(vinkel<0){ // Vi skal dreje til venstre
-				cmd.spinLeft(SPEED).doFor(FACTOR*5);
+				cmd.spinLeft(SPEED*4).doFor(FACTOR);
 			} else if(vinkel>0){ // Vi skal dreje til højre
-				cmd.spinRight(SPEED).doFor(FACTOR*5);
+				cmd.spinRight(SPEED*4).doFor(FACTOR);
 			}
 			System.err.println("Justerer vinkel: " + vinkel);
 		}

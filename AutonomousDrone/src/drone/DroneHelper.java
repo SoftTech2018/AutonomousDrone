@@ -1,5 +1,6 @@
 package drone;
 
+import diverse.Log;
 import diverse.koordinat.Koordinat;
 
 public class DroneHelper {
@@ -12,23 +13,45 @@ public class DroneHelper {
 		this.papKasse = papKasse;
 	}
 
+	/**
+	 * Flyv dronen fra et koordinat til et andet. Dronen drejer sig mod koordinatet
+	 * og flyver lige ud.
+	 * @param start Start-koordinat
+	 * @param slut Slut-koordinat
+	 */
 	public void flyTo(Koordinat start, Koordinat slut){
-		int vinkel = dc.getFlightData()[2];
-		// Beregn hvor meget dronen skal dreje for at "sigte" på slut punktet
-		int a = slut.getX() - start.getX();
-		int b = slut.getY() - start.getY();
-		double dist = Math.sqrt(a*a+b*b); // Beregn distancen til punktet
-
+		double dist = start.dist(slut); // Beregn distancen til punktet
 		if(dist==0){
 			return;
 		}
-		double rotVinkel = a/dist - vinkel;
-		System.out.println("Original rotVinkel: " + rotVinkel); // DEBUG
-		if(rotVinkel>180){
-			rotVinkel = 360 - rotVinkel;
-		} else if(rotVinkel<-180){
-			rotVinkel = 360 + rotVinkel;
+		int vinkel = dc.getFlightData()[2];
+		
+		// Korrigerer for dronens "sjove" YAW værdier
+		if(vinkel < 0){
+			vinkel = Math.abs(vinkel);
+		} else {
+			vinkel = 360-vinkel;
 		}
+		
+		// *** Beregn hvor meget dronen skal dreje for at "sigte" på slut punktet ***
+		// Vektor fra nuværende punkt til slutpunkt
+		int a = slut.getX() - start.getX();
+		int b = slut.getY() - start.getY();
+		double abLength = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+
+		// Enhedsvektor i retning af YAW
+		double yA = Math.cos(Math.toRadians(vinkel));
+		double yB = Math.sin(Math.toRadians(vinkel));
+		double yLength = Math.sqrt(Math.pow(yA, 2) + Math.pow(yB, 2));
+		
+		// Beregn vinkel mellem de to vektorer. Dette er vinklen der skal roteres
+		double rotVinkel = Math.toDegrees(Math.acos(((a*yA)+(b*yB))/(abLength*yLength)));
+		double retning = -a * yB + b * yA; // Negativ hvis dronen skal dreje til højre
+		if(retning > 0){
+			rotVinkel = rotVinkel * (-1); // Korrigeret vinkel
+		}
+		Log.writeLog("Vinkel der skal roteres: " + rotVinkel);
+		Log.writeLog("Distance: " + dist);
 
 		if(DroneControl.DRONE_DEBUG){
 			System.out.println("Dronen skal dreje: " + rotVinkel + " grader.");
@@ -41,6 +64,7 @@ public class DroneHelper {
 			this.flyTo(temp, slut); // Flyv fra centrum af rummet til landingsplads
 		} else {
 			// Drej dronen X grader
+			Log.writeLog("Dronen drejes: " + rotVinkel);
 			dc.turnDrone(rotVinkel);
 			try {
 				Thread.sleep(100);
@@ -48,6 +72,7 @@ public class DroneHelper {
 				e.printStackTrace();
 			}
 			// Flyv dronen fremad X distance
+			Log.writeLog("Dronen flyver fremad: " + dist);
 			dc.flyDrone(dist);
 		}
 	}
@@ -118,7 +143,17 @@ public class DroneHelper {
 		}
 	}
 
+	/**
+	 * Tjekker om linjen mellem to koordinater rammer papkassen
+	 * @param pointA Startkoordinat
+	 * @param pointB Slutkoordinat
+	 * @param radius Sikkerhedsmargin til papkassen
+	 * @return true hvis linjen rammer papkassen
+	 */
 	private boolean papkasseTjek(Koordinat pointA, Koordinat pointB, double radius) {
+		if(papKasse==null){
+			return false;
+		}
 		double baX = pointB.getX() - pointA.getX();
 		double baY = pointB.getY() - pointA.getY();
 		double caX = papKasse.getX() - pointA.getX();
