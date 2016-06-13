@@ -235,7 +235,7 @@ public class GuiRoom extends Canvas{
      	System.out.println(dist1 + ", " + dist2);
     	Vector2 v1 = opgRum.getCircleCenters()[0];
     	Vector2 v2 = opgRum.getCircleCenters()[1];
-    	System.out.println(v1 + ", " + v2);
+//    	System.out.println(v1 + ", " + v2);
     	double r1 = dist1/2;
     	double r2 = dist2/2;
     	double x1 = v1.x/zoomScale-r1+54;

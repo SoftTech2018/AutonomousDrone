@@ -490,24 +490,30 @@ public class BilledManipulation {
 			}
 		}
 		ArrayList<QrFirkant> qrFirkant2 = new ArrayList<QrFirkant>();
-		if(qrFirkant.size()>0){
+		if(qrFirkant.size()>=2){
+			System.err.println("qrFirkant>0");
 			int maxA = qrFirkant.get(0).getAreal();
 			int nextMaxA = qrFirkant.get(0).getAreal();
 			int id=0;
 			int id2=0;
 			//Finder største areal
-			for (int i = 1; i < qrFirkant.size(); i++) {
+			for (int i = 0; i < qrFirkant.size(); i++) {
+				System.err.println("Areal størrelser : "+ qrFirkant.get(i).getAreal());
 				//bruger qr med største areal
 				if(qrFirkant.get(i).getAreal()>=maxA){
+					System.err.println("maxA");
 					maxA = qrFirkant.get(i).getAreal();
 					id = i;
 				}				
 			}
 			//Finder næst største areal
 			for (int i = 0; i < qrFirkant.size(); i++) {
-				if(qrFirkant.get(i).getAreal()<maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
-					nextMaxA = qrFirkant.get(i).getAreal();
-					id2 = i;
+				if(qrFirkant.get(i).getAreal()<=maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
+					if(checkCentrum(qrFirkant.get(id),qrFirkant.get(i))){
+						System.err.println("nextMaxA");
+						nextMaxA = qrFirkant.get(i).getAreal();
+						id2 = i;						
+					}
 				}
 			}
 			firkant1 = qrFirkant.get(id);
@@ -515,7 +521,16 @@ public class BilledManipulation {
 			qrFirkant2.add(firkant1);
 			qrFirkant2.add(firkant2);
 			
-			if(qrFirkant2.size()!=2 || !checkAreal(firkant1,firkant2) || !checkCentrum(firkant1,firkant2)){
+			if(qrFirkant2.size()!=2){// || !checkAreal(firkant1,firkant2) || !checkCentrum(firkant1,firkant2)
+				System.out.println("fejl 1");
+				return null;
+			}
+			if(!checkAreal(firkant1,firkant2)){
+				System.out.println("fejl 2");
+				return null;
+			}
+			if(!checkCentrum(firkant1,firkant2)){
+				System.out.println("fejl 3");
 				return null;
 			}
 			return qrFirkant2;
@@ -579,7 +594,9 @@ public class BilledManipulation {
 	private boolean checkCentrum(QrFirkant f1, QrFirkant f2){
 		Koordinat f1k = f1.getCentrum();
 		Koordinat f2k = f2.getCentrum();
-		if(f2k.getX()>f1k.getX()+100 || f2k.getX()<f1k.getX()-100){
+		int dist = f1k.dist(f2k);
+		System.out.println("Dist ved centrum check "+dist);
+		if(dist>50){
 			return true;
 		} else {
 			return false;
