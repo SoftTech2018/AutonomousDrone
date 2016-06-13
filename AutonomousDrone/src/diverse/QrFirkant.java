@@ -25,8 +25,8 @@ public class QrFirkant {
 	}
 	
 	public int getHeight(){
-		double height1 = (p0.y - p3.y + p1.y - p2.y)/2;
-		double height2 = (p1.y - p0.y + p2.y - p3.y)/2;
+		double height1 = Math.abs((p0.y - p3.y + p1.y - p2.y)/2);
+		double height2 = Math.abs((p1.y - p0.y + p2.y - p3.y)/2);
 		if(height1>height2){
 //			System.err.println("Højde: " + Math.abs(height1));
 			return (int) Math.abs(height1);

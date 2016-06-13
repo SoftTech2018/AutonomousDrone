@@ -143,8 +143,8 @@ public class PunktNavigering {
 	}
 		
 	public int getAngle(double distance){
-		int width = 720;
-		int angle = 93;
+		int width = 1280;
+		int angle = 69;
 				
 		return (int) ((angle/width)*distance);
 	}
@@ -156,7 +156,8 @@ public class PunktNavigering {
 	 * @return Distancen til objektet
 	 */
 	public double calcDist(int pixels, int realHeight){
-		return 1.34927 * (realHeight*360)/pixels;
+//		System.err.println("Pixels: " + pixels);
+		return 1.34927 * (realHeight*720)/pixels;
 	}
 	
 	public ArrayList<QrFirkant> findQR(Mat mat) {

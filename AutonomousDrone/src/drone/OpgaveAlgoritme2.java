@@ -16,6 +16,7 @@ import billedanalyse.Squares;
 import billedanalyse.Squares.FARVE;
 import de.yadrone.base.command.LEDAnimation;
 import diverse.koordinat.Genstand;
+import diverse.koordinat.Genstand.GENSTAND_FARVE;
 import diverse.koordinat.Koordinat;
 import diverse.Log;
 import diverse.koordinat.OpgaveRum;
@@ -50,6 +51,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 
 	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
+		Log.writeLog("Opgavealgoritme oprettet");
 		this.dc = dc;
 		this.ba = ba;
 		this.punktNav = new PunktNavigering();
@@ -113,13 +115,49 @@ public class OpgaveAlgoritme2 implements Runnable {
 			dc.up();
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
+			
+			if(landingsPlads!=null){
+				int yaw = dc.getFlightData()[2];
+				Log.writeLog("Placering fundet: " + landingsPlads.getX() + "," + landingsPlads.getY());
+				Log.writeLog("YAW: " + yaw);
+				if(yaw > 0 && yaw < 45){
+					// baglæns
+					dc.backward();
+				} else if (yaw > 45 && yaw < 90){
+					// baglæns
+					dc.backward();
+				} else if (yaw > 90 && yaw < 135){
+					// strafe højre
+					dc.right();
+				} else if (yaw > 135 && yaw < 180){
+					// strafe højre
+					dc.right();
+				} else if (yaw > -45 && yaw < 0){
+					// strafe venstra
+					dc.left();
+				} else if (yaw > -90 && yaw < -45){
+					// strafe venstra
+					dc.left();
+				} else if (yaw > -135 && yaw < -90){
+					// lige ud
+					dc.forward();
+				} else if (yaw > -180 && yaw < -135){
+					// lige ud
+					dc.forward();
+				}
+				landingsPlads = this.findDronePos();
+				if(landingsPlads!=null){
+					Log.writeLog("Placering fundet: " + landingsPlads.getX() + "," + landingsPlads.getY());	
+				}
+			}
 
-			System.err.println("Lander!"); // DEBUG
 			// Find papkasse-position
+			
+			dc.turnDroneTo(0); // Drej dronen så den peger mod vinduet
 			dc.land(); // DEBUG
 			if(true)
 				return;
-			
+
 			this.dh = new DroneHelper(dc, papKasse);
 
 			// Flyv til start
@@ -144,31 +182,47 @@ public class OpgaveAlgoritme2 implements Runnable {
 			destroy();
 		}
 	}
-	/** Modtager et array af squares der gennemløbes og sendes videre til opgaveRum,
+	/** Modtager et array af squares der gennemløbes og sendes videre til behandling i OpgaveRum,
 	 *  som returnerer et koordinat for hver square der gennemløbes 
-	 *  i square-arrayet
+	 *  i square-arrayet. Herefter gennemløbes koordinat-arrayet og tjek for objekternes position udføres 
+	 *  og sendes til OpgaveRum så de kan ses i GUI'en
 	 * @param squares
 	 */
 	private void getSquaresPositioner(ArrayList<Squares> squares) {
 		stopTid = System.currentTimeMillis();
+		Koordinat dronePos = baneStart;
+		
+		// Opdater dronepositionen med tiden og retningen siden dronen sidst opdaterede sin position
 		for(Squares item: squares) {
 			long squaresdif = startTid - item.getTid();
 			int afstand = (int) (squaresdif/mspercm); 
-			Koordinat dronePos = baneStart;
-					
+
 			if (baneStart.getY() < 500) {
 				dronePos.setY(baneStart.getY() + afstand);
 			} else if (baneStart.getY() > 500) {
 				dronePos.setY(baneStart.getY() - afstand);
 			}
-			
-			//Behandler 
-			Koordinat objectcoord = opgrum.rotateCoordinate(item.x, item.y, item.getYaw(), dronePos);
+
+			Koordinat objectcoord = opgrum.rotateCoordinate(item, dronePos);
 			objectCoords.add(objectcoord);
-			//Indsæt hver Koordinat der kommer tilbage fra metoden i et Koordinat Array
-			//ObjectCoords
-			//Eller log hvert Koordinat i Log.txt
 		}	
+		
+		// Tilføj de fundne objekter i rummets koordinater til opgaverummet
+		for (int i = 0; i < objectCoords.size(); i++) {
+			Koordinat item = objectCoords.get(i);
+			for(Koordinat k : objectCoords){
+				//Tjek for om objektet ikke ligger for tæt på objektet før
+				if(!k.equals(item) && item.dist(k) > 10){
+					Genstand genstand;
+					if(squares.get(i).getFarve() == FARVE.RØD){
+						genstand = new Genstand(GENSTAND_FARVE.RØD);
+					} else {
+						genstand = new Genstand(GENSTAND_FARVE.GRØN);
+					}
+					opgrum.addGenstandTilKoordinat(item, genstand);						
+				}
+			}
+		} 
 	}
 
 	private void createPoints(){
@@ -222,6 +276,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private Koordinat findDronePos() throws InterruptedException{
 		Thread.sleep(2000);
 		boolean posUpdated = false;
+		long start = System.currentTimeMillis();
 		Koordinat drone;
 		if((drone = ba.getDroneKoordinat()) != null){
 			System.err.println("Drone position fundet!");
@@ -230,49 +285,51 @@ public class OpgaveAlgoritme2 implements Runnable {
 			int startYaw = dc.getFlightData()[2];
 			int turns = 0;
 			while(!posUpdated && turns < 4 ){
+				Log.writeLog("Drejer dronen: " + (System.currentTimeMillis() - start)/1000);
 				dc.turnLeft();
 				turns++;
 				dc.hover();
 				Thread.sleep(5000); // Vent på dronen udfører kommandoen og vi får et rent billede
 				if((drone = ba.getDroneKoordinat()) != null){
 					posUpdated = true;
-					System.err.println("Drone position fundet!");
-					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
+					Log.writeLog("Drone position fundet: " + drone);
+					return drone;
+//					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
 				}
 			}
 		}
-		
+
 		return drone;
-		
-//		Vector2 dp;
-//		while(!posUpdated){
-//			if(qrcs.getQrt() != ""){
-//				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
-//				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
-//
-//				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
-//				Koordinat p1 = new Koordinat((int) punkter[0].x, (int) punkter[0].y);
-//				Koordinat p2 = new Koordinat((int) punkter[1].x, (int) punkter[1].y);
-//				Koordinat p3 = new Koordinat((int) punkter[2].x, (int) punkter[2].y);
-//				double alpha = pn.getAngle(px); // Pixels mellem p1 og p2
-//				double beta = pn.getAngle(px); // Pixels mellem p3 og p2
-//				dp = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
-//				Log.writeLog("Dronepunkt: ("+ dp.x +  "," + dp.y +") fundet.");
-//				posUpdated = true;
-//			} else {
-//				// TODO
-//				
-//			}
-		}
+
+		//		Vector2 dp;
+		//		while(!posUpdated){
+		//			if(qrcs.getQrt() != ""){
+		//				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
+		//				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
+		//
+		//				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+		//				Koordinat p1 = new Koordinat((int) punkter[0].x, (int) punkter[0].y);
+		//				Koordinat p2 = new Koordinat((int) punkter[1].x, (int) punkter[1].y);
+		//				Koordinat p3 = new Koordinat((int) punkter[2].x, (int) punkter[2].y);
+		//				double alpha = pn.getAngle(px); // Pixels mellem p1 og p2
+		//				double beta = pn.getAngle(px); // Pixels mellem p3 og p2
+		//				dp = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+		//				Log.writeLog("Dronepunkt: ("+ dp.x +  "," + dp.y +") fundet.");
+		//				posUpdated = true;
+		//			} else {
+		//				// TODO
+		//				
+		//			}
+	}
 
 
-	
+
 	public Koordinat findDronePos2(){
 		// Find højden på firkanten rundt om QR koden
 		BufferedImage bufFrame = dc.getbufImg();
 		Mat frame = ba.getMatFrame(); // ba.bufferedImageToMat(bufFrame);
 		ArrayList<QrFirkant> qrFirkanter = punktNav.findQR(frame);
-		
+
 		// TODO Læs QR kode og sammenhold position med qrFirkanter objekter
 		String qrText = qrcs.imageUpdated(bufFrame);
 
@@ -280,16 +337,16 @@ public class OpgaveAlgoritme2 implements Runnable {
 		readQr.setText(qrText);
 		Vector2 v = this.opgrum.getMultiMarkings(qrText)[1];
 		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
-		
+
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
-		
+
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
 		int yaw = dc.getFlightData()[2];
 		int imgAngle = punktNav.getAngle(readQr.deltaX()); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
 		int totalAngle = yaw + imgAngle;
-		
+
 		Koordinat qrPlacering = readQr.getPlacering();
 		// Beregn dronens koordinat
 		Koordinat dp = new Koordinat((int) (dist*Math.sin(totalAngle)), (int) (dist*Math.cos(totalAngle)));
@@ -297,7 +354,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		dp.setY(qrPlacering.getX() - dp.getX());
 		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
 		System.err.println(qrText);
-//		this.opgrum.addGenstandTilKoordinat(dp, new Genstand(COLOR.RØD));
+		//		this.opgrum.addGenstandTilKoordinat(dp, new Genstand(COLOR.RØD));
 		return dp;
 	}
 
@@ -355,10 +412,10 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
 
-//				dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+				//				dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
 				Log.writeLog("Dronepunkt "+ dronePunkt.x +  " , " + dronePunkt.y +"fundet.");
 
-//				objektSøgning();
+				//				objektSøgning();
 
 				return true;
 			}
@@ -398,7 +455,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 			//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
 
-//			Vector2 dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+			//			Vector2 dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
 			return null;
 		} else {
 			return null;
@@ -416,18 +473,17 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 	@Override
 	public void run() {
-//		try {
-		while(true){
+		//		try {
 			try {
 				this.startOpgaveAlgoritme();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
-		}
-//		} catch (InterruptedException e) {
-//			this.destroy();
-//			return;
-//		}		
+		
+		//		} catch (InterruptedException e) {
+		//			this.destroy();
+		//			return;
+		//		}		
 	}
 }

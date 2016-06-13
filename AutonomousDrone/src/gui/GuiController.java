@@ -16,7 +16,6 @@ import diverse.TakePicture;
 import diverse.koordinat.OpgaveRum;
 import drone.DroneControl;
 import drone.IDroneControl;
-import drone.OpgaveAlgoritme;
 import drone.OpgaveAlgoritme2;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -39,7 +38,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GuiController {
-    
+
 	private OpgaveRum opgaveRum;
 	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
 
@@ -47,9 +46,9 @@ public class GuiController {
 
 	private IDroneControl dc = new DroneControl();
 	private IBilledAnalyse ba = new BilledAnalyse(dc);
-	private OpgaveAlgoritme opg = new OpgaveAlgoritme(dc, ba);
+	private OpgaveAlgoritme2 opg = new OpgaveAlgoritme2(dc, ba);
 	private Thread opgThread, baThread;
-	
+
 	@FXML
 	private GuiRoom mapView;
 
@@ -107,9 +106,9 @@ public class GuiController {
 	private Label pitch_label;
 	@FXML
 	private Button startOpgAlgo;
-	
+
 	Stage secondaryStage;
-	
+
 	@FXML
 	public void setMapInfo(){
 		secondaryStage = new Stage();
@@ -159,9 +158,9 @@ public class GuiController {
 	// Analyserer vi test-video?
 	private boolean useTestVideo = false; 
 
-	
-	
-	
+
+
+
 	@FXML
 	private void initialize(){		
 		frames_choiceBox.setValue(30);
@@ -222,7 +221,7 @@ public class GuiController {
 		};
 		this.droneTimer = Executors.newSingleThreadScheduledExecutor();
 		this.droneTimer.scheduleAtFixedRate(droneChecker, 0, 1000, TimeUnit.MILLISECONDS);
-		
+
 	}
 
 	@FXML
@@ -230,21 +229,19 @@ public class GuiController {
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}
-
 		optFlow_checkBox.setDisable(!cameraActive);
 		objTracking_checkBox.setDisable(!cameraActive);
 		testVideo_checkBox.setDisable(!cameraActive);
 
-		// Hvis kameraet er inaktivt, skal det aktiveres. Ergo startes en tråd med billedanalyse
-		if(!cameraActive){
-			baThread = new Thread((BilledAnalyse) ba);
-			baThread.start();
-		} else { // Kameraet slukkes, billedanalyse stoppes.
-			baThread.interrupt();
-		}
-
 		if(event == null || !event.getSource().equals(startOpgAlgo)){
-			startOpgAlgo.setDisable(!cameraActive);
+			// Hvis kameraet er inaktivt, skal det aktiveres. Ergo startes en tråd med billedanalyse
+			if(!cameraActive){
+				baThread = new Thread((BilledAnalyse) ba);
+				baThread.start();
+			} else { // Kameraet slukkes, billedanalyse stoppes.
+				baThread.interrupt();
+			}
+			
 			if(useTestVideo){
 				startTestVideoStream();
 			} else{
@@ -339,9 +336,9 @@ public class GuiController {
 		testVideo_checkBox.setDisable(!cameraActive);
 		frames_choiceBox.setDisable(!cameraActive);
 
-		if (!this.cameraActive)	{
+//		if (!this.cameraActive)	{
 			System.err.println("*** WARNING - SKYNET COMING ONLINE!");
-			this.cameraActive = true;
+//			this.cameraActive = true;
 
 			//			// Indstil billedanalyse uanset brugerens valg
 			//			ba.setWebCam(false); // Billeder fra dronen bruges
@@ -354,51 +351,51 @@ public class GuiController {
 			opgThread.start();
 
 			// Opdater GUI'en så det matcher med det antal FPS man har valgt
-			frameGrabber = new Runnable() {
-				@Override
-				public void run(){
-					Image imageToShow[] = new Image[3];
-					Mat frames[] = ba.getImages();
-					// convert the Mat object (OpenCV) to Image (JavaFX)
-					for(int i=0; i<frames.length;i++){
-						if(frames[i] != null){
-							imageToShow[i] = ba.mat2Image(frames[i]);
-						}
-					}
-					currentFrame.setImage(imageToShow[0]); // Main billede
-					optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
-					objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
-				}
-			};
-			this.timer = Executors.newSingleThreadScheduledExecutor();
-			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
-
-			this.startOpgAlgo.setText("Stop Skynet");// update the button content
-		} else {
-			// Forsøg at stoppe opgavealgoritmen ASAP
-			System.err.println("*** TRYING TO DESTROY SKYNET");
-			opgThread.interrupt();
-			this.cameraActive = false;
-			this.startOpgAlgo.setText("Start Skynet");
-
+//			frameGrabber = new Runnable() {
+//				@Override
+//				public void run(){
+//					Image imageToShow[] = new Image[3];
+//					Mat frames[] = ba.getImages();
+//					// convert the Mat object (OpenCV) to Image (JavaFX)
+//					for(int i=0; i<frames.length;i++){
+//						if(frames[i] != null){
+//							imageToShow[i] = ba.mat2Image(frames[i]);
+//						}
+//					}
+//					currentFrame.setImage(imageToShow[0]); // Main billede
+//					optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
+//					objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
+//				}
+//			};
+//			this.timer = Executors.newSingleThreadScheduledExecutor();
+//			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
+//
+//			this.startOpgAlgo.setText("Stop Skynet");// update the button content
+//		} else {
+//			// Forsøg at stoppe opgavealgoritmen ASAP
+//			System.err.println("*** TRYING TO DESTROY SKYNET");
+//			opgThread.interrupt();
+//			this.cameraActive = false;
+//			this.startOpgAlgo.setText("Start Skynet");
+//
 			//			// Indstil billedanalyse tilbage til brugerens valg
 			//			ba.setWebCam(webcamVideo); // Billeder fra dronen bruges
 			//			ba.setOpticalFlow(optFlow); // Der udføres optical flow
 			//			ba.setObjTrack(objTrack); // Der udføres objekt tracking
 			//			ba.setGreyScale(greyScale); // Der konverteres ikke til greyscale
 
-			try{// stop the timer
-				this.timer.shutdown();
-				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
-			}catch (InterruptedException e){
-				// log the exception
-				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
-			}
-			// clean the frame
-			this.currentFrame.setImage(null);
-			this.optFlow_imageView.setImage(null);
-			this.objTrack_imageView.setImage(null);
-		}
+//			try{// stop the timer
+//				this.timer.shutdown();
+//				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
+//			}catch (InterruptedException e){
+//				// log the exception
+//				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
+//			}
+//			// clean the frame
+//			this.currentFrame.setImage(null);
+//			this.optFlow_imageView.setImage(null);
+//			this.objTrack_imageView.setImage(null);
+//		}
 	}
 
 	private void startWebcamStream(){
@@ -431,13 +428,13 @@ public class GuiController {
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
 						// convert the Mat object (OpenCV) to Image (JavaFX)
-//						long start = System.currentTimeMillis();
+						//						long start = System.currentTimeMillis();
 						for(int i=0; i<frames.length;i++){
 							if(frames[i] != null){
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
 						}
-//						System.err.println("Tid: " + Long.toString(System.currentTimeMillis() - start));
+						//						System.err.println("Tid: " + Long.toString(System.currentTimeMillis() - start));
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -447,7 +444,7 @@ public class GuiController {
 							@Override
 							public void run() {
 								if(QrText!=null){
-//									System.out.println("Dette er test print "+QrText);
+									//									System.out.println("Dette er test print "+QrText);
 									qrt.set(QrText); // qr kode text
 								}
 							}
@@ -626,11 +623,7 @@ public class GuiController {
 	}
 
 	@FXML
-	void takeoff(ActionEvent event) {
-//		new Thread(new OpgaveAlgoritme2(dc, ba)).start();
-//		if(true)
-//			return;
-		
+	void takeoff(ActionEvent event) {		
 		if(flying){
 			if(GuiStarter.GUI_DEBUG){
 				System.out.println("Dronen lander!");
@@ -788,14 +781,14 @@ public class GuiController {
 			outVideo.write(frame);				
 		}
 	}
-	
-	
+
+
 	public void setGuiRoom() throws NumberFormatException, IOException{
 		opgaveRum = new OpgaveRum();
-         mapView.setOpgRoom(opgaveRum);
-        ba.setOpgaveRum(opgaveRum);
+		mapView.setOpgRoom(opgaveRum);
+		ba.setOpgaveRum(opgaveRum);
 	}
-	
+
 	public void closeMapInfo(){
 		secondaryStage.close();
 	}

@@ -96,7 +96,7 @@ public class Koordinat {
 	}
 
 	public String toString(){
-		return "("+x+","+y+")" + " indeholder " + genstand;
+		return "("+x+","+y+")";
 	}
 	
 	public Vector2 getVector(){
@@ -108,5 +108,7 @@ public class Koordinat {
 		int b = this.getY() - koordinat.getY();
 		return (int) Math.abs(Math.sqrt(a*a+b*b)); 
 	}
+	
+
 }
 

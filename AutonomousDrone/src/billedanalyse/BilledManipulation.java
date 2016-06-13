@@ -42,6 +42,7 @@ public class BilledManipulation {
 	private FeatureDetector detect;
 	private DescriptorExtractor extractor;
 	private Koordinat qrCenter;
+	private QrFirkant firkanten, firkanten2;
 
 	public BilledManipulation(){
 		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
@@ -266,6 +267,7 @@ public class BilledManipulation {
 	}
 	
 	public Mat readQrSkewed(Mat mat){
+		firkanten = null;
 
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -280,7 +282,7 @@ public class BilledManipulation {
 		qr = Mat.zeros(560, 400, CvType.CV_32S);
 		Mat test3 = new Mat(560,400,temp.type());
 		ArrayList<QrFirkant> firkant = new ArrayList<QrFirkant>();
-		QrFirkant firkanten;
+
 		
 		//Contours gemmes i array
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -427,6 +429,178 @@ public class BilledManipulation {
 		return mat;
 	}
 	
+	//metode der finder firkanter og QR kode i forbindelse med at finde dronens position i forhold til 2 qr koder
+	public ArrayList<QrFirkant> dronePos2(Mat mat){
+		firkanten = null;
+		firkanten2 = null;
+		Mat out = new Mat();
+		mat.copyTo(out);
+		Mat out2 = new Mat();
+		mat.copyTo(out2);
+		Mat temp = new Mat();
+		mat.copyTo(temp);
+		
+		//Qr ting
+//			Mat qr = new Mat();
+//			qr = Mat.zeros(560, 400, CvType.CV_32S);
+//			Mat test3 = new Mat(560,400,temp.type());
+		
+		temp = toGray(temp);
+		Imgproc.GaussianBlur(temp, temp, new Size(5,5), -1);
+		Imgproc.Canny(temp, temp, 50, 100);
+		
+		ArrayList<QrFirkant> qrFirkant = new ArrayList<QrFirkant>();
+		QrFirkant firkant1, firkant2;
+		
+		//Contours gemmes i array
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		//Finder Contours
+		Imgproc.findContours(temp, contours, new Mat(), Imgproc.RETR_TREE,Imgproc.CHAIN_APPROX_SIMPLE);
+		
+		for(int i=0; i<contours.size(); i++){
+			//Konverterer MatOfPoint til MatOfPoint2f, så ApproxPoly kan bruges
+			MatOfPoint2f mop2 = new MatOfPoint2f();
+			contours.get(i).convertTo(mop2, CvType.CV_32FC1); 
+			double epsilon = 0.01*Imgproc.arcLength(mop2, true);
+			Imgproc.approxPolyDP(mop2, mop2, epsilon, true);
+			//Konverterer MatOfPoint2f til MatOfPoint
+			mop2.convertTo(contours.get(i), CvType.CV_32S);
+			
+			if(contours.get(i).total()==4 && Imgproc.contourArea(contours.get(i))>2000){
+				List<Point> list = new ArrayList<Point>();
+//				Konverterer contours om til en liste af punkter for at finde koordinaterne
+				Converters.Mat_to_vector_Point(contours.get(i), list);
+				double l1 = afstand(list.get(0).x,list.get(1).x,list.get(0).y,list.get(1).y);
+				double l2 = afstand(list.get(1).x,list.get(2).x,list.get(1).y,list.get(2).y);
+				
+				//Contour koordinaterne der danner en firkant
+				double x0 = list.get(0).x;
+				double x1 = list.get(1).x;
+				double x2 = list.get(2).x;
+				double x3 = list.get(3).x;
+				double y0 = list.get(0).y;
+				double y1 = list.get(1).y;
+				double y2 = list.get(2).y;
+				double y3 = list.get(3).y;
+				
+				if(checkFirkant(l1,l2)){
+//					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
+					qrFirkant.add(new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3)));
+				}
+			}
+		}
+		ArrayList<QrFirkant> qrFirkant2 = new ArrayList<QrFirkant>();
+		if(qrFirkant.size()>0){
+			int maxA = qrFirkant.get(0).getAreal();
+			int nextMaxA = qrFirkant.get(0).getAreal();
+			int id=0;
+			int id2=0;
+			//Finder største areal
+			for (int i = 1; i < qrFirkant.size(); i++) {
+				//bruger qr med største areal
+				if(qrFirkant.get(i).getAreal()>maxA){
+					maxA = qrFirkant.get(i).getAreal();
+					id = i;
+				}				
+			}
+			//Finder næst største areal
+			for (int i = 0; i < qrFirkant.size(); i++) {
+				if(qrFirkant.get(i).getAreal()<=maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
+					nextMaxA = qrFirkant.get(i).getAreal();
+					id2 = i;
+				}
+			}
+			firkant1 = qrFirkant.get(id);
+			firkant2 = qrFirkant.get(id2);
+			qrFirkant2.add(firkant1);
+			qrFirkant2.add(firkant2);
+			
+			//Sætter vores fundne firkanten således at de kan hentes fra get-metode
+			firkanten = firkant1;
+			firkanten2 = firkant2;
+			
+//			Point p0 = firkant1.getPoint0();
+//			Point p1 = firkant1.getPoint1();
+//			Point p2 = firkant1.getPoint2();
+//			Point p3 = firkant1.getPoint3();
+//			
+//			List<Point> qrPunkter = new ArrayList<Point>();
+//			qrPunkter.add(p0);
+//			qrPunkter.add(p1);
+//			qrPunkter.add(p2);
+//			qrPunkter.add(p3);
+//			
+//			List<Point> qrNyePunkter = new ArrayList<Point>();
+//			if(firkant1.getPoint0().x>firkant1.getPoint3().x){
+////				System.out.println("X3 er større");
+//				qrNyePunkter.add(new Point(qr.cols(),0));
+//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+//				qrNyePunkter.add(new Point(0,qr.rows()));
+//				qrNyePunkter.add(new Point(0,0));						
+//			} else {
+////				System.out.println("X3 er mindre");
+//				qrNyePunkter.add(new Point(0,0));
+//				qrNyePunkter.add(new Point(0,qr.rows()));
+//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+//				qrNyePunkter.add(new Point(qr.cols(),0));
+//			}
+////			
+//			MatOfPoint2f mp = new MatOfPoint2f();
+//			MatOfPoint2f mp2 = new MatOfPoint2f();
+//			mp.fromList(qrPunkter);
+//			mp2.fromList(qrNyePunkter);
+//			
+//			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+//			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
+//			
+//			//Qr afsnit ligger i test3
+//			String qrText = qrs.imageUpdated(test3);
+//			//		System.err.println("QR text: " + qrText);
+//			if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
+//				return null;
+//			}
+			return qrFirkant2;
+		}
+		return null;
+	}
+	
+	public String warpQrImage(QrFirkant firkant1, QRCodeScanner qrs, Mat mat){
+		Mat qr = new Mat();
+		qr = Mat.zeros(560, 400, CvType.CV_32S);
+		Mat test3 = new Mat(560,400,mat.type());
+		Point p0 = firkant1.getPoint0();
+		Point p1 = firkant1.getPoint1();
+		Point p2 = firkant1.getPoint2();
+		Point p3 = firkant1.getPoint3();
+		
+		List<Point> qrPunkter = new ArrayList<Point>();
+		qrPunkter.add(p0);
+		qrPunkter.add(p1);
+		qrPunkter.add(p2);
+		qrPunkter.add(p3);
+		
+		List<Point> qrNyePunkter = new ArrayList<Point>();
+		if(firkant1.getPoint0().x>firkant1.getPoint3().x){
+			qrNyePunkter.add(new Point(qr.cols(),0));
+			qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+			qrNyePunkter.add(new Point(0,qr.rows()));
+			qrNyePunkter.add(new Point(0,0));						
+		} else {
+			qrNyePunkter.add(new Point(0,0));
+			qrNyePunkter.add(new Point(0,qr.rows()));
+			qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
+			qrNyePunkter.add(new Point(qr.cols(),0));
+		}
+		MatOfPoint2f mp = new MatOfPoint2f();
+		MatOfPoint2f mp2 = new MatOfPoint2f();
+		mp.fromList(qrPunkter);
+		mp2.fromList(qrNyePunkter);
+		
+		Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
+		Imgproc.warpPerspective(mat, test3, warp, new Size(qr.cols(),qr.rows()));
+		return qrs.imageUpdated(test3);
+	}
+	
 	private double afstand(double x1, double x2, double y1, double y2){
 		double result = Math.sqrt(Math.pow((x2-x1),2)+Math.pow((y2-y1),2));
 		return result;
@@ -448,6 +622,14 @@ public class BilledManipulation {
 	
 	public Koordinat getQrCenter(){
 		return qrCenter;
+	}
+	
+	public QrFirkant getFirkanten() {
+		return firkanten;
+	}
+	
+	public QrFirkant getFirkanten2() {
+		return firkanten2;
 	}
 
 }

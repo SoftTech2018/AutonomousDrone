@@ -17,6 +17,7 @@ import de.yadrone.base.navdata.MagnetoData;
 import de.yadrone.base.navdata.MagnetoListener;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
+import diverse.Log;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 
@@ -26,7 +27,7 @@ public class DroneControl implements IDroneControl {
 	protected static final boolean DRONE_DEBUG = false;
 
 	//DEFINERER OM DRONEN BRUGER .doFor(time)
-	private boolean timeMode = false;
+	private boolean timeMode = true;
 
 	/*
 	 *  DEFINERER TEST-MODE. 
@@ -42,8 +43,8 @@ public class DroneControl implements IDroneControl {
 	//TurnLeft og TurnRight ganges med faktor 8-10, up og down ganges med faktor 5
 	private final int SPEED = 10; /* % */ 
 	private final int MINALT = 1000; /* mm */
-	private final int MAXALT = 2000; /* mm */
-	private final int DURATION = 100; /* ms */
+	private final int MAXALT = 3000; /* mm */
+	private final int DURATION = 5000; /* ms */
 //	private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll, altitude;
@@ -114,7 +115,7 @@ public class DroneControl implements IDroneControl {
 					System.out.println("Billede modtaget fra drone. Højde: " + arg0.getHeight() + ", Bredde: " + arg0.getWidth());
 				}
 				DroneControl.this.setImg(arg0);
-				System.out.println("Billede dimensioner: " + arg0.getHeight() + "," + arg0.getWidth());
+//				System.out.println("Billede dimensioner: " + arg0.getHeight() + "," + arg0.getWidth());
 //				bufImgOut = arg0;
 //				imageOutput = javafx.embed.swing.SwingFXUtils.toFXImage(arg0, imageOutput);	
 			}		
@@ -300,7 +301,7 @@ public class DroneControl implements IDroneControl {
 		if(!timeMode){
 			cmd.spinLeft(SPEED*8);
 		} else {
-			cmd.spinLeft(SPEED*8).doFor(DURATION);	
+			cmd.spinLeft(SPEED*8); //.doFor(DURATION);	
 			Thread.sleep(DURATION);
 		}
 //				cmd.hover();
@@ -398,8 +399,8 @@ public class DroneControl implements IDroneControl {
 				cmd.spinRight(SPEED).doFor(FACTOR*5);
 			}
 			System.err.println("Justerer vinkel: " + vinkel);
-			System.err.println("targetYaw: " + targetYaw);
 		}
+		Log.writeLog("Roteret dronen til YAW: " + targetYaw + " - Resultat: " + this.yaw);
 		cmd.hover();
 	}
 

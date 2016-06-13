@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import billedanalyse.Squares;
 import diverse.Log;
 import diverse.circleCalc.Vector2;
-import diverse.koordinat.Genstand.COLOR;;
+import diverse.koordinat.Genstand.GENSTAND_FARVE;;
 
 
 /**Rettet 7/6 kl 9:30	
@@ -31,6 +31,10 @@ public class OpgaveRum {
 	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
 	private Koordinat obstacleCenter = null;
 	private double yaw = -99999;
+	
+	private Vector2[] circleMarkings = new Vector2[2];
+	private double[] circleDist =  new double[2];
+	private double dist1,dist2;
 
 	public int getLength() {
 		return længde;
@@ -72,7 +76,7 @@ public class OpgaveRum {
 
 		for (int i = 0; i < bredde; i = i+100) {
 			for (int j = 0; j < længde; j=j+100) {
-				addGenstandTilKoordinat(rum[i][j], new Genstand(COLOR.RØD));
+				addGenstandTilKoordinat(rum[i][j], new Genstand(GENSTAND_FARVE.RØD));
 
 			}
 		}
@@ -311,6 +315,23 @@ public class OpgaveRum {
 		System.out.println("y2: "+yny);
 		
 		return new Koordinat((int)xny, (int)yny);
+	}
+
+	public void setCircleInfo(Vector2 v1, Vector2 v2, double dist1, double dist2){
+		circleMarkings[0] = v1;
+		circleMarkings[1] = v2;
+		circleDist[0] = dist1;
+		circleDist[1] = dist2;
+	
+	}
+
+	public double[] getCircleDists() {
+		return circleDist;
+	}
+
+
+	public Vector2[] getCircleCenters() {
+		return circleMarkings;
 	}
 }
 

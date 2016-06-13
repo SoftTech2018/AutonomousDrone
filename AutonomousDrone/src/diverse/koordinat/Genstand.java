@@ -1,20 +1,20 @@
 package diverse.koordinat;
 
 public class Genstand {
-	enum COLOR {GRØN, RØD}
-	private COLOR farve;
+	public enum GENSTAND_FARVE {GRØN, RØD}
+	private GENSTAND_FARVE farve;
 	
 
-	public Genstand(COLOR farve) {
+	public Genstand(GENSTAND_FARVE farve) {
 		this.farve = farve;
 	
 	}
 
-	public COLOR getFarve() {
+	public GENSTAND_FARVE getFarve() {
 		return farve;
 	}
 
-	public void setFarve(COLOR farve) {
+	public void setFarve(GENSTAND_FARVE farve) {
 		this.farve = farve;
 	}
 	
