@@ -60,6 +60,18 @@ public class GuiController {
 	
 	@FXML
 	private Slider minThresSlider;
+	
+	@FXML
+	private Label minLabel;
+	
+	@FXML
+	private Label maxLabel;
+	
+	@FXML
+	private Label minValLabel;
+	
+	@FXML
+	private Label maxValLabel;
 
 	@FXML
 	private Button strafeLeft_btn;// NUMPAD 7
@@ -195,29 +207,33 @@ public class GuiController {
 		maxThresSlider.setMax(255);
 		maxThresSlider.setMin(100);
 		maxThresSlider.setValue(255);
-		maxThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
-		    @Override
-		    public void changed(ObservableValue<? extends Number> observable,
-		            Number oldValue, Number newValue) {
-		    	ba.setMaxVal((int)newValue);
-		    }
-		});
+//		maxValLabel.setText(Double.toString(maxThresSlider.getValue()));
+//		maxThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
+//		    @Override
+//		    public void changed(ObservableValue<? extends Number> observable,
+//		            Number oldValue, Number newValue) {
+//		    	ba.setMaxVal((int)newValue);
+//		    }
+//		});
 		minThresSlider.setMax(200);
 		minThresSlider.setMin(10);
 		minThresSlider.setValue(125);
-		minThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
-		    @Override
-		    public void changed(ObservableValue<? extends Number> observable,
-		            Number oldValue, Number newValue) {
-		    	ba.setMinVal((int)newValue);
-		    }
-		});
+//		minValLabel.setText(Double.toString(minThresSlider.getValue()));
+//		minThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
+//		    @Override
+//		    public void changed(ObservableValue<? extends Number> observable,
+//		            Number oldValue, Number newValue) {
+//		    	ba.setMinVal((int)newValue);
+//		    }
+//		});
 
 		// Databinding mekanisme til at opdatere GUI
 		pitch_label.textProperty().bind(pitch);
 		yaw_label.textProperty().bind(yaw);
 		roll_label.textProperty().bind(roll);
 		qrt_label.textProperty().bind(qrt);
+		maxValLabel.textProperty().bind(maxVal);
+		minValLabel.textProperty().bind(minVal);
 
 		// Tjek om dronen er klar til takeoff
 		this.takeoff_btn.setDisable(true);
@@ -457,7 +473,9 @@ public class GuiController {
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
 						ba.setMaxVal((int)maxThresSlider.getValue());
+//						maxValLabel.setText(Double.toString(maxThresSlider.getValue()));
 						ba.setMinVal((int)minThresSlider.getValue());
+//						minValLabel.setText(Double.toString(minThresSlider.getValue()));
 						// convert the Mat object (OpenCV) to Image (JavaFX)
 						//						long start = System.currentTimeMillis();
 						for(int i=0; i<frames.length;i++){
@@ -470,6 +488,7 @@ public class GuiController {
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						String QrText = ba.getQrt();
+						String maxValText = getMaxVal();
 						GuiController.this.mapView.drawVisible();
 						Platform.runLater(new Runnable(){
 							@Override
@@ -477,6 +496,8 @@ public class GuiController {
 								if(QrText!=null){
 									//									System.out.println("Dette er test print "+QrText);
 									qrt.set(QrText); // qr kode text
+									maxVal.set(Double.toString(maxThresSlider.getValue()));
+									minVal.set(Double.toString(minThresSlider.getValue()));
 								}
 							}
 						});
@@ -555,6 +576,8 @@ public class GuiController {
 								roll.set(Float.toString(values[1]));
 								yaw.set(Float.toString(values[2]));
 								qrt.set(QrText);
+								maxVal.set(Double.toString(maxThresSlider.getValue()));
+								minVal.set(Double.toString(minThresSlider.getValue()));
 							}
 						});
 					}
@@ -834,6 +857,8 @@ public class GuiController {
 	private StringProperty qrt = new SimpleStringProperty();
 	private IntegerProperty max = new SimpleIntegerProperty();
 	private IntegerProperty min = new SimpleIntegerProperty();
+	private StringProperty maxVal = new SimpleStringProperty();
+	private StringProperty minVal = new SimpleStringProperty();
 
 	// Define a getter for the property's value
 	public final String getPitch(){return pitch.get();}
@@ -842,6 +867,8 @@ public class GuiController {
 	public final String getQrt(){return qrt.get();}
 	public final Integer getMax(){return max.get();}
 	public final Integer getMin(){return min.get();}
+	public final String getMaxVal(){return maxVal.get();}
+	public final String getMinVal(){return minVal.get();}
 
 	// Define a setter for the property's value
 	public final void setPitch(String value){pitch.set(value);}
@@ -850,6 +877,8 @@ public class GuiController {
 	public final void setQrt(String value){qrt.set(value);}
 	public final void setMax(int value){max.set(value);}
 	public final void setMin(int value){min.set(value);}
+	public final void setMaxVal(String value){maxVal.set(value);}
+	public final void setMinVal(String value){minVal.set(value);}
 
 	// Define a getter for the property itself
 	public StringProperty pitchProperty() {return pitch;}
@@ -858,4 +887,6 @@ public class GuiController {
 	public StringProperty qrtProperty(){return qrt;}
 	public IntegerProperty maxProperty(){return max;}
 	public IntegerProperty minProperty(){return min;}
+	public StringProperty maxValProperty(){return maxVal;}
+	public StringProperty minValProperty(){return minVal;}
 }
