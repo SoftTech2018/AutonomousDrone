@@ -95,9 +95,13 @@ public class DroneHelper {
 
 			// Flyv til temp punkt
 			if(goRight){
-				dc.strafeRight(start.getY() - tempPunkt.getY());
+				int dist = start.getY() - tempPunkt.getY();
+				Log.writeLog("Strafer højre: \t" + dist);
+				dc.strafeRight(dist);
 			} else {
-				dc.strafeLeft(tempPunkt.getY() - start.getY());
+				int dist = tempPunkt.getY() - start.getY();
+				Log.writeLog("Strafer venstre: \t" + dist);
+				dc.strafeLeft(dist);
 			}
 
 			// Naviger udenom papkassen
@@ -138,7 +142,9 @@ public class DroneHelper {
 			if(goRight){
 				dc.strafeRight(start.getY() - slut.getY());
 			} else {
-				dc.strafeLeft(slut.getY() - start.getY());
+				int dist = slut.getY() - start.getY();
+				Log.writeLog("Strafer venstre: " + dist);
+				dc.strafeLeft(dist);
 			}
 		}
 	}
@@ -177,5 +183,9 @@ public class DroneHelper {
 	public void adjust(Koordinat dronePos, Koordinat koordinat) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void setPapKasse(Koordinat papkasse){
+		this.papKasse = papkasse;
 	}
 }

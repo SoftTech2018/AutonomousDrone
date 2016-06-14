@@ -221,7 +221,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	@Override
 	public Koordinat getDroneKoordinat(){
-		if(System.currentTimeMillis() - droneKoordinatUpdated > 500){
+		// Hvis koordinatet er mere end X ms gammelt så dur det ikke...
+		if(System.currentTimeMillis() - droneKoordinatUpdated > 2500){ 
 			return null;
 		} 
 		return droneKoordinat;

@@ -7,6 +7,7 @@ import java.awt.image.WritableRaster;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.CommandManager;
+import de.yadrone.base.command.FlyingMode;
 import de.yadrone.base.command.LEDAnimation;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
@@ -165,7 +166,12 @@ public class DroneControl implements IDroneControl {
 		if(DRONE_DEBUG){
 			System.out.println("DroneControl: Starter");
 		}
+//		cmd.setFlyingMode(FlyingMode.HOVER_ON_TOP_OF_ORIENTED_ROUNDEL);
+		cmd.setOutdoor(false, true); // Flyver indendørs, med beskyttelse på
 		cmd.flatTrim();
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {}
 		drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_ORANGE, 3, 10);
 		cmd.takeOff();
 	}
@@ -416,13 +422,13 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void strafeRight(int dist) {
-		final double FACTOR = 1.1; 
+		final double FACTOR = 11; 
 		cmd.goRight(SPEED).doFor((long) (FACTOR*dist));
 	}
 
 	@Override
 	public void strafeLeft(int dist) {
-		final double FACTOR = 1.1; 
+		final double FACTOR = 11; 
 		cmd.goLeft(SPEED).doFor((long) (FACTOR*dist));
 	}
 

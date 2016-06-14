@@ -112,14 +112,15 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}
 			}
 
-			dc.up();
+			dc.up(); // Juster højde på dronen vha. QR-firkanter
+			
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
 			
 			if(landingsPlads!=null){
 				int yaw = dc.getFlightData()[2];
-				Log.writeLog("StartPlacering fundet: (" + landingsPlads.getX() + "," + landingsPlads.getY()+ ")");
-				Log.writeLog("YAW: " + yaw);
+				Log.writeLog("StartPlacering fundet: \t(" + landingsPlads.getX() + "," + landingsPlads.getY()+ ")");
+				Log.writeLog("YAW: \t" + yaw);
 				
 //				baneStart = landingsPlads; // Noter hvor i rummet vi starter med at afsøge
 //				dc.toggleCamera();
@@ -159,30 +160,31 @@ public class OpgaveAlgoritme2 implements Runnable {
 //					Log.writeLog("SlutPlacering fundet: (" + landingsPlads.getX() + "," + landingsPlads.getY() + ")");	
 //				}
 			}
-
-			// Find papkasse-position
-			
 //			dc.turnDroneTo(0); // Drej dronen så den peger mod vinduet
 //			dc.land(); // DEBUG
 //			if(true)
 //				return;
 
 			
+			// TODO - Find papkasse-position!
+//			Koordinat papkasse = new Koordinat(x, y);
+//			dh.setPapKasse(papkasse);
 
 			// Flyv til start
+			Log.writeLog("Flyver til første søgepunkt");
 			dh.flyTo(landingsPlads, this.searchPoints.get(0));
 
-			// Roter drone (mod vinduet)
-			dc.turnDroneTo(0);
+
 //			dh.adjust(findDronePos(), searchPoints.get(0));
 
 			// Start objektsøgning
 			objectSearch();
-			squarePoints = ba.getColorSquares();
-			getSquaresPositioner(squarePoints);
+//			squarePoints = ba.getColorSquares();
+//			getSquaresPositioner(squarePoints);
 
 			// Flyv til landingsplads
 //			dc.turnDrone(0-dc.getFlightData()[2]); // Drej dronen mod tavlevæggen 
+			Log.writeLog("Flyver til landingsplads for at afslutte programmet");
 			dh.flyTo(findDronePos(), landingsPlads); // Flyv fra opdateret position til landingsplads
 
 			// Land
@@ -190,7 +192,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 //			dh.adjust(findDronePos(), landingsPlads);
 			destroy();
 		}
-	}
+	}1
 	
 	/** Modtager et array af squares der gennemløbes og sendes videre til behandling i OpgaveRum,
 	 *  som returnerer et koordinat for hver square der gennemløbes 
@@ -261,6 +263,10 @@ public class OpgaveAlgoritme2 implements Runnable {
 		Koordinat dronePos = findDronePos();
 		baneStart = dronePos;
 		
+		// Roter drone (mod vinduet)
+		Log.writeLog("Drejer dronen til YAW = 0");
+		dc.turnDroneTo(0);
+		
 		// Strafe højre/venstre
 		for(int i=0; i<1; i++){ // TODO antal baner
 			//Skift kamera (nedaf)
@@ -269,10 +275,12 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 			startTid = System.currentTimeMillis();
 			ba.setObjTrack(true); // Track objekter
+			Log.writeLog("ObjektTracking startes: " + startTid);
 			// Strafe 90%
 			dh.strafePunkt(searchPoints.get(2*i), searchPoints.get(2*i+1));				
 			ba.setObjTrack(false);
 			stopTid = System.currentTimeMillis();
+			Log.writeLog("ObjektTracking stoppes: " + stopTid);
 
 			//Skift kamera (fremad)
 			dc.toggleCamera();
