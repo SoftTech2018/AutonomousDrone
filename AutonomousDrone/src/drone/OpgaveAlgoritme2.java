@@ -204,9 +204,15 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 */
 	private void getSquaresPositioner(ArrayList<Squares> squares) {
 		stopTid = System.currentTimeMillis();
+		try {
+			baneStart = findDronePos();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Koordinat dronePos = baneStart;
 		
-		double dist = baneStart.dist(baneSlut); // Hvor langt har dronen bevæget sig?
+//		double dist = baneStart.dist(baneSlut); // Hvor langt har dronen bevæget sig?
 		
 		// Opdater dronepositionen med tiden og retningen siden dronen sidst opdaterede sin position
 		for(Squares item: squares) {
@@ -215,14 +221,18 @@ public class OpgaveAlgoritme2 implements Runnable {
 			
 			int[] data = dc.getFlightData();
 			Vector2 vector = rv.getVector(ba.getVektorArray(), data[2]);
-			int afstand2 = dronePos.getY() + rv.vectorFromStart(dronePos, vector).getY();
+//			int afstand2 = dronePos.dist(rv.vectorFromStart(dronePos, vector));
 			
 			if (baneStart.getY() < 500) {
-				dronePos.setY(baneStart.getY() + afstand2);
+//				dronePos.setY(baneStart.getY() + afstand2);
+				dronePos = rv.vectorFromStart(baneStart, dronePos.getVector().add(vector));
 			} else if (baneStart.getY() > 500) {
-				dronePos.setY(baneStart.getY() - afstand2);
+//				dronePos.setY(baneStart.getY() - afstand2);
+				dronePos = rv.vectorFromStart(baneStart, dronePos.getVector().add(vector));
 			}
 
+			rv.vectorFromStart(baneStart, dronePos.getVector().add(vector));
+			
 			Koordinat objectcoord = opgrum.rotateCoordinate(item, dronePos);
 			objectCoords.add(objectcoord);
 		}	
