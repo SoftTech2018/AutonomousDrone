@@ -547,7 +547,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 
 				if(droneLocator){
-					this.findDronePos(img);
+//					this.findDronePos(img);
 				}
 
 				//Enable QR-checkBox?
@@ -556,11 +556,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
-					//										Mat testimg = bm.readQrSkewed(img);
-					//										findQR(testimg);
-					//										frames[2]=testimg;
+															Mat testimg = bm.readQrSkewed(img);
+															findQR(testimg);
+															frames[2]=testimg;
 					//										frames[0] = bm.filterMat(img);
-					this.findDronePos2(img);
+//					this.findDronePos2(img);
 				} 
 				frames[0]=img;
 
@@ -622,5 +622,12 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	@Override
 	public ArrayList<Squares> getColorSquares() {
 		return colTracker.getSquares();
+	}
+	
+	public void setMaxVal(int val){
+		bm.setMax(val);
+	}
+	public void setMinVal(int val){
+		bm.setMin(val);
 	}
 }

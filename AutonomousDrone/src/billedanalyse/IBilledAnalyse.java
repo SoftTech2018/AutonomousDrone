@@ -85,5 +85,8 @@ public interface IBilledAnalyse {
 	void setDroneLocator(boolean drone);
 
 	ArrayList<Squares> getColorSquares();
+	
+	void setMaxVal(int val);
+	void setMinVal(int val);
 
 }

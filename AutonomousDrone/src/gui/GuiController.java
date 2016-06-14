@@ -18,6 +18,8 @@ import drone.DroneControl;
 import drone.IDroneControl;
 import drone.OpgaveAlgoritme2;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -32,6 +34,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -51,6 +54,12 @@ public class GuiController {
 
 	@FXML
 	private GuiRoom mapView;
+	
+	@FXML
+	private Slider maxThresSlider;
+	
+	@FXML
+	private Slider minThresSlider;
 
 	@FXML
 	private Button strafeLeft_btn;// NUMPAD 7
@@ -108,7 +117,7 @@ public class GuiController {
 	private Button startOpgAlgo;
 
 	Stage secondaryStage;
-
+	
 	@FXML
 	public void setMapInfo(){
 		secondaryStage = new Stage();
@@ -182,6 +191,26 @@ public class GuiController {
 					GuiController.this.timer.scheduleAtFixedRate(GuiController.this.frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
 				}
 			}
+		});
+		maxThresSlider.setMax(255);
+		maxThresSlider.setMin(100);
+		maxThresSlider.setValue(255);
+		maxThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
+		    @Override
+		    public void changed(ObservableValue<? extends Number> observable,
+		            Number oldValue, Number newValue) {
+		    	ba.setMaxVal((int)newValue);
+		    }
+		});
+		minThresSlider.setMax(200);
+		minThresSlider.setMin(10);
+		minThresSlider.setValue(125);
+		minThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
+		    @Override
+		    public void changed(ObservableValue<? extends Number> observable,
+		            Number oldValue, Number newValue) {
+		    	ba.setMinVal((int)newValue);
+		    }
 		});
 
 		// Databinding mekanisme til at opdatere GUI
@@ -427,6 +456,8 @@ public class GuiController {
 						}
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
+						ba.setMaxVal((int)maxThresSlider.getValue());
+						ba.setMinVal((int)minThresSlider.getValue());
 						// convert the Mat object (OpenCV) to Image (JavaFX)
 						//						long start = System.currentTimeMillis();
 						for(int i=0; i<frames.length;i++){
@@ -798,22 +829,30 @@ public class GuiController {
 	private StringProperty yaw = new SimpleStringProperty();
 	private StringProperty roll = new SimpleStringProperty();
 	private StringProperty qrt = new SimpleStringProperty();
+	private IntegerProperty max = new SimpleIntegerProperty();
+	private IntegerProperty min = new SimpleIntegerProperty();
 
 	// Define a getter for the property's value
 	public final String getPitch(){return pitch.get();}
 	public final String getYaw(){return yaw.get();}
 	public final String getRoll(){return roll.get();}
 	public final String getQrt(){return qrt.get();}
+	public final Integer getMax(){return max.get();}
+	public final Integer getMin(){return min.get();}
 
 	// Define a setter for the property's value
 	public final void setPitch(String value){pitch.set(value);}
 	public final void setRoll(String value){roll.set(value);}
 	public final void setYaw(String value){yaw.set(value);}
 	public final void setQrt(String value){qrt.set(value);}
+	public final void setMax(int value){max.set(value);}
+	public final void setMin(int value){min.set(value);}
 
 	// Define a getter for the property itself
 	public StringProperty pitchProperty() {return pitch;}
 	public StringProperty rollProperty() {return roll;}
 	public StringProperty yawProperty() {return yaw;}
 	public StringProperty qrtProperty(){return qrt;}
+	public IntegerProperty maxProperty(){return max;}
+	public IntegerProperty minProperty(){return min;}
 }

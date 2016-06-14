@@ -192,7 +192,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 //			dh.adjust(findDronePos(), landingsPlads);
 			destroy();
 		}
-	}1
+	}
 	
 	/** Modtager et array af squares der gennemløbes og sendes videre til behandling i OpgaveRum,
 	 *  som returnerer et koordinat for hver square der gennemløbes 

@@ -39,6 +39,7 @@ import javafx.scene.image.Image;
  */
 public class BilledManipulation {
 
+	public int max=255,min=125;
 	private MatOfKeyPoint kp;
 	private FeatureDetector detect;
 	private DescriptorExtractor extractor;
@@ -423,9 +424,10 @@ public class BilledManipulation {
 			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
 			
 			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-//			Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
+			Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
 			//DETTE SKAL ÆNDRES I FORHOLD TIL LYS-STYRKEN I LOKALET
-//			Imgproc.threshold(test3, test3, 125, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(test3, test3, min, max, Imgproc.THRESH_BINARY);
+			System.err.println("Min er "+min + " og max er "+max);
 			return test3;
 		} 
 		
@@ -632,6 +634,21 @@ public class BilledManipulation {
 	
 	public QrFirkant getFirkanten2() {
 		return firkanten2;
+	}
+	
+//	public int getMax(){
+//		return max;
+//	}
+	public void setMax(int val){
+		
+		max = val;
+	}
+	
+//	public int getMin(){
+//		return min;
+//	}
+	public void setMin(int val){
+		min = val;
 	}
 
 }
