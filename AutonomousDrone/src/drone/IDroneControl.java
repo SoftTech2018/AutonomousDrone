@@ -16,6 +16,10 @@ public interface IDroneControl {
 	void up() throws InterruptedException;
 
 	void down() throws InterruptedException;
+	
+	void up2() throws InterruptedException;
+
+	void down2() throws InterruptedException;
 
 	void forward() throws InterruptedException;
 

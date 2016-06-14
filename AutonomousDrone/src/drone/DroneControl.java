@@ -236,6 +236,21 @@ public class DroneControl implements IDroneControl {
 		}
 		//		cmd.hover();
 	}
+	
+	public void up2() throws InterruptedException{
+		if(DRONE_DEBUG){
+			System.out.println("DroneControl: Flyver Op");
+		}
+		cmd.up(SPEED).doFor(500);
+	}
+	
+	public void down2() throws InterruptedException{
+		if(DRONE_DEBUG){
+			System.out.println("DroneControl: Flyver Op");
+		}
+		cmd.down(SPEED).doFor(500);
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see drone.IDroneControl#forward()
