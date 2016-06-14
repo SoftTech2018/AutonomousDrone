@@ -25,6 +25,8 @@ public class GradTest implements Runnable{
 	
 	public GradTest(IDroneControl dc) {
 		this.dc = dc;
+		Squares sq1 = new Squares(null, 400, 500, System.currentTimeMillis(), 0);
+		squarePoints.add(sq1);
 	}
 	
 	@Override

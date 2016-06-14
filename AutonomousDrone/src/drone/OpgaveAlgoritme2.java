@@ -12,6 +12,7 @@ import org.opencv.imgproc.Imgproc;
 import billedanalyse.ColorTracker;
 import billedanalyse.IBilledAnalyse;
 import billedanalyse.QRCodeScanner;
+import billedanalyse.RetningsVektor;
 import billedanalyse.Squares;
 import billedanalyse.Squares.FARVE;
 import de.yadrone.base.command.LEDAnimation;
@@ -39,6 +40,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private PunktNavigering punktNav;
 	private QRCodeScanner qrcs;
 	private PunktNavigering pn;
+	private RetningsVektor rv;
 	protected boolean doStop = false;
 	private boolean flying = false;
 	private Vector2 dronePunkt = null;
@@ -208,13 +210,17 @@ public class OpgaveAlgoritme2 implements Runnable {
 		
 		// Opdater dronepositionen med tiden og retningen siden dronen sidst opdaterede sin position
 		for(Squares item: squares) {
-			long squaresdif = startTid - item.getTid();
-			int afstand = (int) ((stopTid - startTid)/(squaresdif*dist)); // (DeltaTid / tid) * distance
-
+//			long squaresdif = startTid - item.getTid();
+//			int afstand = (int) ((stopTid - startTid)/(squaresdif*dist)); // (DeltaTid / tid) * distance
+			
+			int[] data = dc.getFlightData();
+			Vector2 vector = rv.getVector(ba.getVektorArray(), data[2]);
+			int afstand2 = dronePos.getY() + rv.vectorFromStart(dronePos, vector).getY();
+			
 			if (baneStart.getY() < 500) {
-				dronePos.setY(baneStart.getY() + afstand);
+				dronePos.setY(baneStart.getY() + afstand2);
 			} else if (baneStart.getY() > 500) {
-				dronePos.setY(baneStart.getY() - afstand);
+				dronePos.setY(baneStart.getY() - afstand2);
 			}
 
 			Koordinat objectcoord = opgrum.rotateCoordinate(item, dronePos);

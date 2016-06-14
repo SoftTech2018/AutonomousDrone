@@ -45,7 +45,7 @@ public class RetningsVektor {
 	}
 	
 	
-	private Koordinat vectorFromStart(Koordinat start, Vector2 v){
+	public Koordinat vectorFromStart(Koordinat start, Vector2 v){
 		VfraStart = new Koordinat(((int)v.x) + start.getX(), (int) (v.y+start.getY()));
 		return VfraStart;
 	}
