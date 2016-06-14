@@ -318,6 +318,9 @@ public class OpgaveAlgoritme2 implements Runnable {
 		boolean posUpdated = false;
 		long start = System.currentTimeMillis();
 		Koordinat drone;
+		
+		setDroneHeight(ba.getFirkant());
+		
 		if((drone = ba.getDroneKoordinat()) != null){
 			System.err.println("Drone position fundet!");
 			return drone;
@@ -463,6 +466,30 @@ public class OpgaveAlgoritme2 implements Runnable {
 		}
 		return;
 	}
+	
+	private void setDroneHeight(QrFirkant firkant) throws InterruptedException{
+		int dif = 0; 
+		Koordinat firkantCentrum = firkant.getCentrum();
+		int billedCentrum = 360;
+		
+		if(firkantCentrum.getY() > billedCentrum){
+			dif = firkantCentrum.getY()-billedCentrum;
+			if(dif > 180 ){
+				//her skal dronen navigere nedad 
+				dc.down2();
+			}
+			if(firkantCentrum.getY() < billedCentrum){
+				dif = billedCentrum-firkantCentrum.getY();
+				if(dif > 180 ){
+					//her skal dronen navigere opad. 
+					dc.up2();
+					
+				}
+			}
+		}	
+	}
+
+	
 
 	@Override
 	public void run() {
