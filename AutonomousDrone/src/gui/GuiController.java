@@ -533,6 +533,8 @@ public class GuiController {
 					public void run(){
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
+						ba.setMaxVal((int)maxThresSlider.getValue());
+						ba.setMinVal((int)minThresSlider.getValue());
 						// convert the Mat object (OpenCV) to Image (JavaFX)
 						for(int i=0; i<frames.length;i++){
 							if(frames[i] != null){
@@ -545,6 +547,7 @@ public class GuiController {
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						int values[] = GuiController.this.dc.getFlightData();
 						String QrText = ba.getQrt();
+						
 						Platform.runLater(new Runnable(){
 							@Override
 							public void run() {
