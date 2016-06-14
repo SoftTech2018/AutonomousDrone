@@ -88,31 +88,31 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			return false;
 		}
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
-//		System.out.println("0"+qrTextArray[0]);
-//		System.out.println("1"+qrTextArray[1]);
-//		System.out.println("2"+qrTextArray[2]);
+		//		System.out.println("0"+qrTextArray[0]);
+		//		System.out.println("1"+qrTextArray[1]);
+		//		System.out.println("2"+qrTextArray[2]);
 		QrFirkant readQr;
 		QrFirkant readQr2;
 
 
-//		readQr = bm.getFirkanten();
+		//		readQr = bm.getFirkanten();
 		readQr = list.get(0);
 		readQr.setText(qrTextArray[0]);
 
-//		readQr2 = bm.getFirkanten2();
+		//		readQr2 = bm.getFirkanten2();
 		readQr2 = list.get(1);
 
 		//Finder centrumkoordinat for firkanterne
 		Koordinat qrKoord1 = readQr.getCentrum();
 		Koordinat qrKoord2 = readQr2.getCentrum();
-		
+
 		//Finder distance og koordinater for QR-firkanten
 		Vector2 v1 = this.opgrum.getMultiMarkings(readQr.getText())[1];
 		Vector2 v2 ;
 		// Beregn distancen til QR koden
 		double dist1 = punktNav.calcDist(readQr.getHeight(), 420)/10;
-//		System.out.println("Dist1 "+dist1);
-//		System.out.println("Højde 1 "+readQr.getHeight());
+		//		System.out.println("Dist1 "+dist1);
+		//		System.out.println("Højde 1 "+readQr.getHeight());
 		//Laver cirkel for læst qr kode
 		circle1 = new Circle(v1, dist1);
 
@@ -123,20 +123,20 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		}
 
 		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420)/10;
-//		System.out.println("Dist2 "+dist2);
-//		System.out.println("Højde 2 "+readQr2.getHeight());
+		//		System.out.println("Dist2 "+dist2);
+		//		System.out.println("Højde 2 "+readQr2.getHeight());
 		circle2 = new Circle(v2, dist2);
-		
+
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
 		System.err.println(cci.getIntersectionPoints().length);
 		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
 			System.err.println(cci.getIntersectionPoints()[i]);
-//			
+			//			
 		}
 		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
 		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
-		
+
 		// Find skæringspunktet der ligger inde i rummets koordinatsystem
 		Vector2[] intersections = cci.getIntersectionPoints();
 		for(int i=0; i<intersections.length; i++){
@@ -234,7 +234,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			this.updateDroneKoordinat(drone);
 		}
 	}
-	
+
 	/**
 	 * MÅ IKKE KALDES! Benyt i stedet setDroneKoordinat()
 	 * @param drone
@@ -265,7 +265,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			clip.open(inputStream);
 			clip.start();
 		} catch (Exception e){
-//			e.printStackTrace();
+			//			e.printStackTrace();
 		}
 	}
 
@@ -451,7 +451,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public Mat getMatFrame(){
 		return matFrame;
 	}
-	
+
 	public QrFirkant getFirkant(){
 		return bm.getFirkanten();
 	}
@@ -565,7 +565,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				if(opticalFlow){ // opticalFlow boolean
 					frames[1] = this.opFlow.optFlow(img, true);
-					
+
 				}
 
 				if(objTrack){
@@ -592,11 +592,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
-															Mat testimg = bm.readQrSkewed(img);
-															findQR(testimg);
-															frames[2]=testimg;
+					Mat testimg = bm.readQrSkewed(img);
+					findQR(testimg);
+					frames[2]=testimg;
 					//										frames[0] = bm.filterMat(img);
-//					this.findDronePos2(img);
+					//					this.findDronePos2(img);
 				} 
 				frames[0]=img;
 
@@ -659,7 +659,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public ArrayList<Squares> getColorSquares() {
 		return colTracker.getSquares();
 	}
-	
+
 	public void setMaxVal(int val){
 		bm.setMax(val);
 	}

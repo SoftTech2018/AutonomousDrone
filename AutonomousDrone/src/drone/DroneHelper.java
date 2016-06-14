@@ -1,5 +1,9 @@
 package drone;
 
+/*
+ * KLASSENS FORMÅL: Give hjælpemetoder til dronenavigation baseret på rummets koordinater
+ * Eks: Start i koordinat X - flyv til koordinat Y
+ */
 import diverse.Log;
 import diverse.koordinat.Koordinat;
 
@@ -25,14 +29,14 @@ public class DroneHelper {
 			return;
 		}
 		int vinkel = dc.getFlightData()[2];
-		
+
 		// Korrigerer for dronens "sjove" YAW værdier
 		if(vinkel < 0){
 			vinkel = Math.abs(vinkel);
 		} else {
 			vinkel = 360-vinkel;
 		}
-		
+
 		// *** Beregn hvor meget dronen skal dreje for at "sigte" på slut punktet ***
 		// Vektor fra nuværende punkt til slutpunkt
 		int a = slut.getX() - start.getX();
@@ -43,7 +47,7 @@ public class DroneHelper {
 		double yA = Math.cos(Math.toRadians(vinkel));
 		double yB = Math.sin(Math.toRadians(vinkel));
 		double yLength = Math.sqrt(Math.pow(yA, 2) + Math.pow(yB, 2));
-		
+
 		// Beregn vinkel mellem de to vektorer. Dette er vinklen der skal roteres
 		double rotVinkel = Math.toDegrees(Math.acos(((a*yA)+(b*yB))/(abLength*yLength)));
 		double retning = -a * yB + b * yA; // Negativ hvis dronen skal dreje til højre
@@ -77,6 +81,13 @@ public class DroneHelper {
 		}
 	}
 
+	/**
+	 * Strafe fra et start punkt til et slut punkt. YAW justeres IKKE.
+	 * Der tages højde for om Papkassen vil rammes i oprindelig rute, og 
+	 * ruten justeres derefter.
+	 * @param start
+	 * @param slut
+	 */
 	public void strafePunkt(Koordinat start, Koordinat slut){
 		boolean goRight = false;
 		if(start.getY() > slut.getY()){
@@ -180,11 +191,21 @@ public class DroneHelper {
 		}
 	}
 
+	/**
+	 * Juster dronens koordinater vha. frem/tilbage + strafe.
+	 * Bør ikke benyttes til at flyve større distancer
+	 * @param dronePos Start-koordinat
+	 * @param koordinat Slut-koordinat
+	 */
 	public void adjust(Koordinat dronePos, Koordinat koordinat) {
 		// TODO Auto-generated method stub
 
 	}
-	
+
+	/**
+	 * Sæt papkassens koordinat i rummet
+	 * @param papkasse
+	 */
 	public void setPapKasse(Koordinat papkasse){
 		this.papKasse = papkasse;
 	}

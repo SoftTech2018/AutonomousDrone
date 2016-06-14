@@ -83,8 +83,17 @@ public interface IBilledAnalyse {
 
 	void setOpgaveRum(OpgaveRum opgaveRum);
 
+	/**
+	 * Find dronens koordinat i rummet. Returnerer null hvis dronens koordinat ikke er opdateret
+	 * indenfor et givent tidsinterval.
+	 * @return dronens koordinat
+	 */
 	Koordinat getDroneKoordinat();
 
+	/**
+	 * Bestem hvorvidt dronen skal forsøge at læse QR koder og deraf finde sin position
+	 * @param drone
+	 */
 	void setDroneLocator(boolean drone);
 
 	ArrayList<Squares> getColorSquares();
