@@ -321,6 +321,8 @@ public class OpgaveAlgoritme2 implements Runnable {
 		
 		setDroneHeight(ba.getFirkant());
 		
+		
+		
 		if((drone = ba.getDroneKoordinat()) != null){
 			System.err.println("Drone position fundet!");
 			return drone;
