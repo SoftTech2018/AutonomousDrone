@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
+import diverse.QrFirkant;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
 import javafx.scene.image.Image;
@@ -69,6 +70,8 @@ public interface IBilledAnalyse {
 	 * @return
 	 */
 	Mat getMatFrame();
+	
+	QrFirkant getFirkant();
 
 	void setImage(Mat frame);
 	

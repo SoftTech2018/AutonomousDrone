@@ -451,6 +451,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public Mat getMatFrame(){
 		return matFrame;
 	}
+	
+	public QrFirkant getFirkant(){
+		return bm.getFirkanten();
+	}
+
 
 	/* (non-Javadoc)
 	 * @see billedanalyse.IBilledAnalyse#resize(org.opencv.core.Mat, int, int)
