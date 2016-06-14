@@ -1,7 +1,6 @@
 package billedanalyse;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.sound.sampled.AudioInputStream;
@@ -14,6 +13,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import billedanalyse.ColorTracker.MODE;
+import diverse.Log;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
 import diverse.circleCalc.Circle;
@@ -21,9 +21,7 @@ import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
-import drone.DroneControl;
 import drone.IDroneControl;
-import drone.OpgaveAlgoritme2;
 import gui.GuiStarter;
 import javafx.scene.image.Image;
 
@@ -72,7 +70,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		this.opgrum = opgRum;
 	}
 
-	private void findDronePos2(Mat frame){
+	private boolean findDronePos2(Mat frame){
 		Circle circle1, circle2;
 		Mat temp = new Mat();
 		frame.copyTo(temp);
@@ -80,14 +78,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		ArrayList<QrFirkant> list = bm.dronePos2(frame);
 		if(list==null){
 			System.out.println("TOM firkant liste");
-			return;
+			return false;
 		}
 		System.out.println("Liste størrelse "+list.size());
 		//Returnerer biledet, osm QR læseren skal læse
 		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
 			System.out.println("QR kode < 3");
-			return;
+			return false;
 		}
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
 //		System.out.println("0"+qrTextArray[0]);
@@ -138,6 +136,18 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
 		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
+		
+		// Find skæringspunktet der ligger inde i rummets koordinatsystem
+		Vector2[] intersections = cci.getIntersectionPoints();
+		for(int i=0; i<intersections.length; i++){
+			// Tjek om punktet ligger inde i rummets koordinatsystem
+			if(intersections[i].x > 0 && intersections[i].x < 963 && intersections[i].y > 0 && intersections[i].y < 1078){
+				Koordinat drone = new Koordinat((int) intersections[i].x, (int)intersections[i].y);
+				this.setDroneKoordinat(drone, true); // Opdater dronens position på GUI m.m.
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void findDronePos(Mat frame){
@@ -208,15 +218,34 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//		System.err.println("DroneKoordinat: (" + dp.getX() + "," + dp.getY() + ")");
 		// Logisk tjek for om dronen befinder sig i rummet eller ej
 		if(dp.getX()>0 && dp.getY() >0 && dp.getX() < 963 && dp.getY() < 1078){			
-			this.opgrum.setDronePosition(dp, Math.toRadians(-1*yaw));
-			playSound();
-			setDroneKoordinat(dp);
+			setDroneKoordinat(dp, false);
 		}
 	}
 
-	private void setDroneKoordinat(Koordinat drone){
-		this.droneKoordinat = drone;
+	/**
+	 * Set dronens koordinat i rummet
+	 * @param drone Koordinatet
+	 * @param toQrKoderMetode true hvis der er brugt to QR koder til at bestemme koordinatet
+	 */
+	private void setDroneKoordinat(Koordinat drone, boolean toQrKoderMetode){
+		if(toQrKoderMetode){
+			this.updateDroneKoordinat(drone);
+		} else if(System.currentTimeMillis() - droneKoordinatUpdated > 3500){
+			this.updateDroneKoordinat(drone);
+		}
+	}
+	
+	/**
+	 * MÅ IKKE KALDES! Benyt i stedet setDroneKoordinat()
+	 * @param drone
+	 */
+	private void updateDroneKoordinat(Koordinat drone){
+		int yaw = dc.getFlightData()[2];
+		Log.writeLog("DroneKoordinat opdateret: " + drone.toString() + "\t YAW: " + yaw);
+		this.droneKoordinat = drone;			
 		this.droneKoordinatUpdated = System.currentTimeMillis();
+		this.opgrum.setDronePosition(drone, Math.toRadians(-1*yaw));
+		playSound();
 	}
 
 	@Override
@@ -547,7 +576,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				}
 
 				if(droneLocator){
-//					this.findDronePos(img);
+					if(!this.findDronePos2(img)){
+						this.findDronePos(img);						
+					}
 				}
 
 				//Enable QR-checkBox?

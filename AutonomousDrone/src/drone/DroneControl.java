@@ -11,6 +11,8 @@ import de.yadrone.base.command.FlyingMode;
 import de.yadrone.base.command.LEDAnimation;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
+import de.yadrone.base.exception.ARDroneException;
+import de.yadrone.base.exception.IExceptionListener;
 import de.yadrone.base.navdata.Altitude;
 import de.yadrone.base.navdata.AltitudeListener;
 import de.yadrone.base.navdata.AttitudeListener;
@@ -66,6 +68,14 @@ public class DroneControl implements IDroneControl {
 			startNavListener();
 			cmd.setVideoCodec(VideoCodec.H264_720P);
 		}
+		drone.addExceptionListener(new IExceptionListener(){
+			@Override
+			public void exeptionOccurred(ARDroneException arg0) {
+				Log.writeLog("*** DRONE EXCEPTION OCCURED ***");
+				Log.writeLog(arg0.getMessage());
+				arg0.printStackTrace();
+			}
+		});
 	}
 
 	private void startNavListener(){
