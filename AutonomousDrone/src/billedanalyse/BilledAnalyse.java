@@ -16,6 +16,7 @@ import billedanalyse.ColorTracker.MODE;
 import diverse.Log;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
+import diverse.YawCalc;
 import diverse.circleCalc.Circle;
 import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;
@@ -54,7 +55,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
-		this.bm = new BilledManipulation();
+		this.bm = new BilledManipulation(dc);
 		imageToShow = new Image[3];
 		frames = new Mat[3];
 		this.opFlow = new OpticalFlow(bm);

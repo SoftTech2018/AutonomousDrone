@@ -27,12 +27,6 @@ public class PunktNavigering {
 	// Skal debug beskeder udskrives?
 		protected static final boolean PNAV_DEBUG = false;
 		
-	private BilledManipulation bm;
-	
-	public PunktNavigering(){
-		this.bm = new BilledManipulation();
-	}
-		
 	/**
 	 * Kigger på ArrayListen og tjekker hvor mange skæringspunkter der findes. 
 	 * Hvis der findes mere end to skæringspunkter, tjekkes der op imod det midterste punkt, 
@@ -173,7 +167,8 @@ public class PunktNavigering {
 //		Scalar blackMin = new Scalar(0, 0, 0);
 //		Scalar blackMax = new Scalar(180, 255, 50);
 //		Core.inRange(temp, blackMin, blackMax, temp);
-		temp = bm.toGray(temp);
+//		temp = bm.toGray(temp);
+		Imgproc.cvtColor(temp, temp, Imgproc.COLOR_BGR2GRAY);
 		Imgproc.GaussianBlur(temp, temp, new Size(5,5), -1);
 		Imgproc.Canny(temp, temp, 50, 100);
 

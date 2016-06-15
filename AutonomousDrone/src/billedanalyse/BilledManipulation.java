@@ -3,12 +3,8 @@ package billedanalyse;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -25,12 +21,12 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.imgproc.Moments;
 import org.opencv.utils.Converters;
 
-import boofcv.alg.feature.detect.extract.NonMaxBlockRelaxed.Max;
 import diverse.QrFirkant;
+import diverse.YawCalc;
 import diverse.koordinat.Koordinat;
+import drone.IDroneControl;
 import javafx.scene.image.Image;
 
 /**
@@ -38,6 +34,9 @@ import javafx.scene.image.Image;
  *
  */
 public class BilledManipulation {
+	
+	private YawCalc yawCalc;
+	private IDroneControl dc;
 
 	public int max=255,min=125;
 	private MatOfKeyPoint kp;
@@ -46,13 +45,23 @@ public class BilledManipulation {
 	private Koordinat qrCenter;
 	private QrFirkant firkanten, firkanten2;
 
-	public BilledManipulation(){
+	public BilledManipulation(IDroneControl dc){
+		this.yawCalc = new YawCalc();
+		this.dc = dc;
 		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
 		extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
 	}
 
 	public MatOfKeyPoint getKP(){
 		return kp;
+	}
+	
+	private void setFirkanten(QrFirkant firkanten){
+		this.firkanten = firkanten;
+		if(this.firkanten!=null){
+		double yawCorrection = this.yawCalc.getYaw(firkanten);
+		dc.setYawCorrection(yawCorrection);
+		}
 	}
 
 	public Mat edde(Mat frame){			
@@ -269,7 +278,7 @@ public class BilledManipulation {
 	}
 	
 	public Mat readQrSkewed(Mat mat){
-		firkanten = null;
+		this.setFirkanten(null);
 
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -344,7 +353,7 @@ public class BilledManipulation {
 					id = i;
 				}
 			}			
-			firkanten = firkant.get(id);
+			this.setFirkanten(firkant.get(id));
 			qrCenter = firkanten.getCentrum();
 			//QR-kode på originalt billede
 			Point p0 = firkanten.getPoint0();
@@ -393,7 +402,7 @@ public class BilledManipulation {
 	}
 	
 	public void readFilterQr(Mat mat){
-		firkanten = null;
+		this.setFirkanten(null);
 
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -459,14 +468,14 @@ public class BilledManipulation {
 					id = i;
 				}
 			}			
-			firkanten = firkant.get(id);
+			this.setFirkanten(firkant.get(id));
 			qrCenter = firkanten.getCentrum();
 		} 
 	}
 	
 	//metode der finder firkanter og QR kode i forbindelse med at finde dronens position i forhold til 2 qr koder
 	public ArrayList<QrFirkant> dronePos2(Mat mat){
-		firkanten = null;
+		this.setFirkanten(null);
 		firkanten2 = null;
 		Mat out = new Mat();
 		mat.copyTo(out);

@@ -29,6 +29,13 @@ public class DroneControl implements IDroneControl {
 	// Skal debug beskeder udskrives?
 	protected static final boolean DRONE_DEBUG = false;
 
+	private int yawCorrection = 0;
+	
+	@Override
+	public void setYawCorrection(double calcYaw){
+		yawCorrection = (int) calcYaw - yaw;
+	}
+
 	//DEFINERER OM DRONEN BRUGER .doFor(time)
 	private boolean timeMode = true;
 
@@ -385,9 +392,9 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public int[] getFlightData() {
 		if(DRONE_DEBUG){
-			System.out.println("Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw);
+			System.out.println("Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw + ", YawCorrection: " + yawCorrection);
 		}
-		int out[] = {pitch, roll, yaw};
+		int out[] = {pitch, roll, yaw + yawCorrection};
 		return out;
 	}
 	

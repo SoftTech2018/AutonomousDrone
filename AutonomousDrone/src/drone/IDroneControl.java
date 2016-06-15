@@ -59,4 +59,6 @@ public interface IDroneControl {
 
 	void turnDroneTo(int startYaw);
 
+	void setYawCorrection(double calcYaw);
+
 }
