@@ -77,14 +77,15 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//Returnerer liste med de to firkanter
 		ArrayList<QrFirkant> list = bm.dronePos2(frame);
 		if(list==null){
-			System.out.println("TOM firkant liste");
+//			System.out.println("TOM firkant liste");
 			return false;
 		}
-		System.out.println("Liste størrelse "+list.size());
+//		System.out.println("Liste størrelse "+list.size());
 		//Returnerer biledet, osm QR læseren skal læse
-		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
+//		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
+		String qrText = qrs.applyFilters(bm.readQrSkewed(temp));
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
-			System.out.println("QR kode < 3");
+//			System.out.println("QR kode < 3");
 			return false;
 		}
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
@@ -155,7 +156,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		if(qrFirkanter==null || qrFirkanter.isEmpty()){
 			return;
 		}
-		String qrText = qrs.imageUpdated(bm.readQrSkewed(frame));
+		String qrText = qrs.applyFilters(bm.readQrSkewed(frame));
 		//		System.err.println("QR text: " + qrText);
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
 			return;
@@ -592,9 +593,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					//					findQR(img);
 					//					bm.filterMat(img);
 					//					bm.calcDist(img);
-					Mat testimg = bm.readQrSkewed(img);
-					findQR(testimg);
-					frames[2]=testimg;
+//					Mat testimg = bm.readQrSkewed(img);
+//					findQR(testimg);
+//					frames[2]=testimg;
 					//										frames[0] = bm.filterMat(img);
 					//					this.findDronePos2(img);
 				} 
@@ -627,7 +628,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		Mat out = new Mat();
 		frame.copyTo(out);
 		//		bm.toGray(frame);
-		qrs.imageUpdated(frame);
+		qrs.applyFilters(frame);
 	}
 
 	@Override
