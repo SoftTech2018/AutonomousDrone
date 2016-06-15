@@ -129,14 +129,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		circle2 = new Circle(v2, dist2);
 
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
-		System.err.println(cci.getIntersectionPoints().length);
-		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
-			System.err.println(cci.getIntersectionPoints()[i]);
-			//			
-		}
-		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
+//		System.err.println(cci.getIntersectionPoints().length);
+//		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
+//			System.err.println(cci.getIntersectionPoints()[i]);
+//			//			
+//		}
+//		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
-		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
+//		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
 
 		// Find skæringspunktet der ligger inde i rummets koordinatsystem
 		Vector2[] intersections = cci.getIntersectionPoints();
@@ -589,10 +589,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-					//					this.findDronePos(img);
-					//					findQR(img);
-					//					bm.filterMat(img);
-					//					bm.calcDist(img);
 //					Mat testimg = bm.readQrSkewed(img);
 //					findQR(testimg);
 //					frames[2]=testimg;
@@ -629,6 +625,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		frame.copyTo(out);
 		//		bm.toGray(frame);
 		qrs.applyFilters(frame);
+//		qrs.imageUpdated(frame);
 	}
 
 	@Override

@@ -18,6 +18,8 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import diverse.Log;
+
 public class QRCodeScanner
 {
 	
@@ -25,9 +27,14 @@ public class QRCodeScanner
 	
 	public String applyFilters(Mat frame){
 		String qrText="";
-		for (int i = 1; i < 4; i++) {
+		for (int i = 1; i < 5; i++) {
 			qrText = imageUpdated(frame,i);
-			if(qrText.length()>3){
+			if(qrText.length()<3){
+//				Log.writeLog("ID på switch ved return: "+i);
+				continue;
+			} else {
+				Log.writeLog("ID på switch ved return: "+i +", "+qrText);
+				qrt = qrText;
 				return qrText;
 			}
 		}
@@ -35,22 +42,34 @@ public class QRCodeScanner
 	}
 	
 	public String imageUpdated(Mat frame, int i){
-//		String qrt = "";
+		String qrt = "";
 		Mat temp = new Mat();
 		frame.copyTo(temp);
 		switch (i) {
 		case 1:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 35, 231, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 66, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 2:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 50, 231, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 56, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 3:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 97, 235, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 80, 255, Imgproc.THRESH_BINARY);
 			break;
+		case 4:
+			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
+			Imgproc.threshold(temp, temp, 85, 255, Imgproc.THRESH_BINARY);
+			break;
+//		case 5:
+//			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
+//			Imgproc.threshold(temp, temp, 38, 238, Imgproc.THRESH_BINARY);
+//			break;
+//		case 6:
+//			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
+//			Imgproc.threshold(temp, temp, 121, 238, Imgproc.THRESH_BINARY);
+//			break;
 		}
 		
 		Image image = toBufferedImage(temp);

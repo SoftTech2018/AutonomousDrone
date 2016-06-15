@@ -383,7 +383,7 @@ public class BilledManipulation {
 			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
 			//Dette må ikke slettes, skal bruges til at justere threshold værdier
 //			Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
-//			//DETTE SKAL ÆNDRES I FORHOLD TIL LYS-STYRKEN I LOKALET
+			//DETTE SKAL ÆNDRES I FORHOLD TIL LYS-STYRKEN I LOKALET
 //			Imgproc.threshold(test3, test3, min, max, Imgproc.THRESH_BINARY);
 //			System.err.println("Min er "+min + " og max er "+max);
 			return test3;
