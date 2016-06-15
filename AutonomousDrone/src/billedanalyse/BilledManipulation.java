@@ -330,49 +330,6 @@ public class BilledManipulation {
 //					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
 //					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
-					
-					//QR kode punkter på originale billede
-//					Point p0 = new Point(list.get(0).x,list.get(0).y);
-//					Point p1 = new Point(list.get(1).x,list.get(1).y);
-//					Point p2 = new Point(list.get(2).x,list.get(2).y);
-//					Point p3 = new Point(list.get(3).x,list.get(3).y);
-//					
-//					List<Point> qrPunkter = new ArrayList<Point>();
-//					qrPunkter.add(p0);
-//					qrPunkter.add(p1);
-//					qrPunkter.add(p2);
-//					qrPunkter.add(p3);
-////					System.out.println("X0: "+x0 + " og X3: "+ x3);
-//					List<Point> qrNyePunkter = new ArrayList<Point>();
-//					if(x0>x3){
-////						System.out.println("X3 er større");
-//						qrNyePunkter.add(new Point(qr.cols(),0));
-//						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-//						qrNyePunkter.add(new Point(0,qr.rows()));
-//						qrNyePunkter.add(new Point(0,0));						
-//					} else {
-////						System.out.println("X3 er mindre");
-//						qrNyePunkter.add(new Point(0,0));
-//						qrNyePunkter.add(new Point(0,qr.rows()));
-//						qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-//						qrNyePunkter.add(new Point(qr.cols(),0));
-//					}
-////					
-//					MatOfPoint2f mp = new MatOfPoint2f();
-//					MatOfPoint2f mp2 = new MatOfPoint2f();
-//					mp.fromList(qrPunkter);
-//					mp2.fromList(qrNyePunkter);
-//					
-//					Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
-//					
-//					Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-					
-//					System.out.println("HØJDE "+ test3.size().height + " og Bredde "+test3.size().width);
-//					BufferedImage testimg = mat2bufImg(test3); 
-//					File f = new File("/Users/JacobWorckJepsen/Desktop/MyFile.JPEG"); 
-//					try { ImageIO.write(testimg, "JPEG", f); 
-//					} catch (IOException e1) {
-//					}
 				}
 //				return test3;
 			}
@@ -504,46 +461,6 @@ public class BilledManipulation {
 			}			
 			firkanten = firkant.get(id);
 			qrCenter = firkanten.getCentrum();
-			//QR-kode på originalt billede
-//			Point p0 = firkanten.getPoint0();
-//			Point p1 = firkanten.getPoint1();
-//			Point p2 = firkanten.getPoint2();
-//			Point p3 = firkanten.getPoint3();
-//			
-//			List<Point> qrPunkter = new ArrayList<Point>();
-//			qrPunkter.add(p0);
-//			qrPunkter.add(p1);
-//			qrPunkter.add(p2);
-//			qrPunkter.add(p3);
-//			
-//			List<Point> qrNyePunkter = new ArrayList<Point>();
-//			if(firkanten.getPoint0().x>firkanten.getPoint3().x){
-////				System.out.println("X3 er større");
-//				qrNyePunkter.add(new Point(qr.cols(),0));
-//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-//				qrNyePunkter.add(new Point(0,qr.rows()));
-//				qrNyePunkter.add(new Point(0,0));						
-//			} else {
-////				System.out.println("X3 er mindre");
-//				qrNyePunkter.add(new Point(0,0));
-//				qrNyePunkter.add(new Point(0,qr.rows()));
-//				qrNyePunkter.add(new Point(qr.cols(),qr.rows()));
-//				qrNyePunkter.add(new Point(qr.cols(),0));
-//			}
-////			
-//			MatOfPoint2f mp = new MatOfPoint2f();
-//			MatOfPoint2f mp2 = new MatOfPoint2f();
-//			mp.fromList(qrPunkter);
-//			mp2.fromList(qrNyePunkter);
-//			
-//			Mat warp = Imgproc.getPerspectiveTransform(mp, mp2);
-//			
-//			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
-//			Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
-//			//DETTE SKAL ÆNDRES I FORHOLD TIL LYS-STYRKEN I LOKALET
-//			Imgproc.threshold(test3, test3, min, max, Imgproc.THRESH_BINARY);
-//			System.err.println("Min er "+min + " og max er "+max);
-//			return test3;
 		} 
 	}
 	
@@ -657,7 +574,7 @@ public class BilledManipulation {
 		}
 		return null;
 	}
-	
+	//Denne metode er måske ligegyldig
 	public String warpQrImage(QrFirkant firkant1, QRCodeScanner qrs, Mat mat){
 		Mat qr = new Mat();
 		qr = Mat.zeros(560, 400, CvType.CV_32S);
