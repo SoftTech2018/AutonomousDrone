@@ -2,28 +2,23 @@ package drone;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Random;
 
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
-import billedanalyse.ColorTracker;
 import billedanalyse.IBilledAnalyse;
 import billedanalyse.QRCodeScanner;
 import billedanalyse.RetningsVektor;
 import billedanalyse.Squares;
 import billedanalyse.Squares.FARVE;
-import de.yadrone.base.command.LEDAnimation;
-import diverse.koordinat.Genstand;
-import diverse.koordinat.Genstand.GENSTAND_FARVE;
-import diverse.koordinat.Koordinat;
 import diverse.Log;
-import diverse.koordinat.OpgaveRum;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
 import diverse.circleCalc.Vector2;
+import diverse.koordinat.Genstand;
+import diverse.koordinat.Genstand.GENSTAND_FARVE;
+import diverse.koordinat.Koordinat;
+import diverse.koordinat.OpgaveRum;
+import drone.DroneHelper.DIRECTION;
 
 public class OpgaveAlgoritme2 implements Runnable {
 
@@ -31,7 +26,6 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 * Markør hvor der kan udskrives debug-beskeder i konsollen.
 	 */
 	protected final boolean OPGAVE_DEBUG = true;
-	private int searchTime = 30000; // Max søgetid i ms når der ikke kan findes et target. Eks: 60000 = 60 sek.
 
 	private IDroneControl dc;
 	private IBilledAnalyse ba;
@@ -41,14 +35,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private QRCodeScanner qrcs;
 	private PunktNavigering pn;
 	private RetningsVektor rv;
-	protected boolean doStop = false;
+	private boolean doStop = false;
 	private boolean flying = false;
-	private Vector2 dronePunkt = null;
 	private ArrayList<Koordinat> searchPoints, objectCoords;
 	private ArrayList<Squares> squarePoints;
-	private Koordinat landingsPlads, papKasse, baneStart, baneSlut;
-	long stopTid, startTid;
-	private double mspercm = 10.8; //Forholdet mellem milisekunder og afstand tilbagelagt
+	private Koordinat landingsPlads, baneStart, baneSlut;
+	private long stopTid, startTid;
+	private int yaw;
 
 
 	public OpgaveAlgoritme2(IDroneControl dc, IBilledAnalyse ba){
@@ -57,7 +50,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		this.ba = ba;
 		this.punktNav = new PunktNavigering();
 		this.createPoints();
-		this.dh = new DroneHelper(dc, papKasse);
+		this.dh = new DroneHelper(dc);
 	}
 
 	/**
@@ -114,88 +107,93 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}
 			}
 
-			dc.up(); // Juster højde på dronen vha. QR-firkanter
-			
+
+			this.opgave2();
+			if(true)
+				return;
+
+			dc.up(); //  Juster højde på dronen vha. QR-firkanter
+
 			// Find position og gem position som landingsplads
 			landingsPlads = findDronePos();
-			
+
 			if(landingsPlads!=null){
 				int yaw = dc.getFlightData()[2];
 				Log.writeLog("StartPlacering fundet: \t(" + landingsPlads.getX() + "," + landingsPlads.getY()+ ")");
 				Log.writeLog("YAW: \t" + yaw);
-				
-//				baneStart = landingsPlads; // Noter hvor i rummet vi starter med at afsøge
-//				dc.toggleCamera();
-//				Thread.sleep(3000);
-//				Log.writeLog("Kamera skiftet. Påbegynder flyvning.");
-//				dh.flyTo(landingsPlads, new Koordinat(500,500)); // Flyv til midten af rummet (ca)
-//				
-//				if(yaw > 0 && yaw < 45){
-//					// baglæns
-//					dc.backward();
-//				} else if (yaw > 45 && yaw < 90){
-//					// baglæns
-//					dc.backward();
-//				} else if (yaw > 90 && yaw < 135){
-//					// strafe højre
-//					dc.right();
-//				} else if (yaw > 135 && yaw < 180){
-//					// strafe højre
-//					dc.right();
-//				} else if (yaw > -45 && yaw < 0){
-//					// strafe venstra
-//					dc.left();
-//				} else if (yaw > -90 && yaw < -45){
-//					// strafe venstra
-//					dc.left();
-//				} else if (yaw > -135 && yaw < -90){
-//					// lige ud
-//					dc.forward();
-//				} else if (yaw > -180 && yaw < -135){
-//					// lige ud
-//					dc.forward();
-//				}
-//				dc.toggleCamera();
-//				Thread.sleep(3000);
-//				landingsPlads = this.findDronePos();
-//				if(landingsPlads!=null){
-//					Log.writeLog("SlutPlacering fundet: (" + landingsPlads.getX() + "," + landingsPlads.getY() + ")");	
-//				}
-			}
-//			dc.turnDroneTo(0); // Drej dronen så den peger mod vinduet
-//			dc.land(); // DEBUG
-//			if(true)
-//				return;
 
-			
+				//				baneStart = landingsPlads; // Noter hvor i rummet vi starter med at afsøge
+				//				dc.toggleCamera();
+				//				Thread.sleep(3000);
+				//				Log.writeLog("Kamera skiftet. Påbegynder flyvning.");
+				//				dh.flyTo(landingsPlads, new Koordinat(500,500)); // Flyv til midten af rummet (ca)
+				//				
+				//				if(yaw > 0 && yaw < 45){
+				//					// baglæns
+				//					dc.backward();
+				//				} else if (yaw > 45 && yaw < 90){
+				//					// baglæns
+				//					dc.backward();
+				//				} else if (yaw > 90 && yaw < 135){
+				//					// strafe højre
+				//					dc.right();
+				//				} else if (yaw > 135 && yaw < 180){
+				//					// strafe højre
+				//					dc.right();
+				//				} else if (yaw > -45 && yaw < 0){
+				//					// strafe venstra
+				//					dc.left();
+				//				} else if (yaw > -90 && yaw < -45){
+				//					// strafe venstra
+				//					dc.left();
+				//				} else if (yaw > -135 && yaw < -90){
+				//					// lige ud
+				//					dc.forward();
+				//				} else if (yaw > -180 && yaw < -135){
+				//					// lige ud
+				//					dc.forward();
+				//				}
+				//				dc.toggleCamera();
+				//				Thread.sleep(3000);
+				//				landingsPlads = this.findDronePos();
+				//				if(landingsPlads!=null){
+				//					Log.writeLog("SlutPlacering fundet: (" + landingsPlads.getX() + "," + landingsPlads.getY() + ")");	
+				//				}
+			}
+			//			dc.turnDroneTo(0); // Drej dronen så den peger mod vinduet
+			//			dc.land(); // DEBUG
+			//			if(true)
+			//				return;
+
+
 			// TODO - Find papkasse-position!
-//			Koordinat papkasse = new Koordinat(x, y);
-//			dh.setPapKasse(papkasse);
+			//			Koordinat papkasse = new Koordinat(x, y);
+			//			dh.setPapKasse(papkasse);
 
 			// Flyv til start
 			Log.writeLog("Flyver til første søgepunkt");
 			dh.flyTo(landingsPlads, this.searchPoints.get(0));
 
 
-//			dh.adjust(findDronePos(), searchPoints.get(0));
+			//			dh.adjust(findDronePos(), searchPoints.get(0));
 
 			// Start objektsøgning
 			objectSearch();
-//			squarePoints = ba.getColorSquares();
-//			getSquaresPositioner(squarePoints);
+			//			squarePoints = ba.getColorSquares();
+			//			getSquaresPositioner(squarePoints);
 
 			// Flyv til landingsplads
-//			dc.turnDrone(0-dc.getFlightData()[2]); // Drej dronen mod tavlevæggen 
+			//			dc.turnDrone(0-dc.getFlightData()[2]); // Drej dronen mod tavlevæggen 
 			Log.writeLog("Flyver til landingsplads for at afslutte programmet");
 			dh.flyTo(findDronePos(), landingsPlads); // Flyv fra opdateret position til landingsplads
 
 			// Land
-//			dc.turnDrone(-90-dc.getFlightData()[2]); // Drej dronen mod fjerneste væg
-//			dh.adjust(findDronePos(), landingsPlads);
+			//			dc.turnDrone(-90-dc.getFlightData()[2]); // Drej dronen mod fjerneste væg
+			//			dh.adjust(findDronePos(), landingsPlads);
 			destroy();
 		}
 	}
-	
+
 	/** Modtager et array af squares der gennemløbes og sendes videre til behandling i OpgaveRum,
 	 *  som returnerer et koordinat for hver square der gennemløbes 
 	 *  i square-arrayet. Herefter gennemløbes koordinat-arrayet og tjek for objekternes position udføres 
@@ -204,39 +202,33 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 */
 	private void getSquaresPositioner(ArrayList<Squares> squares) {
 		stopTid = System.currentTimeMillis();
-		try {
-			baneStart = findDronePos();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		Koordinat dronePos = baneStart;
-		
-//		double dist = baneStart.dist(baneSlut); // Hvor langt har dronen bevæget sig?
-		
+
+		//		double dist = baneStart.dist(baneSlut); // Hvor langt har dronen bevæget sig?
+
 		// Opdater dronepositionen med tiden og retningen siden dronen sidst opdaterede sin position
 		for(Squares item: squares) {
-//			long squaresdif = startTid - item.getTid();
-//			int afstand = (int) ((stopTid - startTid)/(squaresdif*dist)); // (DeltaTid / tid) * distance
-			
-			int[] data = dc.getFlightData();
-			Vector2 vector = rv.getVector(ba.getVektorArray(), data[2]);
-//			int afstand2 = dronePos.dist(rv.vectorFromStart(dronePos, vector));
-			
+			//			long squaresdif = startTid - item.getTid();
+			//			int afstand = (int) ((stopTid - startTid)/(squaresdif*dist)); // (DeltaTid / tid) * distance
+
+			//			int[] data = dc.getFlightData();
+			Vector2 vector = rv.getVector(ba.getVektorArray(), yaw);
+			//			int afstand2 = dronePos.dist(rv.vectorFromStart(dronePos, vector));
+
 			if (baneStart.getY() < 500) {
-//				dronePos.setY(baneStart.getY() + afstand2);
+				//				dronePos.setY(baneStart.getY() + afstand2);
 				dronePos = rv.vectorFromStart(baneStart, dronePos.getVector().add(vector));
 			} else if (baneStart.getY() > 500) {
-//				dronePos.setY(baneStart.getY() - afstand2);
+				//				dronePos.setY(baneStart.getY() - afstand2);
 				dronePos = rv.vectorFromStart(baneStart, dronePos.getVector().add(vector));
 			}
 
 			rv.vectorFromStart(baneStart, dronePos.getVector().add(vector));
-			
+
 			Koordinat objectcoord = opgrum.rotateCoordinate(item, dronePos);
 			objectCoords.add(objectcoord);
 		}	
-		
+
 		// Tilføj de fundne objekter i rummets koordinater til opgaverummet
 		for (int i = 0; i < objectCoords.size(); i++) {
 			Koordinat item = objectCoords.get(i);
@@ -275,41 +267,53 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private void objectSearch() throws InterruptedException{	
 		final int ACCEPT_DIST = 100; // Acceptabel fejlmargin i position (cm)
 
-		// Find dronepos
-		Koordinat dronePos = findDronePos();
-		baneStart = dronePos;
-		
-		// Roter drone (mod vinduet)
-		Log.writeLog("Drejer dronen til YAW = 0");
-		dc.turnDroneTo(0);
-		
-		// Strafe højre/venstre
-		for(int i=0; i<1; i++){ // TODO antal baner
-			//Skift kamera (nedaf)
-			dc.toggleCamera();
+		try{
 			Thread.sleep(3000);
 
-			startTid = System.currentTimeMillis();
-			ba.setObjTrack(true); // Track objekter
-			Log.writeLog("ObjektTracking startes: " + startTid);
-			// Strafe 90%
-			dh.strafePunkt(searchPoints.get(2*i), searchPoints.get(2*i+1));				
-			ba.setObjTrack(false);
-			stopTid = System.currentTimeMillis();
-			Log.writeLog("ObjektTracking stoppes: " + stopTid);
+			// Find dronepos
+			Koordinat dronePos = findDronePos();
+			baneStart = dronePos;
 
-			//Skift kamera (fremad)
-			dc.toggleCamera();
-			Thread.sleep(3000);
-			// Tjek pos
-			dronePos = findDronePos();
-			baneSlut = dronePos;
-			if(dronePos.dist(searchPoints.get(2*i+1)) > ACCEPT_DIST){
-				// Finjuster til næste startbane
-				if(i!=7){					
-					dh.adjust(dronePos, searchPoints.get(2*i+2));
+			// Roter drone (mod vinduet)
+			Log.writeLog("Drejer dronen til YAW = 0");
+			dc.turnDroneTo(0);
+
+			// Strafe højre/venstre
+			for(int i=0; i<1; i++){ // TODO antal baner
+				//Skift kamera (nedaf)
+				dc.toggleCamera();
+				Thread.sleep(3000);
+
+				startTid = System.currentTimeMillis();
+				ba.setObjTrack(true); // Track objekter
+				Log.writeLog("ObjektTracking startes: " + startTid);
+				yaw = dc.getFlightData()[2];
+				// Strafe 90%
+				dh.strafePunkt(searchPoints.get(2*i), searchPoints.get(2*i+1));				
+				ba.setObjTrack(false);
+				stopTid = System.currentTimeMillis();
+				Log.writeLog("ObjektTracking stoppes: " + stopTid);
+				Log.writeLog("Objekter fundet: " + ba.getColorSquares().size());
+
+				//Skift kamera (fremad)
+				dc.toggleCamera();
+				Thread.sleep(3000);
+				// Tjek pos
+				dronePos = findDronePos();
+				baneSlut = dronePos;
+				Log.writeLog("Tegner objekter på GUI.");
+				getSquaresPositioner(ba.getColorSquares());
+				if(dronePos.dist(searchPoints.get(2*i+1)) > ACCEPT_DIST){
+					// Finjuster til næste startbane
+					if(i!=7){					
+						dh.adjust(dronePos, searchPoints.get(2*i+2));
+					}
 				}
 			}
+		} catch (NullPointerException e){
+			Log.writeLog("Drone position ej fundet. Lander.");
+			destroy();
+			return;
 		}
 	}
 
@@ -318,13 +322,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 		boolean posUpdated = false;
 		long start = System.currentTimeMillis();
 		Koordinat drone;
-		
-		setDroneHeight(ba.getFirkant());
-		
-		
-		
+
+		//		setDroneHeight(ba.getFirkant());
+
+
+
 		if((drone = ba.getDroneKoordinat()) != null){
-			System.err.println("Drone position fundet!");
+			Log.writeLog("Drone position fundet: " + drone.toString());
 			return drone;
 		} else { 
 			int startYaw = dc.getFlightData()[2];
@@ -337,13 +341,170 @@ public class OpgaveAlgoritme2 implements Runnable {
 				Thread.sleep(5000); // Vent på dronen udfører kommandoen og vi får et rent billede
 				if((drone = ba.getDroneKoordinat()) != null){
 					posUpdated = true;
-					Log.writeLog("Drone position fundet: " + drone);
+					Log.writeLog("Drone position fundet: " + drone.toString());
 					return drone;
-//					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
+					//					dc.turnDroneTo(startYaw); // Drej dronen tilbage til startpositionen
 				}
 			}
 		}
 		return drone;
+	}
+
+	/**
+	 * Udfører en opgaveløsning ved at dreje dronen så lidt som muligt.
+	 * Der benyttes primært strafe, fremad og bagud og bevæges i et mønster defineret af dronens position
+	 * @throws InterruptedException
+	 */
+	private void opgave2() throws InterruptedException{
+		dc.up(); // TODO -  Flyv lidt op så vi kan se QR-koder. Skal måske fjernes!
+
+		// Start QR scanning
+		ba.setDroneLocator(true);
+		//		Thread.sleep(3000); // TODO - Er det nødvendigt?
+		// Juster højden på dronen
+		//		setDroneHeight(ba.getFirkant());
+		//		Log.writeLog("Justerer drone højde...");
+
+		// Find droneposition (se fremad)
+		Log.writeLog("Finder drone position...");
+		Koordinat drone = findDronePos3();
+		if(drone==null){
+			// Find droneposition (drej rundt)
+			//			drone = this.findDronePos2();
+			Log.writeLog("*** Drone position IKKE fundet. Programmet afsluttes.");
+			destroy();
+		} else {
+			Log.writeLog("Drone position fundet: " + drone.toString());
+		}
+		// Noter hvor vi er startet
+		landingsPlads = drone;
+		// TODO - Juster YAW
+
+		// Find papkasse (drej)
+		//		ba.setPapkasseLocator(true);
+		//		Koordinat papKasse = findPapkassePos();
+		//		if(papKasse != null){
+		//			Log.writeLog("Papkasse position fundet: " + papKasse.toString());
+		//		}
+		//		dh.setPapKasse(papKasse);
+
+		// Drej mod vinduet
+		Log.writeLog("Drejer drone mod vinduet...");
+		dc.turnDroneTo(0);
+
+		// TODO - Juster YAW
+		// Stop QR scanning
+		ba.setDroneLocator(false);
+
+		Log.writeLog("*** Starter objektsøgning ***");
+		int moves = 0;
+		// ** START WHILE LØKKE **
+		while(moves < 4){ // TODO - hvor længe skal vi køre løkken?
+			// Skift kamera
+			dc.toggleCamera();
+			Log.writeLog("Skifter til nedafrettede kamera");
+			Thread.sleep(2000);
+			// Start opticalFlow
+			ba.setOpticalFlow(true);
+			// Start objectTracking
+			ba.setObjTrack(true);
+
+			// Flyv baseret på position
+			// Hvis afstand til væg er under 3 meter, fortsæt med at flyve
+			DIRECTION dir = dh.moveDrone(drone);
+			ArrayList<Squares> firkanter = ba.getColorSquares();
+			ArrayList<Koordinat> rumFirkanter = new ArrayList<>();
+			for(Squares firkant: firkanter){
+				Koordinat dronePositionAtSquaresTime = drone;
+				// TODO - Juster dronens position i forhold til hvornår objektet blev scannet. Optical Flow?
+				switch(dir){
+				case UP:
+					break;
+				case DOWN:
+					break;
+				case LEFT:
+					break;
+				case RIGHT:
+					break;
+				}
+				rumFirkanter.add(opgrum.rotateCoordinate(firkant, drone));
+			}
+			Log.writeLog("Tilføjer objekter til GUI rum. Antal: " + rumFirkanter.size());
+
+			// Stop opticalFlow
+			ba.setOpticalFlow(false);
+			// Stop objectTracking
+			ba.setObjTrack(false);
+			// Skift kamera og stat QR scanning
+			dc.toggleCamera();
+			Log.writeLog("Skifter til nedadrettet kamera");
+			ba.setDroneLocator(true);
+
+			// Find droneposition (se fremad)
+			drone = this.findDronePos3();
+			if(drone == null){
+				drone = this.findDronePos2(); // Drej rundt
+				if(drone == null){
+					Log.writeLog("*** Drone position IKKE fundet. Programmet afsluttes.");
+					destroy();
+				}
+			}
+			// TODO - Juster YAW
+			moves++;
+			// ** SLUT WHILE LØKKE **
+		}
+		
+		// TODO - Find tilbage til landingsplads vha. frem/tilbage/strafe
+//		dh.moveDroneTo(drone, landingsPlads); // YOLO?
+		
+		Log.writeLog("Opgaveløsning er afsluttet. Dronen lander.");
+		destroy();
+	}
+
+	/**
+	 * Finder drone position kun ved at kigge fremad. Dronen roteres IKKE.
+	 * @return
+	 * @throws InterruptedException
+	 */
+	private Koordinat findDronePos3() throws InterruptedException{
+		Thread.sleep(3500); // Vent på billedet stabiliserer sig
+		long start = System.currentTimeMillis();
+		Koordinat drone;
+		// Kør løkken indtil der er fundet en position. Max 60000ms (60 sek)
+		while((drone = ba.getDroneKoordinat()) == null || (System.currentTimeMillis() - start) > 60000){
+			// TODO - Find firkant og bevæg dronen mod/væk fra den afhængig af afstand
+			QrFirkant firkanten = ba.getFirkant();
+			if(firkanten.getHeight() > 500){ // TODO - korrekte pixelværdier for grænsetilfælde
+				// bagud
+			} else if (firkanten.getHeight() < 200){ // TODO - korrekte pixelværdier for grænsetilfælde
+				// fremad
+			}
+			if (firkanten.getCentrum().getX() > 800){ // TODO - korrekte pixelværdier for grænsetilfælde
+				// strafe højre
+			} else if (firkanten.getCentrum().getX() < 480){ // TODO - korrekte pixelværdier for grænsetilfælde
+				// strafe venstre
+			}
+			Thread.sleep(1000); // Vent på billedet har opdateret og stabiliseret sig
+		}
+		return drone;
+	}
+
+	private void testFlight() throws InterruptedException{
+		dc.hover();
+		Thread.sleep(3500);
+		dc.strafeLeft(318);
+		dc.hover();
+		Thread.sleep(3500);
+		dc.strafeRight(318);
+		dc.hover();
+		Thread.sleep(3500);
+		dc.backward();
+		dc.hover();
+		Thread.sleep(3500);
+		dc.forward();
+		dc.hover();
+		Thread.sleep(3500);
+		destroy();
 	}
 
 	private Koordinat findDronePos2(){
@@ -380,75 +541,75 @@ public class OpgaveAlgoritme2 implements Runnable {
 		return dp;
 	}
 
-//	/**
-//	 * Afsøg rummet indtil der findes en vægmarkering
-//	 * @throws InterruptedException 
-//	 */
-//	private boolean findMark() throws InterruptedException {
-//		if(OPGAVE_DEBUG){
-//			System.err.println("Målsøgning startes.");
-//		}
-//		Log.writeLog("** Målsøgning startes.");
-//		int yaw = 0;
-//		int degrees = 15;
-//		int turns = 0;
-//		long targetStartTime = System.currentTimeMillis();
-//		while((System.currentTimeMillis() - targetStartTime) < searchTime){ // Der søges i max 30 sek
-//
-//			if(Thread.interrupted()){
-//				destroy();
-//				return false;
-//			}
-//			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 5); // Blink dronens lys orange mens der søges
-//			yaw = dc.getFlightData()[2];
-//			Log.writeLog("Yaw er: " + yaw);
-//			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
-//				if(Thread.interrupted()){
-//					destroy();
-//					return false;
-//				}
-//				if(OPGAVE_DEBUG){
-//					System.err.println("Intet mål fundet. Drejer dronen.");
-//				}
-//				//				getPossibleManeuvers();
-//				dc.turnLeft();	
-//				Log.writeLog("DREJER VENSTRE");
-//			}
-//			turns++;
-//			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
-//				if(OPGAVE_DEBUG){
-//					System.err.println("* Intet mål fundet. Dronen skal flyttes.");
-//				}
-//				Log.writeLog("Intet mål fundet. Dronen skal flyttes.");
-//				//Her skal metode implementeres til at flytte dronen til et nyt koordinat i forhold til sidste fundne vægmarkering
-//				//Det antages at dronen ved hvor den er.
-//				if (dronePunkt != null) {
-//					newLocation(dronePunkt);					
-//				}
-//
-//			}
-//			if(qrcs.getQrt() != ""){
-//				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
-//
-//				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
-//
-//				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
-//
-//				//				dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
-//				Log.writeLog("Dronepunkt "+ dronePunkt.x +  " , " + dronePunkt.y +"fundet.");
-//
-//				//				objektSøgning();
-//
-//				return true;
-//			}
-//			if(OPGAVE_DEBUG){
-//				System.err.println("Intet mål fundet indenfor tidsinterval. Dronen lander.");			
-//			}
-//			Log.writeLog("** Målsøgning afsluttes. Mål IKKE fundet.");
-//			return false;
-//		}
-//		return false;
-//	}
+	//	/**
+	//	 * Afsøg rummet indtil der findes en vægmarkering
+	//	 * @throws InterruptedException 
+	//	 */
+	//	private boolean findMark() throws InterruptedException {
+	//		if(OPGAVE_DEBUG){
+	//			System.err.println("Målsøgning startes.");
+	//		}
+	//		Log.writeLog("** Målsøgning startes.");
+	//		int yaw = 0;
+	//		int degrees = 15;
+	//		int turns = 0;
+	//		long targetStartTime = System.currentTimeMillis();
+	//		while((System.currentTimeMillis() - targetStartTime) < searchTime){ // Der søges i max 30 sek
+	//
+	//			if(Thread.interrupted()){
+	//				destroy();
+	//				return false;
+	//			}
+	//			dc.setLedAnim(LEDAnimation.BLINK_ORANGE, 3, 5); // Blink dronens lys orange mens der søges
+	//			yaw = dc.getFlightData()[2];
+	//			Log.writeLog("Yaw er: " + yaw);
+	//			while(Math.abs(yaw - dc.getFlightData()[2]) < degrees){ // drej x grader, søg efter targets
+	//				if(Thread.interrupted()){
+	//					destroy();
+	//					return false;
+	//				}
+	//				if(OPGAVE_DEBUG){
+	//					System.err.println("Intet mål fundet. Drejer dronen.");
+	//				}
+	//				//				getPossibleManeuvers();
+	//				dc.turnLeft();	
+	//				Log.writeLog("DREJER VENSTRE");
+	//			}
+	//			turns++;
+	//			if(turns > 250/degrees && (Math.abs(yaw - dc.getFlightData()[2]) < 30)){ // Hvis der er drejet tæt på en fuld omgang, så flyves til nyt sted og søges på ny
+	//				if(OPGAVE_DEBUG){
+	//					System.err.println("* Intet mål fundet. Dronen skal flyttes.");
+	//				}
+	//				Log.writeLog("Intet mål fundet. Dronen skal flyttes.");
+	//				//Her skal metode implementeres til at flytte dronen til et nyt koordinat i forhold til sidste fundne vægmarkering
+	//				//Det antages at dronen ved hvor den er.
+	//				if (dronePunkt != null) {
+	//					newLocation(dronePunkt);					
+	//				}
+	//
+	//			}
+	//			if(qrcs.getQrt() != ""){
+	//				Log.writeLog("**Vægmarkering " + qrcs.getQrt() +" fundet.");
+	//
+	//				Vector2 punkter[] = opgrum.getMultiMarkings(qrcs.getQrt());
+	//
+	//				//Metode til at udregne vinkel imellem to punkter og dronen skal tilføjes her
+	//
+	//				//				dronePunkt = pn.udregnDronePunkt(punkter[0], punkter[1], punkter[2], alpha, beta);
+	//				Log.writeLog("Dronepunkt "+ dronePunkt.x +  " , " + dronePunkt.y +"fundet.");
+	//
+	//				//				objektSøgning();
+	//
+	//				return true;
+	//			}
+	//			if(OPGAVE_DEBUG){
+	//				System.err.println("Intet mål fundet indenfor tidsinterval. Dronen lander.");			
+	//			}
+	//			Log.writeLog("** Målsøgning afsluttes. Mål IKKE fundet.");
+	//			return false;
+	//		}
+	//		return false;
+	//	}
 
 
 	/**
@@ -468,12 +629,12 @@ public class OpgaveAlgoritme2 implements Runnable {
 		}
 		return;
 	}
-	
+
 	private void setDroneHeight(QrFirkant firkant) throws InterruptedException{
 		int dif = 0; 
 		Koordinat firkantCentrum = firkant.getCentrum();
 		int billedCentrum = 360;
-		
+
 		if(firkantCentrum.getY() > billedCentrum){
 			dif = firkantCentrum.getY()-billedCentrum;
 			if(dif > 180 ){
@@ -485,24 +646,24 @@ public class OpgaveAlgoritme2 implements Runnable {
 				if(dif > 180 ){
 					//her skal dronen navigere opad. 
 					dc.up2();
-					
+
 				}
 			}
 		}	
 	}
 
-	
+
 
 	@Override
 	public void run() {
 		//		try {
-			try {
-				this.startOpgaveAlgoritme();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
-		
+		try {
+			this.startOpgaveAlgoritme();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+
 		//		} catch (InterruptedException e) {
 		//			this.destroy();
 		//			return;

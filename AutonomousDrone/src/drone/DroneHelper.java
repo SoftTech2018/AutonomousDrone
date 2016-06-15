@@ -12,9 +12,10 @@ public class DroneHelper {
 	private IDroneControl dc;
 	private Koordinat papKasse;
 
-	public DroneHelper(IDroneControl dc, Koordinat papKasse){
+	public enum DIRECTION { UP, DOWN, LEFT, RIGHT };
+
+	public DroneHelper(IDroneControl dc){
 		this.dc = dc;
-		this.papKasse = papKasse;
 	}
 
 	/**
@@ -208,5 +209,76 @@ public class DroneHelper {
 	 */
 	public void setPapKasse(Koordinat papkasse){
 		this.papKasse = papkasse;
+	}
+
+	/**
+	 * Bevæger dronen i et bestem mønster baseret på dets nuværende position
+	 * @param drone
+	 * @throws InterruptedException 
+	 */
+	public DIRECTION moveDrone(Koordinat drone) throws InterruptedException {
+		if(drone.getX() > 650) { // Tæt ved vinduet
+			if(drone.getY() > 500){ // "Øverste del af rummet"
+				move(DIRECTION.DOWN);
+				return DIRECTION.DOWN;
+			} else {
+				move(DIRECTION.LEFT);
+				return DIRECTION.LEFT;
+			}
+		} else { // Langt fra vinduet
+			if(drone.getY() > 500){ // "Øverste del af rummet"
+				move(DIRECTION.RIGHT);
+				return DIRECTION.RIGHT;
+			} else {
+				move(DIRECTION.UP);
+				return DIRECTION.UP;
+			}
+		}
+	}
+
+	/**
+	 * Justerer YAW-værdien baseret på ønsket retning, og bevæger dronen vha. strafe, frem eller tilbage
+	 * @param dir Hvilken retning skal dronen bevæge sig i?
+	 * @throws InterruptedException
+	 */
+	private void move(DIRECTION dir) throws InterruptedException{
+		int yaw = dc.getFlightData()[2];
+		final int orgYaw = yaw; // Benyttes kun til debug
+		// Korrigerer for dronens "sjove" YAW værdier, så vi får værdier fra 0-360 grader
+		if(yaw < 0){
+			yaw = Math.abs(yaw);
+		} else {
+			yaw = 360-yaw;
+		}
+
+		switch(dir){
+		case UP: // Basis
+			break;
+		case DOWN:
+			yaw = yaw + 180; // Roter 180 grader
+			break;
+		case LEFT:
+			yaw = yaw + 90; // Roter 90 grader
+			break;
+		case RIGHT:
+			yaw = yaw + 270; // Roter 270 grader
+			break;
+		}
+		if(yaw > 360){
+			yaw = yaw - 360;
+		}
+		if(yaw >= 0 && yaw < 45 || yaw >= 315 && yaw <=360){ // Kigger mod rudevæggen
+			Log.writeLog("Bevæger dronen: \tSTRAFE VENSTRE\t YAW: " + orgYaw);
+			dc.strafeLeft(300);
+		} else if (yaw >= 225 && yaw < 315){ // Kigger nedaf y-aksen (minus retning)
+			Log.writeLog("Bevæger dronen: \tBAGLÆNS\t YAW: " + orgYaw);
+			dc.backward();
+		} else if (yaw >= 45 && yaw < 135){ // Kigger op af y-aksen (plus retning)
+			Log.writeLog("Bevæger dronen: \tFREMAD\t YAW: " + orgYaw);
+			dc.forward();
+		} else if (yaw >= 135 && yaw < 225){ // Kigger modsat af rudevæggen
+			Log.writeLog("Bevæger dronen: \tSTRAFE HØJRE\t YAW: " + orgYaw);
+			dc.strafeRight(300);
+		}
 	}
 }

@@ -47,7 +47,7 @@ public class DroneControl implements IDroneControl {
 	private final int SPEED = 20; /* % */ 
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 3000; /* mm */
-	private final int DURATION = 5000; /* ms */
+	private final int DURATION = 3000; /* ms */
 //	private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll, altitude;
@@ -68,6 +68,7 @@ public class DroneControl implements IDroneControl {
 			startNavListener();
 			cmd.setVideoCodec(VideoCodec.H264_720P);
 		}
+		cmd.setFlyingMode(FlyingMode.FREE_FLIGHT); // TODO - DEBUG
 		drone.addExceptionListener(new IExceptionListener(){
 			@Override
 			public void exeptionOccurred(ARDroneException arg0) {
@@ -280,7 +281,7 @@ public class DroneControl implements IDroneControl {
 		if(!timeMode){
 			cmd.backward(SPEED);
 		} else {
-			cmd.backward(SPEED).doFor(DURATION);	
+			cmd.backward(SPEED).doFor((long) (DURATION*0.5));	
 			Thread.sleep(DURATION);
 		}
 		//		cmd.hover();
@@ -448,13 +449,13 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void strafeRight(int dist) {
 		final double FACTOR = 11; 
-		cmd.goRight(SPEED).doFor((long) (FACTOR*dist));
+		cmd.goRight(SPEED*2).doFor((long) (FACTOR*dist));
 	}
 
 	@Override
 	public void strafeLeft(int dist) {
 		final double FACTOR = 11; 
-		cmd.goLeft(SPEED).doFor((long) (FACTOR*dist));
+		cmd.goLeft(SPEED*2).doFor((long) (FACTOR*dist));
 	}
 
 	@Override
