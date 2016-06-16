@@ -293,12 +293,12 @@ public class OpgaveRum {
 		int x = sqs.x;
 		int y = sqs.y;
 
-		long phi = 270;
+		long phi = 0;
 
-		if(yaw < 91){
-			phi+=yaw;
-		} else if(yaw > 90) {
-			phi = yaw - 90;
+		if(yaw > 0){
+			phi=yaw;
+		} else {
+			phi = 360+yaw;
 		}
 
 		double factor = 2.5;
