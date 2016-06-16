@@ -111,7 +111,14 @@ public class OpgaveRum {
 	 */
 	public void addGenstandTilKoordinat(Koordinat koordinat, Genstand genstand){
 		koordinat.addGenstand(genstand);
-		fundneGenstande.add(koordinat);
+		for(Koordinat k: fundneGenstande){
+			if(k.getGenstande().getFarve() == genstand.getFarve()){
+				if(k.dist(koordinat) > 25){ // Mindst 25 cm mellem hvert målobjekt
+					fundneGenstande.add(koordinat);
+					Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
+				}
+			}
+		}
 	}
 
 	/**

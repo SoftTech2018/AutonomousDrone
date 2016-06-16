@@ -12,7 +12,7 @@ public class DroneHelper {
 
 	private IDroneControl dc;
 	private Koordinat papKasse;
-	private int adjustment = 100, xMax = 763, xMin = 400, yMax = 878, yMin = 200, directionChange = 0;
+	private int adjustment = 100, xMax = 613, xMin = 400, yMax = 728, yMin = 200, directionChange = 0;
 
 	public enum DIRECTION { UP, DOWN, LEFT, RIGHT, STOPPED };
 

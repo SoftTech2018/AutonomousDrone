@@ -204,9 +204,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
 		int yaw = -1*dc.getFlightData()[2]; // Spejlvend YAW så vinklen passer med radianer
-		int imgAngle = punktNav.getAngle(readQr.deltaX()); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
+		int imgAngle = (int) punktNav.getAngle(readQr.getCentrum().getX(), (int) (frame.size().width/2)); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
 		int totalAngle = yaw - imgAngle;
-
 
 		//		System.err.println("Total vinkel:" + totalAngle);
 
