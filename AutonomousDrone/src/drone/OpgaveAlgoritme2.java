@@ -431,13 +431,20 @@ public class OpgaveAlgoritme2 implements Runnable {
 			ba.setObjTrack(true);
 
 			Thread.sleep(2000); // kig efter objekter i 2 sekunder
-			// Find objekter hvor vi er nu
-			this.logSquares(drone);
 			
 			// Stop opticalFlow
 //			ba.setOpticalFlow(false);
 			// Stop objectTracking
 			ba.setObjTrack(false);
+			
+			Thread.sleep(100);
+			
+			// Find objekter hvor vi er nu
+//			try{
+				this.logSquares(drone);
+//			} catch (Exception e){
+//				Log.writeLog(e.getMessage());
+//			}
 
 			// Flyv baseret på position og retning
 			lastDir = dh.moveDrone(drone, lastDir);
@@ -499,6 +506,28 @@ public class OpgaveAlgoritme2 implements Runnable {
 		Log.writeLog("Opgaveløsning er afsluttet. Dronen lander.");
 		destroy();
 	}
+	
+	/**
+	 * Let, Drej, Drej tilbage, Land, vent, Let, Hover, Land
+	 * @throws InterruptedException
+	 */
+	private void findPapkasse() throws InterruptedException{
+		dc.takeoff();
+		dc.hover();
+		
+		dc.turnDroneTo(-135);
+		dc.hover();
+		Thread.sleep(2000);
+		dc.turnDroneTo(0);
+		
+		dc.hover();
+		dc.land();
+		Thread.sleep(10000);
+		dc.takeoff();
+		dc.hover();
+		Thread.sleep(3000);
+		dc.land();
+	}
 
 	/**
 	 * Finder drone position kun ved at kigge fremad. Dronen roteres IKKE.
@@ -511,7 +540,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		Koordinat drone;
 		
 		// Kør løkken indtil der er fundet en position. Max 10000ms (10 sek)
-		while((drone = ba.getDroneKoordinat()) == null || (System.currentTimeMillis() - start) > 10000){
+		while((drone = ba.getDroneKoordinat()) == null && (System.currentTimeMillis() - start) < 10000){
 			// TODO - Find firkant og bevæg dronen mod/væk fra den afhængig af afstand
 			QrFirkant firkanten = ba.getFirkant();
 			if(firkanten==null){
@@ -520,20 +549,20 @@ public class OpgaveAlgoritme2 implements Runnable {
 				Thread.sleep(1000);
 				continue;
 			}
-			if(firkanten.getHeight() > 300){ // TODO - korrekte pixelværdier for grænsetilfælde
+			if(firkanten.getHeight() > 500){ // TODO - korrekte pixelværdier for grænsetilfælde
 				// bagud
 				Log.writeLog("Justerer drone position i forhold til QR-kode. BAGLÆNS");
 				dc.backward();
-			} else if (firkanten.getHeight() < 100){ // TODO - korrekte pixelværdier for grænsetilfælde
+			} else if (firkanten.getHeight() < 50){ // TODO - korrekte pixelværdier for grænsetilfælde
 				// fremad
 				Log.writeLog("Justerer drone position i forhold til QR-kode. FORLÆNS");
 				dc.forward();
 			}
-			if (firkanten.getCentrum().getX() > 800){ // TODO - korrekte pixelværdier for grænsetilfælde
+			if (firkanten.getCentrum().getX() > 950){ // TODO - korrekte pixelværdier for grænsetilfælde
 				// strafe højre
 				Log.writeLog("Justerer drone position i forhold til QR-kode. HØJRE");
 				dc.strafeRight(0);
-			} else if (firkanten.getCentrum().getX() < 480){ // TODO - korrekte pixelværdier for grænsetilfælde
+			} else if (firkanten.getCentrum().getX() < 250){ // TODO - korrekte pixelværdier for grænsetilfælde
 				// strafe venstre
 				Log.writeLog("Justerer drone position i forhold til QR-kode. VENSTRE");
 				dc.strafeLeft(0);
@@ -734,7 +763,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 				} else {
 					g = new Genstand(GENSTAND_FARVE.RØD);
 				}			
-				opgrum.addGenstandTilKoordinat(k, g);
+				opgrum.addGenstandTilKoordinat(drone, g);
 			}
 		}
 	}
