@@ -35,7 +35,6 @@ import javafx.scene.image.Image;
  */
 public class BilledManipulation {
 
-	private YawCalc yawCalc;
 	private IDroneControl dc;
 
 	public int max=255,min=125;
@@ -44,9 +43,9 @@ public class BilledManipulation {
 	private DescriptorExtractor extractor;
 	private Koordinat qrCenter;
 	private QrFirkant firkanten, firkanten2;
+	private long firkantTime;
 
 	public BilledManipulation(IDroneControl dc){
-		this.yawCalc = new YawCalc();
 		this.dc = dc;
 		detect = FeatureDetector.create(FeatureDetector.ORB); // Kan være .ORB .FAST eller .HARRIS
 		extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
@@ -57,11 +56,8 @@ public class BilledManipulation {
 	}
 
 	private void setFirkanten(QrFirkant firkanten){
+		firkantTime = System.currentTimeMillis();
 		this.firkanten = firkanten;
-		if(this.firkanten!=null){
-			double yawCorrection = this.yawCalc.getYaw(firkanten);
-			dc.setYawCorrection(yawCorrection);
-		}
 	}
 
 	public Mat edde(Mat frame){			
@@ -278,7 +274,7 @@ public class BilledManipulation {
 	}
 
 	public Mat readQrSkewed(Mat mat){
-		this.setFirkanten(null);
+//		this.setFirkanten(null);
 
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -402,7 +398,7 @@ public class BilledManipulation {
 	}
 
 	public void readFilterQr(Mat mat){
-		this.setFirkanten(null);
+//		this.setFirkanten(null);
 
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -475,7 +471,7 @@ public class BilledManipulation {
 
 	//metode der finder firkanter og QR kode i forbindelse med at finde dronens position i forhold til 2 qr koder
 	public ArrayList<QrFirkant> dronePos2(Mat mat){
-		this.setFirkanten(null);
+//		this.setFirkanten(null);
 		firkanten2 = null;
 		Mat out = new Mat();
 		mat.copyTo(out);
@@ -562,6 +558,8 @@ public class BilledManipulation {
 			}
 			firkant1 = qrFirkant.get(id);
 			firkant2 = qrFirkant.get(id2);
+			setFirkanten(firkant1);
+			
 			qrFirkant2.add(firkant1);
 			qrFirkant2.add(firkant2);
 
@@ -669,6 +667,9 @@ public class BilledManipulation {
 	}
 
 	public QrFirkant getFirkanten() {
+		if((System.currentTimeMillis() - firkantTime) > 1000){
+			return null;
+		}
 		return firkanten;
 	}
 

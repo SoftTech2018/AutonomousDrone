@@ -32,7 +32,7 @@ public class OpgaveRum {
 	private Koordinat obstacleCenter = null;
 	private double yaw = -99999;
 	private boolean circleFlag = false;
-	
+
 	private Vector2[] circleMarkings = new Vector2[2];
 	private double[] circleDist =  new double[2];
 	private double dist1,dist2;
@@ -110,14 +110,20 @@ public class OpgaveRum {
 	 * @param genstand angiver hvilken genstand der er tale om (bruge new Genstand())
 	 */
 	public void addGenstandTilKoordinat(Koordinat koordinat, Genstand genstand){
+		if(true)
+			return;
 		koordinat.addGenstand(genstand);
-		for(Koordinat k: fundneGenstande){
-			if(k.getGenstande().getFarve() == genstand.getFarve()){
-				if(k.dist(koordinat) > 25){ // Mindst 25 cm mellem hvert målobjekt
-					fundneGenstande.add(koordinat);
-					Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
+		if(!fundneGenstande.isEmpty()){
+			for(Koordinat k: fundneGenstande){
+				if(k.getGenstande().getFarve().equals(genstand.getFarve())){
+					if(k.dist(koordinat) > 15){ // Mindst 25 cm mellem hvert målobjekt
+						fundneGenstande.add(koordinat);
+						Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
+					}
 				}
 			}
+		} else {
+			fundneGenstande.add(koordinat);
 		}
 	}
 
@@ -281,7 +287,7 @@ public class OpgaveRum {
 		int yaw = sqs.yaw;
 		int x = sqs.x;
 		int y = sqs.y;
-		
+
 		long phi = 270;
 
 		if(yaw < 91){
@@ -321,7 +327,7 @@ public class OpgaveRum {
 
 		System.out.println("x2: "+xny);
 		System.out.println("y2: "+yny);
-		
+
 		return new Koordinat((int)xny, (int)yny);
 	}
 
@@ -331,7 +337,7 @@ public class OpgaveRum {
 		circleDist[0] = dist1;
 		circleDist[1] = dist2;
 		circleFlag = true;
-	
+
 	}
 
 	public double[] getCircleDists() {
@@ -342,7 +348,7 @@ public class OpgaveRum {
 	public Vector2[] getCircleCenters() {
 		return circleMarkings;
 	}
-	
+
 	public boolean isCircleFlag(){
 		return circleFlag;
 	}

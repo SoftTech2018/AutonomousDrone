@@ -16,6 +16,7 @@ import billedanalyse.ColorTracker.MODE;
 import diverse.Log;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
+import diverse.YawCalc;
 import diverse.circleCalc.Circle;
 import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;
@@ -38,6 +39,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private IDroneControl dc;
 	private ObjectTracking objTracker;
 	private ColorTracker colTracker;
+	private YawCalc yawCalc;
 	private PapKasseFinder papkassefinder;
 
 	private Image[] imageToShow;
@@ -55,6 +57,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;
 		this.bm = new BilledManipulation(dc);
+		this.yawCalc = new YawCalc();
 		imageToShow = new Image[3];
 		frames = new Mat[3];
 		this.opFlow = new OpticalFlow(bm);
@@ -122,6 +125,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		}else{
 			v2 = this.opgrum.getMultiMarkings(readQr.getText())[2];
 		}
+		getFirkant().setText(readQr.getText());
 
 		double dist2 = punktNav.calcDist(readQr2.getHeight(), 420)/10;
 		//		System.out.println("Dist2 "+dist2);
@@ -195,7 +199,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		Vector2 v = this.opgrum.getMultiMarkings(readQr.getText())[1];
 		//		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
 		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
-
+		getFirkant().setText(readQr.getText());
+		
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
 		//		System.err.println("Distance:" + dist * 0.1);
@@ -233,6 +238,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		} else if(System.currentTimeMillis() - droneKoordinatUpdated > 3500){
 			this.updateDroneKoordinat(drone);
 		}
+		double yawCorrection = this.yawCalc.getYaw(this.getFirkant());
+		dc.setYawCorrection(yawCorrection);
 	}
 
 	/**
