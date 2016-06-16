@@ -364,20 +364,23 @@ public class OpgaveAlgoritme2 implements Runnable {
 
 		// Juster højden på dronen
 				QrFirkant firkant = ba.getFirkant();
+				long startTime = System.currentTimeMillis();
 				while(firkant==null){
+					if(System.currentTimeMillis() - startTime > 5000){						
+						// TODO - Juster dronens position ud fra sidst kendte position. Bevæg mod midten af rummet
+					}
 					Log.writeLog("Ingen firkant fundet - justerer droneposition");
-					// TODO - Juster dronens position ud fra sidst kendte position. Bevæg mod midten af rummet
-					Thread.sleep(2000); // Stabiliser billedet
+					Thread.sleep(1000); // Stabiliser billedet
 					firkant = ba.getFirkant();
 				}
 				while(firkant.getCentrum().getY() < 180 || firkant.getCentrum().getY() > 540){	
 					Log.writeLog("Justerer drone højde...");
 					setDroneHeight(firkant);
-					Thread.sleep(1000);
+					Thread.sleep(1100);
 					firkant = ba.getFirkant();
 					if(firkant==null){
 						dc.backward();
-						Thread.sleep(1000);
+						Thread.sleep(3000);
 					}
 				}
 
@@ -724,9 +727,6 @@ public class OpgaveAlgoritme2 implements Runnable {
 		ArrayList<Squares> squares = ba.getColorSquares();
 		if(squares!=null && !squares.isEmpty()){
 			Log.writeLog("Fundet " + squares.size() + " genstande inden frasortering.");
-			if(true){
-				return;
-			}
 			for(Squares sq : squares){
 				Koordinat k = opgrum.rotateCoordinate(sq, drone);
 				Genstand g;
@@ -734,7 +734,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 					g = new Genstand(GENSTAND_FARVE.GRØN);
 				} else {
 					g = new Genstand(GENSTAND_FARVE.RØD);
-				}
+				}			
 				opgrum.addGenstandTilKoordinat(k, g);
 			}
 		}

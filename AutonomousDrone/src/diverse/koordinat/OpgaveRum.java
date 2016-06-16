@@ -28,7 +28,7 @@ public class OpgaveRum {
 	private int længde = 0;
 	private int bredde = 0;
 	private boolean isMarkingOk = true;
-	private ArrayList<Koordinat> fundneGenstande = new ArrayList<>();
+	private ArrayList<Koordinat> fundneGenstande;
 	private Koordinat obstacleCenter = null;
 	private double yaw = -99999;
 	private boolean circleFlag = false;
@@ -65,6 +65,7 @@ public class OpgaveRum {
 
 	// Konstruktør tager imod længde og bredde, opretter et koordinatsystem, og sætter markeringerne
 	public OpgaveRum() throws NumberFormatException, IOException {
+		fundneGenstande = new ArrayList<>();
 		setSize();
 
 		rum = new Koordinat[bredde][længde];
@@ -75,13 +76,11 @@ public class OpgaveRum {
 		}
 		setMarkings();
 
-		for (int i = 0; i < bredde; i = i+100) {
-			for (int j = 0; j < længde; j=j+100) {
-				addGenstandTilKoordinat(rum[i][j], new Genstand(GENSTAND_FARVE.RØD));
-
-			}
-		}
-
+//		for (int i = 0; i < bredde; i = i+100) {
+//			for (int j = 0; j < længde; j=j+100) {
+//				addGenstandTilKoordinat(rum[i][j], new Genstand(GENSTAND_FARVE.RØD));
+//			}
+//		}
 	}
 
 
@@ -110,20 +109,26 @@ public class OpgaveRum {
 	 * @param genstand angiver hvilken genstand der er tale om (bruge new Genstand())
 	 */
 	public void addGenstandTilKoordinat(Koordinat koordinat, Genstand genstand){
-		if(true)
-			return;
-		koordinat.addGenstand(genstand);
-		if(!fundneGenstande.isEmpty()){
-			for(Koordinat k: fundneGenstande){
-				if(k.getGenstande().getFarve().equals(genstand.getFarve())){
-					if(k.dist(koordinat) > 15){ // Mindst 25 cm mellem hvert målobjekt
-						fundneGenstande.add(koordinat);
-						Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
+		// Tjek om genstanden er i rummets koordinatsystem	
+		if(koordinat.getX() > 0 && koordinat.getX() < 963 && koordinat.getY() > 0 && koordinat.getY() < 1078){
+			koordinat.addGenstand(genstand);
+			if(!fundneGenstande.isEmpty()){
+				boolean addObject = true;
+				for(int i=0; i<fundneGenstande.size(); i++){
+					if(fundneGenstande.get(i).getGenstande().getFarve().equals(genstand.getFarve())){
+						if(fundneGenstande.get(i).dist(koordinat) < 15){ // Mindst 25 cm mellem hvert målobjekt
+							addObject = false;
+						}
 					}
 				}
+				if(addObject){				
+					fundneGenstande.add(koordinat);
+					Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
+				}
+			} else {
+				fundneGenstande.add(koordinat);
+				Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
 			}
-		} else {
-			fundneGenstande.add(koordinat);
 		}
 	}
 
