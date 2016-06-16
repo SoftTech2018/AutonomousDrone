@@ -158,13 +158,14 @@ public class YawCalc{
 			B = Math.toDegrees(Math.acos(((a*a)+(c*c)-(b*b))/(2*a*c)));
 			C = Math.toDegrees(Math.acos(((b*b)+(a*a)-(c*c))/(2*b*a)));
 
-			System.err.println("A: "+A);
-			System.err.println("B: "+B);
-			System.err.println("C: "+C);
-			System.err.println();
+//			System.err.println("A: "+A);
+//			System.err.println("B: "+B);
+//			System.err.println("C: "+C);
+//			System.err.println();
 
 			double nyYAW = 0;
-			nyA = pn.getAngle(Math.abs(middle-linex));
+			nyA = pn.getAngle(middle,linex);
+//			System.err.println("angle test: "+pn.getAngle(480,800));
 //			nyA = pn.getAngle(middle,linex);
 			
 //			double be = (1280/2)/Math.tan(Math.toRadians(69)/2);

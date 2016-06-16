@@ -136,11 +136,19 @@ public class PunktNavigering {
 		return Math.cos(resultat);
 	}
 		
-	public int getAngle(double distance){
-		int width = 1280;
-		int angle = 69;
-				
-		return (int) ((angle/width)*distance);
+	public double getAngle(double x1, double x2){
+		double width = 1280;
+		double angle = 69;		
+		double [] xer = {x1,x2};
+		for(int i = 0 ; i < xer.length ; i++){
+			double x = xer[i];
+			if(x>640){
+				x=width-x;
+			}
+			xer[i] = 149.1470206-23.08239909*Math.log(x);
+//			System.out.println(xer[i]);
+		}
+		return ((angle/width)*(Math.abs(xer[0]-xer[1])));
 	}
 	
 	/**
