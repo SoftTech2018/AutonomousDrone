@@ -33,7 +33,7 @@ public class QRCodeScanner
 //				Log.writeLog("ID på switch ved return: "+i);
 				continue;
 			} else {
-				Log.writeLog("ID på switch ved return: "+i +", "+qrText);
+//				Log.writeLog("ID på switch ved return: "+i +", "+qrText);
 				qrt = qrText;
 				return qrText;
 			}

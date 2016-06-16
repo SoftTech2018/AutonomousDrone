@@ -16,7 +16,6 @@ import billedanalyse.ColorTracker.MODE;
 import diverse.Log;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
-import diverse.YawCalc;
 import diverse.circleCalc.Circle;
 import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;

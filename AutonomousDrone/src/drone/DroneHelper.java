@@ -6,13 +6,15 @@ package drone;
  */
 import diverse.Log;
 import diverse.koordinat.Koordinat;
+import diverse.koordinat.OpgaveRum;
 
 public class DroneHelper {
 
 	private IDroneControl dc;
 	private Koordinat papKasse;
+	private int adjustment = 100, xMax = 763, xMin = 400, yMax = 878, yMin = 200, directionChange = 0;
 
-	public enum DIRECTION { UP, DOWN, LEFT, RIGHT };
+	public enum DIRECTION { UP, DOWN, LEFT, RIGHT, STOPPED };
 
 	public DroneHelper(IDroneControl dc){
 		this.dc = dc;
@@ -216,24 +218,46 @@ public class DroneHelper {
 	 * @param drone
 	 * @throws InterruptedException 
 	 */
-	public DIRECTION moveDrone(Koordinat drone) throws InterruptedException {
-		if(drone.getX() > 650) { // Tæt ved vinduet
-			if(drone.getY() > 500){ // "Øverste del af rummet"
+	public DIRECTION moveDrone(Koordinat drone, DIRECTION lastDir) throws InterruptedException {
+		DIRECTION newDir = null;
+		if(drone.getX() >= xMax) { // Tæt ved vinduet
+			if(drone.getY() > yMin){ // "Øverste del af rummet"
 				move(DIRECTION.DOWN);
-				return DIRECTION.DOWN;
+				newDir = DIRECTION.DOWN;
 			} else {
 				move(DIRECTION.LEFT);
-				return DIRECTION.LEFT;
+				newDir = DIRECTION.LEFT;
 			}
-		} else { // Langt fra vinduet
-			if(drone.getY() > 500){ // "Øverste del af rummet"
+		} else if (drone.getX() <= xMin){ // Langt fra vinduet
+			if(drone.getY() > yMax){ // "Øverste del af rummet"
 				move(DIRECTION.RIGHT);
-				return DIRECTION.RIGHT;
+				newDir = DIRECTION.RIGHT;
 			} else {
 				move(DIRECTION.UP);
-				return DIRECTION.UP;
+				newDir = DIRECTION.UP;
+			}
+		} else if (drone.getX() > xMin && drone.getX() < xMax){ // Midten af rummet (x-retning)
+			if(drone.getY() > 1078/2){ // "Øverste del af rummet"
+				move(DIRECTION.RIGHT);
+				newDir = DIRECTION.RIGHT;
+			} else {
+				move(DIRECTION.LEFT);
+				newDir = DIRECTION.LEFT;
 			}
 		}
+		if(lastDir == null){ // Når vi starter er lastDir null
+			lastDir = newDir;
+		}
+		// Når der er fløjet en runde (3 retningsskift), justeres dronens bane
+		if(newDir != lastDir){
+			directionChange++;
+			yMax = yMax - adjustment *(int) (directionChange / 3);
+			xMax = xMax - adjustment *(int) (directionChange / 3);
+			yMin = yMin + adjustment *(int) (directionChange / 3);
+			xMin = xMin + adjustment *(int) (directionChange / 3);
+		}
+		Log.writeLog("Direction: " + newDir);
+		return newDir;
 	}
 
 	/**
@@ -253,32 +277,68 @@ public class DroneHelper {
 
 		switch(dir){
 		case UP: // Basis
+			if(yaw >= 0 && yaw < 45 || yaw >= 315 && yaw <=360){ // Kigger mod rudevæggen
+				Log.writeLog("Bevæger dronen: \tSTRAFE VENSTRE\t YAW: " + orgYaw);
+				dc.strafeLeft(300);
+			} else if (yaw >= 225 && yaw < 315){ // Kigger nedaf y-aksen (minus retning)
+				Log.writeLog("Bevæger dronen: \tBAGLÆNS\t YAW: " + orgYaw);
+				dc.backward();
+			} else if (yaw >= 45 && yaw < 135){ // Kigger op af y-aksen (plus retning)
+				Log.writeLog("Bevæger dronen: \tFREMAD\t YAW: " + orgYaw);
+				dc.forward();
+			} else if (yaw >= 135 && yaw < 225){ // Kigger modsat af rudevæggen
+				Log.writeLog("Bevæger dronen: \tSTRAFE HØJRE\t YAW: " + orgYaw);
+				dc.strafeRight(300);
+			}
 			break;
 		case DOWN:
-			yaw = yaw + 180; // Roter 180 grader
+			if(yaw >= 0 && yaw < 45 || yaw >= 315 && yaw <=360){ // Kigger mod rudevæggen
+				Log.writeLog("Bevæger dronen: \tSTRAFE HØJRE\t YAW: " + orgYaw);
+				dc.strafeRight(300);
+			} else if (yaw >= 225 && yaw < 315){ // Kigger nedaf y-aksen (minus retning)
+				Log.writeLog("Bevæger dronen: \tFREMAD\t YAW: " + orgYaw);
+				dc.forward();
+			} else if (yaw >= 45 && yaw < 135){ // Kigger op af y-aksen (plus retning)
+				Log.writeLog("Bevæger dronen: \tBAGLÆNS\t YAW: " + orgYaw);
+				dc.backward();
+			} else if (yaw >= 135 && yaw < 225){ // Kigger modsat af rudevæggen
+				Log.writeLog("Bevæger dronen: \tSTRAFE VENSTRE\t YAW: " + orgYaw);
+				dc.strafeLeft(300);
+			}
 			break;
 		case LEFT:
-			yaw = yaw + 90; // Roter 90 grader
+			if(yaw >= 0 && yaw < 45 || yaw >= 315 && yaw <=360){ // Kigger mod rudevæggen
+				Log.writeLog("Bevæger dronen: \tBAGLÆNS\t YAW: " + orgYaw);
+				dc.backward();
+			} else if (yaw >= 225 && yaw < 315){ // Kigger nedaf y-aksen (minus retning)
+				Log.writeLog("Bevæger dronen: \tSTRAFE HØJRE\t YAW: " + orgYaw);
+				dc.strafeRight(300);
+			} else if (yaw >= 45 && yaw < 135){ // Kigger op af y-aksen (plus retning)
+				Log.writeLog("Bevæger dronen: \tSTRAFE VENSTRE\t YAW: " + orgYaw);
+				dc.strafeLeft(300);
+			} else if (yaw >= 135 && yaw < 225){ // Kigger modsat af rudevæggen
+				Log.writeLog("Bevæger dronen: \tFREMAD\t YAW: " + orgYaw);
+				dc.forward();
+			}
 			break;
 		case RIGHT:
-			yaw = yaw + 270; // Roter 270 grader
+			if(yaw >= 0 && yaw < 45 || yaw >= 315 && yaw <=360){ // Kigger mod rudevæggen
+				Log.writeLog("Bevæger dronen: \tFREMAD\t YAW: " + orgYaw);
+				dc.forward();
+			} else if (yaw >= 225 && yaw < 315){ // Kigger nedaf y-aksen (minus retning)
+				Log.writeLog("Bevæger dronen: \tSTRAFE VENSTRE\t YAW: " + orgYaw);
+				dc.strafeLeft(300);
+			} else if (yaw >= 45 && yaw < 135){ // Kigger op af y-aksen (plus retning)
+				Log.writeLog("Bevæger dronen: \tSTRAFE HØJRE\t YAW: " + orgYaw);
+				dc.strafeRight(300);
+			} else if (yaw >= 135 && yaw < 225){ // Kigger modsat af rudevæggen
+				Log.writeLog("Bevæger dronen: \tBAGLÆNS\t YAW: " + orgYaw);
+				dc.backward();
+			}
 			break;
-		}
-		if(yaw > 360){
-			yaw = yaw - 360;
-		}
-		if(yaw >= 0 && yaw < 45 || yaw >= 315 && yaw <=360){ // Kigger mod rudevæggen
-			Log.writeLog("Bevæger dronen: \tSTRAFE VENSTRE\t YAW: " + orgYaw);
-			dc.strafeLeft(300);
-		} else if (yaw >= 225 && yaw < 315){ // Kigger nedaf y-aksen (minus retning)
-			Log.writeLog("Bevæger dronen: \tBAGLÆNS\t YAW: " + orgYaw);
-			dc.backward();
-		} else if (yaw >= 45 && yaw < 135){ // Kigger op af y-aksen (plus retning)
-			Log.writeLog("Bevæger dronen: \tFREMAD\t YAW: " + orgYaw);
-			dc.forward();
-		} else if (yaw >= 135 && yaw < 225){ // Kigger modsat af rudevæggen
-			Log.writeLog("Bevæger dronen: \tSTRAFE HØJRE\t YAW: " + orgYaw);
-			dc.strafeRight(300);
+		case STOPPED:
+			Log.writeLog("Bevæger dronen: \tHOVER\t YAW: " + orgYaw);
+			dc.hover();
 		}
 	}
 }
