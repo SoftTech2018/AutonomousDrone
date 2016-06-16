@@ -695,14 +695,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 				//her skal dronen navigere nedad 
 				dc.down2();
 			}
-			if(firkantCentrum.getY() < billedCentrum){
-				dif = billedCentrum-firkantCentrum.getY();
-				if(dif > 180 ){
-					//her skal dronen navigere opad. 
-					dc.up2();
-				}
+		} else if(firkantCentrum.getY() < billedCentrum){
+			dif = billedCentrum-firkantCentrum.getY();
+			if(dif > 180 ){
+				//her skal dronen navigere opad. 
+				dc.up2();
 			}
-		}	
+		}
 	}
 
 
