@@ -163,7 +163,7 @@ public class YawCalc{
 //			System.err.println("C: "+C);
 //			System.err.println();
 
-			double nyYAW = 0;
+			double tempYaw = 0;
 			nyA = pn.getAngle(middle,linex);
 //			System.err.println("angle test: "+pn.getAngle(480,800));
 //			nyA = pn.getAngle(middle,linex);
@@ -175,11 +175,11 @@ public class YawCalc{
 				nyC = 180 - C;
 				nyB = 180 - (nyA + nyC);
 //				int b2 = (int) (180 - nyB);
-				nyYAW = regulator*(180 - (90 + (180 - nyB)));
+				tempYaw = regulator*(180 - (90 + (180 - nyB)));
 			} else {
 				nyC = C;
 				nyB = 180 - (nyA + nyC);
-				nyYAW = regulator*(180 - (90 + nyB));
+				tempYaw = regulator*(180 - (90 + nyB));
 			}
 
 //			System.err.println("nyA: "+nyA);
@@ -187,11 +187,24 @@ public class YawCalc{
 //			System.err.println("nyC: "+nyC);
 //			System.err.println();			
 			
-			int correction = 0;
+			int wall = Integer.parseInt(""+qr.getText().charAt(2));
 			
+			int nyYaw = 0;
+			
+			if(wall == 0){
+				nyYaw = (int)(-90 + tempYaw);
+			} else if (wall == 2){
+				nyYaw = (int)(90 + tempYaw);
+			} else if (wall == 3){
+				if(tempYaw<0){
+					nyYaw = (int)(180 + tempYaw);
+				} else {
+					nyYaw = (int)(-180 + tempYaw);
+				}
+			}
 			
 //			System.err.println("nyYAW: "+nyYAW);
 //			System.out.println();
-			return nyYAW;
+			return nyYaw;
 	}
 }
