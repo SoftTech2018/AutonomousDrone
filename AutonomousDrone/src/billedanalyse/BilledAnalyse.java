@@ -43,7 +43,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator = true, papKasseLocator;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator = true, papKasseLocator, posPrecision = true;
 	private Mat webcamFrame;
 	private Mat matFrame;
 	private QRCodeScanner qrs;
@@ -78,15 +78,15 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//Returnerer liste med de to firkanter
 		ArrayList<QrFirkant> list = bm.dronePos2(frame);
 		if(list==null){
-//			System.out.println("TOM firkant liste");
+			//			System.out.println("TOM firkant liste");
 			return false;
 		}
-//		System.out.println("Liste størrelse "+list.size());
+		//		System.out.println("Liste størrelse "+list.size());
 		//Returnerer biledet, osm QR læseren skal læse
-//		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
+		//		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
 		String qrText = qrs.applyFilters(bm.readQrSkewed(temp));
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
-//			System.out.println("QR kode < 3");
+			//			System.out.println("QR kode < 3");
 			return false;
 		}
 		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
@@ -131,14 +131,14 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		circle2 = new Circle(v2, dist2);
 
 		CircleCircleIntersection cci = new CircleCircleIntersection(circle1, circle2);
-//		System.err.println(cci.getIntersectionPoints().length);
-//		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
-//			System.err.println(cci.getIntersectionPoints()[i]);
-//			//			
-//		}
-//		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
+		//		System.err.println(cci.getIntersectionPoints().length);
+		//		for (int i = 0; i < cci.getIntersectionPoints().length; i++) {
+		//			System.err.println(cci.getIntersectionPoints()[i]);
+		//			//			
+		//		}
+		//		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
 		opgrum.setCircleInfo(v1, v2, dist1, dist2);
-//		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
+		//		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
 
 		// Find skæringspunktet der ligger inde i rummets koordinatsystem
 		Vector2[] intersections = cci.getIntersectionPoints();
@@ -198,7 +198,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//		System.err.println("Vægmarkering koordinat: (" + v.x + "," + v.y + ")");
 		readQr.setPlacering(new Koordinat((int) v.x, (int) v.y));
 		getFirkant().setText(readQr.getText());
-		
+
 		// Beregn distancen til QR koden
 		double dist = punktNav.calcDist(readQr.getHeight(), 420);
 		//		System.err.println("Distance:" + dist * 0.1);
@@ -231,10 +231,17 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	 * @param toQrKoderMetode true hvis der er brugt to QR koder til at bestemme koordinatet
 	 */
 	private void setDroneKoordinat(Koordinat drone, boolean toQrKoderMetode){
-		if(toQrKoderMetode){
+		if(toQrKoderMetode){ // To QR-koder er brugt til positionsbestemmelse
 			this.updateDroneKoordinat(drone);
-		} else if(System.currentTimeMillis() - droneKoordinatUpdated > 3500){
+			this.posPrecision = true;
+		} else if (posPrecision){ // En QR-kode er brugt til positionsbestemmelse
+			if(System.currentTimeMillis() - droneKoordinatUpdated > 3500){
+				this.updateDroneKoordinat(drone);
+				posPrecision = false;
+			}
+		} else {
 			this.updateDroneKoordinat(drone);
+			posPrecision = false;
 		}
 		double yawCorrection = this.yawCalc.getYaw(this.getFirkant());
 		dc.setYawCorrection(yawCorrection);
@@ -579,7 +586,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(greyScale){						
 					//					frames[0] = bm.filterMat(frames[0]);						
 				}
-				
+
 				if(papKasseLocator){
 					this.papkassefinder.findPapkasse(img);
 				}
@@ -592,9 +599,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 				//Enable QR-checkBox?
 				if(qr){
-//					Mat testimg = bm.readQrSkewed(img);
-//					findQR(testimg);
-//					frames[2]=testimg;
+					//					Mat testimg = bm.readQrSkewed(img);
+					//					findQR(testimg);
+					//					frames[2]=testimg;
 					//										frames[0] = bm.filterMat(img);
 					//					this.findDronePos2(img);
 				} 
@@ -628,7 +635,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		frame.copyTo(out);
 		//		bm.toGray(frame);
 		qrs.applyFilters(frame);
-//		qrs.imageUpdated(frame);
+		//		qrs.imageUpdated(frame);
 	}
 
 	@Override
@@ -682,6 +689,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public int getPapKasse() {
 		return this.papkassefinder.getDist();
 	}
-	
-	
+
+
 }
