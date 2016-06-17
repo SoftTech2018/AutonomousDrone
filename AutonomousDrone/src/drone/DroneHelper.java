@@ -391,4 +391,8 @@ public class DroneHelper {
 		}
 		return x*y;
 	}
+
+	public Object getPapkasse() {
+		return papKasse;
+	}
 }

@@ -51,7 +51,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private PunktNavigering punktNav;
 	private OpgaveRum opgrum;
 	private Koordinat droneKoordinat;
-	private long droneKoordinatUpdated;
+	private long droneKoordinatUpdated = 0;
 
 	public BilledAnalyse(IDroneControl dc){
 		this.dc = dc;

@@ -503,6 +503,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 			}
 
 			moves++;
+			
+			// Find papKasse - vi kan kun se den når vi bevæger os op af y-aksen og kigger mod vinduet
+			if(lastDir.equals(DIRECTION.UP) && dh.getPapkasse()==null){
+				// TODO - Start papkasse-søgning
+			} else {
+				// TODO - Stop papkasse-søgning
+			}
 			// ** SLUT WHILE LØKKE **
 		}
 
