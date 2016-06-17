@@ -101,4 +101,10 @@ public interface IBilledAnalyse {
 	void setMaxVal(int val);
 	void setMinVal(int val);
 
+	boolean isPapKasseLocator();
+
+	void setPapKasseLocator(boolean papKasseLocator);
+
+	int getPapKasse();
+
 }

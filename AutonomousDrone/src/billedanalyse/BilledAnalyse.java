@@ -43,7 +43,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator = true;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator = true, papKasseLocator;
 	private Mat webcamFrame;
 	private Mat matFrame;
 	private QRCodeScanner qrs;
@@ -579,6 +579,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(greyScale){						
 					//					frames[0] = bm.filterMat(frames[0]);						
 				}
+				
+				if(papKasseLocator){
+					this.papkassefinder.findPapkasse(img);
+				}
 
 				if(droneLocator){
 					if(!this.findDronePos2(img)){
@@ -663,4 +667,21 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	public void setMinVal(int val){
 		bm.setMin(val);
 	}
+
+	@Override
+	public boolean isPapKasseLocator() {
+		return papKasseLocator;
+	}
+
+	@Override
+	public void setPapKasseLocator(boolean papKasseLocator) {
+		this.papKasseLocator = papKasseLocator;
+	}
+
+	@Override
+	public int getPapKasse() {
+		return this.papkassefinder.getDist();
+	}
+	
+	
 }

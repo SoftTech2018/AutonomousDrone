@@ -392,7 +392,7 @@ public class DroneHelper {
 		return x*y;
 	}
 
-	public Object getPapkasse() {
+	public Koordinat getPapkasse() {
 		return papKasse;
 	}
 }

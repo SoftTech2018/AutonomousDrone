@@ -435,7 +435,8 @@ public class OpgaveAlgoritme2 implements Runnable {
 		int moves = 0;
 		// ** START WHILE LØKKE **
 		DIRECTION lastDir = null;
-		while(dh.getCenterAreal() > 10000){ // Svarer til et område på 1 x 1 meter
+//		while(dh.getCenterAreal() > 10000){ // Svarer til et område på 1 x 1 meter
+		while(moves < 4){ // TODO - DEBUG
 			// Skift kamera
 			ba.setDroneLocator(false);
 			dc.toggleCamera();
@@ -491,8 +492,15 @@ public class OpgaveAlgoritme2 implements Runnable {
 			}
 			Koordinat newDronePos = new Koordinat(xKoor, yKoor); // Estimeret position
 
+			// Find papKasse - vi kan kun se den når vi bevæger os op af y-aksen og kigger mod vinduet
+			if(lastDir.equals(DIRECTION.UP) && dh.getPapkasse()==null){
+				ba.setPapKasseLocator(true);
+			} 
+			
 			// Find droneposition (se fremad)
 			drone = this.findDronePos3();
+			// Stop papkasse-søgning
+			ba.setPapKasseLocator(false);
 			if(drone == null){
 				drone = newDronePos;
 				Log.writeLog("*** Drone position IKKE fundet. Estimerer position: " + drone);
@@ -502,15 +510,18 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}
 			}
 
-			moves++;
-			
-			// Find papKasse - vi kan kun se den når vi bevæger os op af y-aksen og kigger mod vinduet
-			if(lastDir.equals(DIRECTION.UP) && dh.getPapkasse()==null){
-				// TODO - Start papkasse-søgning
-			} else {
-				// TODO - Stop papkasse-søgning
+			// Papkassen er fundet
+			int dist;
+			if(dh.getPapkasse()== null && (dist = ba.getPapKasse()) != -1){
+				Koordinat papkasse = this.findPapkasse(drone, dist);
+				// Logisk tjek for om papkassen er nogenlunde i midten af rummet
+				if (papkasse.getX() < 400 || papkasse.getX() > 800 || papkasse.getY() < 200 || papkasse.getY() > 700){
+					dh.setPapKasse(papkasse);
+				}
 			}
+			
 			// ** SLUT WHILE LØKKE **
+			moves++;
 		}
 
 		// TODO - Find tilbage til landingsplads vha. frem/tilbage/strafe
@@ -524,21 +535,8 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 * Let, Drej, Drej tilbage, Land, vent, Let, Hover, Land
 	 * @throws InterruptedException
 	 */
-	private Koordinat findPapkasse() throws InterruptedException{
-		dc.takeoff();
-		dc.hover();
-		Koordinat dronePos = findDronePos();
+	private Koordinat findPapkasse(Koordinat dronePos, int dist) throws InterruptedException{		
 		Koordinat papKasse = new Koordinat(0, 0);
-		//Find papkassen mens dronen roterer
-//		while(pkf.findPapkasse(org))
-		boolean a = true;
-		while (a /*Mens papkassen ikke er fundet*/ ) {
-			dc.turnDroneTo(-45);
-			dc.hover();
-		}
-		Log.writeLog("Papkassefundet. Beregner koordinater");
-		//Papkassen er fundet, og vi får en afstand tilbage fra metoden
-		int dist = 300;
 		//Udregn papkassens position i forhold til dronens position og afstand
 		int[] data = dc.getFlightData(); //vinkel mellem QR kode og papkasse
 		// enhedsvektor = ex = cos(yaw), ey = sin(yaw)
@@ -546,19 +544,9 @@ public class OpgaveAlgoritme2 implements Runnable {
 		papKasse.setY((int) Math.sin(data[2]) * dist); // vektor y = ey * dist
 		papKasse.setX(papKasse.getX() + dronePos.getX());
 		papKasse.setY(papKasse.getY() + dronePos.getY());
-		Thread.sleep(2000);
-		dc.turnDroneTo(0);
-		
-		dc.hover();
-		dc.land();
-		Thread.sleep(10000);
-//		dc.takeoff();
-//		dc.hover();
-//		Thread.sleep(3000);
-//		dc.land();
-		Log.writeLog("Papkassens koordinater er: (" + papKasse.getX() + "," + papKasse.getY() + ")");
+		Log.writeLog("Papkassens koordinater er: " + papKasse);
 		return papKasse;
-		}
+	}
 
 	/**
 	 * Finder drone position kun ved at kigge fremad. Dronen roteres IKKE.
@@ -577,7 +565,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 				Log.writeLog("Ingen firkant fundet. Flyver baglæns.");
 				dc.backward();
 				xOffset = xOffset - 75;
-				Thread.sleep(4000);
+				Thread.sleep(3000);
 				continue;
 			}
 

@@ -23,14 +23,15 @@ import diverse.PunktNavigering;
 public class PapKasseFinder {
 
 	private static final int REAL_HEIGHT = 390;
+	private int dist = -1;
 
 	/**
 	 * Finder papkasser baseret på farve i et billede
 	 * @param org Billedet der skal analyseres
 	 * @return Koordinaterne for centrum af de identificerede papkasser. Returnerer null hvis intet blev fundet
 	 */
-	public Mat findPapkasse(Mat org){
-		
+	public int findPapkasse(Mat org){
+	
 		PunktNavigering pn = new PunktNavigering();
 
 //				org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse12.jpg")));
@@ -126,9 +127,9 @@ public class PapKasseFinder {
 							}
 							kassecenter.x = centerix;
 							kassecenter.y = nyy;
-							int dist = (int) pn.calcDist(ydiff, REAL_HEIGHT);
-							Imgproc.circle(org, new Point(kassecenter.x,kassecenter.y), 2, new Scalar(255, 255, 255),2);			
-							Imgproc.putText(org, " "+dist+" mm", new Point(kassecenter.x,kassecenter.y), 1, 2, new Scalar(255, 255, 255), 2);							
+							dist = (int) pn.calcDist(ydiff, REAL_HEIGHT);
+//							Imgproc.circle(org, new Point(kassecenter.x,kassecenter.y), 2, new Scalar(255, 255, 255),2);			
+//							Imgproc.putText(org, " "+dist+" mm", new Point(kassecenter.x,kassecenter.y), 1, 2, new Scalar(255, 255, 255), 2);							
 						}
 					}
 				}
@@ -137,7 +138,7 @@ public class PapKasseFinder {
 
 		//		UtilImageIO.saveImage(toBufferedImage(org), UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse.png"));
 //				ShowImages.showWindow(toBufferedImage(org),"Title",true);
-		return out;
+		return dist;
 	}
 
 	public BufferedImage toBufferedImage(Mat m){
@@ -159,6 +160,10 @@ public class PapKasseFinder {
 		byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
 		mat.put(0, 0, data);
 		return mat;
+	}
+
+	public int getDist() {
+		return dist;
 	}
 
 }
