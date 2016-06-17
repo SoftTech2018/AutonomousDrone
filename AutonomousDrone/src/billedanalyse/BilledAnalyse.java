@@ -12,7 +12,6 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import billedanalyse.ColorTracker.MODE;
 import diverse.Log;
 import diverse.PunktNavigering;
 import diverse.QrFirkant;
@@ -63,7 +62,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		this.opFlow = new OpticalFlow(bm);
 		objTracker = new ObjectTracking(opFlow, bm);
 		colTracker = new ColorTracker(dc);
-		colTracker.setMode(MODE.webcam);
 		papkassefinder = new PapKasseFinder();
 		this.punktNav = new PunktNavigering();
 		this.qrs = new QRCodeScanner();
@@ -499,11 +497,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	@Override
 	public void setWebCam(boolean webcam){
-		if(webcam){
-			colTracker.setMode(MODE.webcam);			
-		} else {
-			colTracker.setMode(MODE.droneDown);
-		}
 		this.webcam = webcam;
 	}
 

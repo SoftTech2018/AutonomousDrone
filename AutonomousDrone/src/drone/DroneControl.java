@@ -39,7 +39,7 @@ public class DroneControl implements IDroneControl {
 	// faktor 5
 	private final int SPEED = 20; /* % */
 	private final int MINALT = 1000; /* mm */
-	private final int MAXALT = 3000; /* mm */
+	private final int MAXALT = 1500; /* mm */
 	private final int DURATION = 330; /* ms */
 	// private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
@@ -75,6 +75,7 @@ public class DroneControl implements IDroneControl {
 	
 	@Override
 	public void setYawCorrection(double calcYaw) {
+//		Log.writeLog("Yaw: " + yaw + "\tBeregnet yaw: " + calcYaw);
 		yawCorrection = (int) calcYaw - yaw;
 	}
 
@@ -229,7 +230,8 @@ public class DroneControl implements IDroneControl {
 			cmd.up(SPEED * 3);
 		} else {
 			cmd.up(SPEED * 3);
-			Thread.sleep(DURATION);
+			cmd.hover();
+//			Thread.sleep(DURATION);
 		}
 
 		// cmd.hover();
@@ -258,7 +260,7 @@ public class DroneControl implements IDroneControl {
 		if (DRONE_DEBUG) {
 			System.out.println("DroneControl: Flyver Op");
 		}
-		cmd.up(100).doFor(10);
+		cmd.up(100).doFor(50);
 		cmd.hover();
 	}
 

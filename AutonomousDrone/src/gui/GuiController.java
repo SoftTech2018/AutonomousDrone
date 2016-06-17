@@ -49,27 +49,27 @@ public class GuiController {
 
 	private IDroneControl dc = new DroneControl();
 	private IBilledAnalyse ba = new BilledAnalyse(dc);
-	private OpgaveAlgoritme2 opg = new OpgaveAlgoritme2(dc, ba);
+	private OpgaveAlgoritme2 opg;
 	private Thread opgThread, baThread;
 
 	@FXML
 	private GuiRoom mapView;
-	
+
 	@FXML
 	private Slider maxThresSlider;
-	
+
 	@FXML
 	private Slider minThresSlider;
-	
+
 	@FXML
 	private Label minLabel;
-	
+
 	@FXML
 	private Label maxLabel;
-	
+
 	@FXML
 	private Label minValLabel;
-	
+
 	@FXML
 	private Label maxValLabel;
 
@@ -129,7 +129,7 @@ public class GuiController {
 	private Button startOpgAlgo;
 
 	Stage secondaryStage;
-	
+
 	@FXML
 	public void setMapInfo(){
 		secondaryStage = new Stage();
@@ -207,25 +207,25 @@ public class GuiController {
 		maxThresSlider.setMax(255);
 		maxThresSlider.setMin(100);
 		maxThresSlider.setValue(255);
-//		maxValLabel.setText(Double.toString(maxThresSlider.getValue()));
-//		maxThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
-//		    @Override
-//		    public void changed(ObservableValue<? extends Number> observable,
-//		            Number oldValue, Number newValue) {
-//		    	ba.setMaxVal((int)newValue);
-//		    }
-//		});
+		//		maxValLabel.setText(Double.toString(maxThresSlider.getValue()));
+		//		maxThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
+		//		    @Override
+		//		    public void changed(ObservableValue<? extends Number> observable,
+		//		            Number oldValue, Number newValue) {
+		//		    	ba.setMaxVal((int)newValue);
+		//		    }
+		//		});
 		minThresSlider.setMax(200);
 		minThresSlider.setMin(10);
 		minThresSlider.setValue(125);
-//		minValLabel.setText(Double.toString(minThresSlider.getValue()));
-//		minThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
-//		    @Override
-//		    public void changed(ObservableValue<? extends Number> observable,
-//		            Number oldValue, Number newValue) {
-//		    	ba.setMinVal((int)newValue);
-//		    }
-//		});
+		//		minValLabel.setText(Double.toString(minThresSlider.getValue()));
+		//		minThresSlider.valueProperty().addListener(new ChangeListener<Number>() {
+		//		    @Override
+		//		    public void changed(ObservableValue<? extends Number> observable,
+		//		            Number oldValue, Number newValue) {
+		//		    	ba.setMinVal((int)newValue);
+		//		    }
+		//		});
 
 		// Databinding mekanisme til at opdatere GUI
 		pitch_label.textProperty().bind(pitch);
@@ -286,7 +286,7 @@ public class GuiController {
 			} else { // Kameraet slukkes, billedanalyse stoppes.
 				baThread.interrupt();
 			}
-			
+
 			if(useTestVideo){
 				startTestVideoStream();
 			} else{
@@ -381,66 +381,12 @@ public class GuiController {
 		testVideo_checkBox.setDisable(!cameraActive);
 		frames_choiceBox.setDisable(!cameraActive);
 
-//		if (!this.cameraActive)	{
-			System.err.println("*** WARNING - SKYNET COMING ONLINE!");
-//			this.cameraActive = true;
+		System.err.println("*** WARNING - SKYNET COMING ONLINE!");
 
-			//			// Indstil billedanalyse uanset brugerens valg
-			//			ba.setWebCam(false); // Billeder fra dronen bruges
-			//			ba.setOpticalFlow(true); // Der udføres optical flow
-			//			ba.setObjTrack(true); // Der udføres objekt tracking
-			//			ba.setGreyScale(false); // Der konverteres ikke til greyscale
-
-			// Start opgaveAlgoritmen i en seperat tråd
-			opgThread = new Thread(opg);
-			opgThread.start();
-
-			// Opdater GUI'en så det matcher med det antal FPS man har valgt
-//			frameGrabber = new Runnable() {
-//				@Override
-//				public void run(){
-//					Image imageToShow[] = new Image[3];
-//					Mat frames[] = ba.getImages();
-//					// convert the Mat object (OpenCV) to Image (JavaFX)
-//					for(int i=0; i<frames.length;i++){
-//						if(frames[i] != null){
-//							imageToShow[i] = ba.mat2Image(frames[i]);
-//						}
-//					}
-//					currentFrame.setImage(imageToShow[0]); // Main billede
-//					optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
-//					objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
-//				}
-//			};
-//			this.timer = Executors.newSingleThreadScheduledExecutor();
-//			this.timer.scheduleAtFixedRate(frameGrabber, 0, frameDt, TimeUnit.MILLISECONDS);
-//
-//			this.startOpgAlgo.setText("Stop Skynet");// update the button content
-//		} else {
-//			// Forsøg at stoppe opgavealgoritmen ASAP
-//			System.err.println("*** TRYING TO DESTROY SKYNET");
-//			opgThread.interrupt();
-//			this.cameraActive = false;
-//			this.startOpgAlgo.setText("Start Skynet");
-//
-			//			// Indstil billedanalyse tilbage til brugerens valg
-			//			ba.setWebCam(webcamVideo); // Billeder fra dronen bruges
-			//			ba.setOpticalFlow(optFlow); // Der udføres optical flow
-			//			ba.setObjTrack(objTrack); // Der udføres objekt tracking
-			//			ba.setGreyScale(greyScale); // Der konverteres ikke til greyscale
-
-//			try{// stop the timer
-//				this.timer.shutdown();
-//				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
-//			}catch (InterruptedException e){
-//				// log the exception
-//				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
-//			}
-//			// clean the frame
-//			this.currentFrame.setImage(null);
-//			this.optFlow_imageView.setImage(null);
-//			this.objTrack_imageView.setImage(null);
-//		}
+		// Start opgaveAlgoritmen i en seperat tråd
+		opg = new OpgaveAlgoritme2(dc, ba, opgaveRum);
+		opgThread = new Thread(opg);
+		opgThread.start();
 	}
 
 	private void startWebcamStream(){
@@ -473,17 +419,15 @@ public class GuiController {
 						Image imageToShow[] = new Image[3];
 						Mat frames[] = ba.getImages();
 						ba.setMaxVal((int)maxThresSlider.getValue());
-//						maxValLabel.setText(Double.toString(maxThresSlider.getValue()));
+						//						maxValLabel.setText(Double.toString(maxThresSlider.getValue()));
 						ba.setMinVal((int)minThresSlider.getValue());
-//						minValLabel.setText(Double.toString(minThresSlider.getValue()));
+						//						minValLabel.setText(Double.toString(minThresSlider.getValue()));
 						// convert the Mat object (OpenCV) to Image (JavaFX)
-						//						long start = System.currentTimeMillis();
 						for(int i=0; i<frames.length;i++){
 							if(frames[i] != null){
 								imageToShow[i] = ba.mat2Image(frames[i]);
 							}
-						}
-						//						System.err.println("Tid: " + Long.toString(System.currentTimeMillis() - start));
+						};
 						currentFrame.setImage(imageToShow[0]); // Main billede
 						optFlow_imageView.setImage(imageToShow[1]);	// Optical Flow
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
@@ -494,7 +438,6 @@ public class GuiController {
 							@Override
 							public void run() {
 								if(QrText!=null){
-									//									System.out.println("Dette er test print "+QrText);
 									qrt.set(QrText); // qr kode text
 									maxVal.set(Double.toString(maxThresSlider.getValue()));
 									minVal.set(Double.toString(minThresSlider.getValue()));
@@ -568,7 +511,7 @@ public class GuiController {
 						objTrack_imageView.setImage(imageToShow[2]); // Objeckt Tracking
 						int values[] = GuiController.this.dc.getFlightData();
 						String QrText = ba.getQrt();
-						
+
 						Platform.runLater(new Runnable(){
 							@Override
 							public void run() {

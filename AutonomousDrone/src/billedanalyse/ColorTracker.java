@@ -22,14 +22,12 @@ import drone.IDroneControl;
 
 public class ColorTracker {
 
-	public enum MODE {webcam, droneFront, droneDown};
-
 	private enum COLOR {green, red}
 
 	private static final double MIN_OBJECT_AREA = 800; // Svarer ca. til flyvehøjde på 2,5-3 meter
 	private static final double MAX_OBJECT_AREA = 6500; // Svarer ca. til flyvehøjde under 1 meter
 
-	private ArrayList<Squares> squares, squaresreturn;
+	private ArrayList<Squares> squares;
 	private IDroneControl dc;
 	private Scalar minGreen;
 	private Scalar maxGreen;
@@ -74,42 +72,6 @@ public class ColorTracker {
 		for(ColorSetting cs : csList){
 			Log.writeLog(cs.toString());
 		}
-	}
-
-	public void setMode(MODE mode){
-//		switch(mode){
-//		case webcam:
-//			minGreen = Colors.hsvMinGreenWebcam;
-//			maxGreen = Colors.hsvMaxGreenWebcam;
-//			minRed = Colors.hsvMinRedWebcam;
-//			maxRed = Colors.hsvMaxRedWebcam;
-//			minRed2 = minRed;
-//			maxRed2 = maxRed;
-//			break;
-//		case droneFront:
-//			minGreen = Colors.hsvMinGreenDrone;
-//			maxGreen = Colors.hsvMaxGreenDrone;
-//			minRed = Colors.hsvMinRedDrone;
-//			maxRed = Colors.hsvMaxRedDrone;
-//			minRed2 = Colors.hsvMinRedDrone2;
-//			maxRed2 = Colors.hsvMaxRedDrone2;
-//			break;
-//		case droneDown:
-//			minGreen = Colors.hsvMinGreenDroneDown;
-//			maxGreen = Colors.hsvMaxGreenDroneDown;
-//			minRed = Colors.hsvMinRedDroneDown;
-//			maxRed = Colors.hsvMaxRedDroneDown;
-//			minRed2 = Colors.hsvMinRedDroneDown2;
-//			maxRed2 = Colors.hsvMaxRedDroneDown2;
-//			break;
-//		default:
-//			minGreen = Colors.hsvMinGreenDroneDown;
-//			maxGreen = Colors.hsvMaxGreenDroneDown;
-//			minRed = Colors.hsvMinRedDroneDown;
-//			maxRed = Colors.hsvMaxRedDroneDown;
-//			minRed2 = Colors.hsvMinRedDroneDown2;
-//			maxRed2 = Colors.hsvMaxRedDroneDown2;
-//		}
 	}
 
 	/** Finder antallet og placering af objekter over en given størrelse, i en bestemt farve. 

@@ -28,7 +28,8 @@ public class DroneHelper {
 	 */
 	public void flyTo(Koordinat start, Koordinat slut){
 		double dist = start.dist(slut); // Beregn distancen til punktet
-		if(dist==0){
+		if(dist<50){ // Mindre end 50 cm fra landingsplads
+			Log.writeLog("Distance mellem koordinater er under 50 cm. Dronen bevæges ikke");
 			return;
 		}
 		int vinkel = dc.getFlightData()[2];
@@ -64,8 +65,11 @@ public class DroneHelper {
 			System.out.println("Dronen skal dreje: " + rotVinkel + " grader.");
 			System.out.println("Dronen skal flyve: " + dist + " fremad.");
 		}
+		Log.writeLog("Dronen skal dreje: " + rotVinkel + " grader.");
+		Log.writeLog("Dronen skal flyve: " + dist + "cm fremad.");
 
-		if(this.papkasseTjek(start, slut, 200)){
+		if(this.papkasseTjek(start, slut, 100)){
+			Log.writeLog("Dronens rute går gennem papkassen. Forsøger alternativ rute.");
 			Koordinat temp = new Koordinat(500,450); // CENTRUM af rummet
 			this.flyTo(start, temp); // Flyv til centrum af rummet
 			this.flyTo(temp, slut); // Flyv fra centrum af rummet til landingsplads
