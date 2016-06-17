@@ -76,11 +76,11 @@ public class OpgaveRum {
 		}
 		setMarkings();
 
-//		for (int i = 0; i < bredde; i = i+100) {
-//			for (int j = 0; j < længde; j=j+100) {
-//				addGenstandTilKoordinat(rum[i][j], new Genstand(GENSTAND_FARVE.RØD));
-//			}
-//		}
+		//		for (int i = 0; i < bredde; i = i+100) {
+		//			for (int j = 0; j < længde; j=j+100) {
+		//				addGenstandTilKoordinat(rum[i][j], new Genstand(GENSTAND_FARVE.RØD));
+		//			}
+		//		}
 	}
 
 
@@ -296,10 +296,26 @@ public class OpgaveRum {
 		long phi = 0;
 
 		if(yaw > 0){
-			phi=yaw;
+			phi = 360 - yaw;
 		} else {
-			phi = 360+yaw;
+			phi=yaw*-1;
 		}
+
+		if(phi >= 90){
+			phi-=90;
+		} else {
+			phi = 360 - (90 - phi);
+		}
+
+		System.out.println("phi: "+phi);
+
+		int xcenter = 160;
+		int ycenter = 120;
+		int xcorrect = 1;
+		int ycorrect = -1;
+
+		double xcorrected = (x-xcenter)*xcorrect;
+		double ycorrected = (y-ycenter)*ycorrect;
 
 		double factor = 2.5;
 		double dronex = drone.getX();
@@ -310,8 +326,8 @@ public class OpgaveRum {
 		double sinphi = Math.sin(Math.toRadians(phi));
 
 		double[][] rotmat = {
-				{cosphi,sinphi,x/factor},
-				{-sinphi,cosphi,y/factor}
+				{cosphi,sinphi,xcorrected/factor},
+				{-sinphi,cosphi,ycorrected/factor}
 		};
 
 		double n = rotmat[0][0], m = rotmat[1][0];
@@ -324,11 +340,12 @@ public class OpgaveRum {
 
 		double y2 = rotmat[1][2] / rotmat[1][1];
 		double x2 = rotmat[0][2] - rotmat[0][1]*y2;
-		droney*=-1;
+
+		System.out.println("x2: "+x2);
+		System.out.println("y2: "+y2);
+
 		double xny = x2+dronex;
 		double yny = y2+droney;
-
-		yny*=-1;
 
 		System.out.println("x2: "+xny);
 		System.out.println("y2: "+yny);
