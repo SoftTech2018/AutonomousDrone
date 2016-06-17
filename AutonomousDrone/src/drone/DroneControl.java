@@ -260,7 +260,7 @@ public class DroneControl implements IDroneControl {
 		if (DRONE_DEBUG) {
 			System.out.println("DroneControl: Flyver Op");
 		}
-		cmd.up(100).doFor(50);
+		cmd.up(100).doFor(30);
 		cmd.hover();
 	}
 
@@ -305,7 +305,7 @@ public class DroneControl implements IDroneControl {
 		if (!timeMode) {
 			cmd.backward(SPEED);
 		} else {
-			cmd.backward(SPEED*3).doFor(DURATION);
+			cmd.backward(80).doFor(100);
 			cmd.hover();
 //			Thread.sleep(DURATION);
 		}

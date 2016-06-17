@@ -365,26 +365,31 @@ public class OpgaveAlgoritme2 implements Runnable {
 //		Thread.sleep(3000); 
 
 		// Juster højden på dronen
-//				QrFirkant firkant = ba.getFirkant();
-//				long startTime = System.currentTimeMillis();
-//				while(firkant==null){
-//					if(System.currentTimeMillis() - startTime > 5000){						
-//						// TODO - Juster dronens position ud fra sidst kendte position. Bevæg mod midten af rummet
-//					}
-//					Log.writeLog("Ingen firkant fundet - justerer droneposition");
-//					Thread.sleep(1000); // Stabiliser billedet
-//					firkant = ba.getFirkant();
-//				}
-//				while(firkant.getCentrum().getY() < 180 || firkant.getCentrum().getY() > 540){	
-//					Log.writeLog("Justerer drone højde... Firkant: " + firkant.getCentrum());
-//					setDroneHeight(firkant);
-//					Thread.sleep(1500);
-//					firkant = ba.getFirkant();
-//					if(firkant==null){
-//						dc.backward();
-//						Thread.sleep(3000);
-//					}
-//				}
+		QrFirkant firkant = ba.getFirkant();
+		long startTime = System.currentTimeMillis();
+		while(firkant==null){
+			if(System.currentTimeMillis() - startTime > 5000){						
+				// TODO - Juster dronens position ud fra sidst kendte position. Bevæg mod midten af rummet
+			}
+			Log.writeLog("Ingen firkant fundet - flyver lidt baglæns");
+			dc.backward();
+			Thread.sleep(4000); // Stabiliser billedet
+			firkant = ba.getFirkant();
+		}
+		if(firkant!=null){
+			Log.writeLog("Firkant centrum: " +firkant.getCentrum());
+		}
+		while(firkant.getCentrum().getY() < 200 || firkant.getCentrum().getY() > 520){	//180 - 540
+			Log.writeLog("Justerer drone højde...");
+			setDroneHeight(firkant);
+			Thread.sleep(1100);
+			firkant = ba.getFirkant();
+			if(firkant==null){
+				Log.writeLog("Drone flyver lidt baglæns og stabiliserer");
+				dc.backward();
+				Thread.sleep(3000);
+			}
+		}
 
 		// Find droneposition (se fremad)
 		Log.writeLog("Finder drone position...");
