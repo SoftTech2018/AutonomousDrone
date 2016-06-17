@@ -140,11 +140,21 @@ public class ColorTracker {
 					objectsFound++;
 					int x = (int)(moment.get_m10() / area);
 					int y = (int)(moment.get_m01() / area);
+					
+					// Hvis det fundne objekt er i kanten af billedet, er der meget stor fejlmargin
+					// Objektet frasorteres derfor
+					final int delta = 25;
+					if(x < delta || x > out.size().width - delta){ 
+						continue;
+					}
+					if(y < (int) (delta/2) || y > out.size().height - (int) (delta/2)){
+						continue;
+					}
 
 					// Tegn omridset på det originale billede
 					Imgproc.drawContours(org, contours, i, new Scalar(255,0,0), 3); 
 					//Imgproc.putText(org, color.toString() + ": " + x + "," + y, new Point(x-(Math.sqrt(area)/2), y), 1, 2, new Scalar(255, 255, 255), 2);
-					Imgproc.putText(org, Double.toString(area), new Point(x-(Math.sqrt(area)/2), y), 1, 2, new Scalar(255, 255, 255), 2);
+					Imgproc.putText(org, Double.toString(area), new Point(x+(Math.sqrt(area)/2), y), 1, 2, new Scalar(255, 255, 255), 2);
 					// Tegn firkanter og tekst på objekt tracking frame for hvert objekt der er fundet
 					Imgproc.rectangle(out, new Point(x-(Math.sqrt(area)/2), y-(Math.sqrt(area)/2)), new Point(x+(Math.sqrt(area)/2), y+(Math.sqrt(area)/2)), new Scalar(255,0,0), 3);
 					//					Imgproc.circle(out, new Point(x, y), (int) Math.sqrt(area/Math.PI), new Scalar(255,0,0), 3);

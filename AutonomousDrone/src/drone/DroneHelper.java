@@ -226,28 +226,65 @@ public class DroneHelper {
 		DIRECTION newDir = null;
 		if(drone.getX() >= xMax) { // Tæt ved vinduet
 			if(drone.getY() > yMin){ // "Øverste del af rummet"
-				move(DIRECTION.DOWN);
 				newDir = DIRECTION.DOWN;
 			} else {
-				move(DIRECTION.LEFT);
 				newDir = DIRECTION.LEFT;
 			}
 		} else if (drone.getX() <= xMin){ // Langt fra vinduet
 			if(drone.getY() > yMax){ // "Øverste del af rummet"
-				move(DIRECTION.RIGHT);
 				newDir = DIRECTION.RIGHT;
 			} else {
-				move(DIRECTION.UP);
 				newDir = DIRECTION.UP;
 			}
 		} else if (drone.getX() > xMin && drone.getX() < xMax){ // Midten af rummet (x-retning)
 			if(drone.getY() > 1078/2){ // "Øverste del af rummet"
-				move(DIRECTION.RIGHT);
 				newDir = DIRECTION.RIGHT;
 			} else {
-				move(DIRECTION.LEFT);
 				newDir = DIRECTION.LEFT;
 			}
+		}
+		
+		// Beregn den estimerede position når næste bevægelse er udført
+		// Tjek om bevægelsen fra nuværende til estimeret position vil ramme papkassen
+		int xKoor = drone.getX();
+		int yKoor = drone.getY();
+		switch(newDir){
+		case UP:
+			yKoor += 75;
+			break;
+		case DOWN:
+			yKoor -= 75;
+			break;
+		case LEFT:
+			xKoor -= 75;
+			break;
+		case RIGHT:
+			xKoor += 75;
+			break;
+		case STOPPED:
+			break;
+		}
+		Koordinat estimeretPosition = new Koordinat(xKoor, yKoor);
+		if(this.papkasseTjek(drone, estimeretPosition, 100)){
+			Log.writeLog("Dronens rute rammer papkassen! Forsøger alternativ rute.");
+			switch(newDir){ // Flyv udenom papkassen
+			case UP:
+				move(DIRECTION.LEFT);
+				break;
+			case DOWN:
+				move(DIRECTION.RIGHT);
+				break;
+			case LEFT:
+				move(DIRECTION.DOWN);
+				break;
+			case RIGHT:
+				move(DIRECTION.UP);
+				break;
+			case STOPPED:
+				break;
+			}
+		} else { // Bevægelsen rammer ikke papkassen
+			move(newDir);		
 		}
 		if(lastDir == null){ // Når vi starter er lastDir null
 			lastDir = newDir;
@@ -344,5 +381,14 @@ public class DroneHelper {
 			Log.writeLog("Bevæger dronen: \tHOVER\t YAW: " + orgYaw);
 			dc.hover();
 		}
+	}
+
+	public int getCenterAreal(){
+		int x = xMax - xMin;
+		int y = yMax - yMin;
+		if(this.papKasse == null) {
+			return (int) ((x*y)/4); // Hvis papkassen ikke er fundet benyttes en større sikkerhedsmargin
+		}
+		return x*y;
 	}
 }
