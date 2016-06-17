@@ -50,7 +50,7 @@ public class QRCodeScanner
 			break;
 		case 2:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 50, 238, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 50, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 3:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
@@ -58,7 +58,7 @@ public class QRCodeScanner
 			break;
 		case 4:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 60, 238, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 60, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 5:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);

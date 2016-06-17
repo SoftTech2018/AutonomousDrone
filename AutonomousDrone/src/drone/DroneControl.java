@@ -12,6 +12,8 @@ import de.yadrone.base.command.LEDAnimation;
 import de.yadrone.base.command.VideoCodec;
 import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.exception.IExceptionListener;
+import de.yadrone.base.navdata.Altitude;
+import de.yadrone.base.navdata.AltitudeListener;
 import de.yadrone.base.navdata.AttitudeListener;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
@@ -72,10 +74,10 @@ public class DroneControl implements IDroneControl {
 			}
 		});
 	}
-	
+
 	@Override
 	public void setYawCorrection(double calcYaw) {
-//		Log.writeLog("Yaw: " + yaw + "\tBeregnet yaw: " + calcYaw);
+		//		Log.writeLog("Yaw: " + yaw + "\tBeregnet yaw: " + calcYaw);
 		yawCorrection = (int) calcYaw - yaw;
 	}
 
@@ -107,19 +109,19 @@ public class DroneControl implements IDroneControl {
 		// });
 
 		// Nedenstående giver altid 0
-		// ndm.addAltitudeListener(new AltitudeListener(){
-		// @Override
-		// public void receivedAltitude(int arg0) {
-		// System.out.println("Højde er: " + arg0);
-		// DroneControl.this.altitude = (int) arg0 / 1000;
-		// }
-		//
-		// @Override
-		// public void receivedExtendedAltitude(Altitude arg0) {
-		// DroneControl.this.altitude = (int) arg0.getRaw() / 1000;
-		// System.out.println("Højde2 er: " + DroneControl.this.altitude);
-		// }
-		// });
+		ndm.addAltitudeListener(new AltitudeListener(){
+			@Override
+			public void receivedAltitude(int arg0) {
+//				System.err.println("Højde er: " + arg0);
+				DroneControl.this.altitude = (int) arg0;
+			}
+
+			@Override
+			public void receivedExtendedAltitude(Altitude arg0) {
+				DroneControl.this.altitude = (int) arg0.getRaw();
+//				System.err.println("Højde2 er: " + DroneControl.this.altitude);
+			}
+		});
 	}
 
 	private void imageCapture() {
@@ -231,7 +233,7 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.up(SPEED * 3);
 			cmd.hover();
-//			Thread.sleep(DURATION);
+			//			Thread.sleep(DURATION);
 		}
 
 		// cmd.hover();
@@ -287,7 +289,7 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.forward(SPEED*3).doFor(DURATION);
 			cmd.hover();
-//			Thread.sleep(DURATION);
+			//			Thread.sleep(DURATION);
 		}
 		// cmd.hover();
 	}
@@ -307,7 +309,7 @@ public class DroneControl implements IDroneControl {
 		} else {
 			cmd.backward(80).doFor(100);
 			cmd.hover();
-//			Thread.sleep(DURATION);
+			//			Thread.sleep(DURATION);
 		}
 		// cmd.hover();
 	}
@@ -485,7 +487,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void strafeRight(int dist) {
 		final double FACTOR = 11;
-//		cmd.goRight(SPEED * 2).doFor((long) (FACTOR * dist));
+		//		cmd.goRight(SPEED * 2).doFor((long) (FACTOR * dist));
 		cmd.goRight(SPEED*3).doFor((DURATION)); // test
 		cmd.hover(); // test
 	}
@@ -493,7 +495,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void strafeLeft(int dist) {
 		final double FACTOR = 11;
-//		cmd.goLeft(SPEED * 2).doFor((long) (FACTOR * dist));
+		//		cmd.goLeft(SPEED * 2).doFor((long) (FACTOR * dist));
 		cmd.goLeft(SPEED*3).doFor((DURATION)); // test
 		cmd.hover(); // test
 	}

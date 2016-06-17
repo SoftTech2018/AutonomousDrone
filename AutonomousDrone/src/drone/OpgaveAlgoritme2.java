@@ -363,6 +363,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	private void opgave2() throws InterruptedException{
 		dc.up2(); // Flyv lidt op så vi kan se QR-koder. Skal måske fjernes!
 		dc.up2();
+		dc.up2();
 		Thread.sleep(1000);
 
 		// Start QR scanning
