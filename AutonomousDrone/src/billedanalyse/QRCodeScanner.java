@@ -27,7 +27,7 @@ public class QRCodeScanner
 	
 	public String applyFilters(Mat frame){
 		String qrText="";
-		for (int i = 1; i < 14; i++) {
+		for (int i = 1; i < 15; i++) {
 			qrText = imageUpdated(frame,i);
 			if(qrText.length()<3){
 //				Log.writeLog("ID på switch ved return: "+i);
@@ -47,54 +47,56 @@ public class QRCodeScanner
 		frame.copyTo(temp);
 		switch (i) {
 		case 1:
-			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 50, 238, Imgproc.THRESH_BINARY);
 			break;
 		case 2:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 55, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 50, 238, Imgproc.THRESH_BINARY);
 			break;
 		case 3:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 60, 238, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 55, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 4:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 65, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 60, 238, Imgproc.THRESH_BINARY);
 			break;
 		case 5:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 70, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 65, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 6:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 75, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 70, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 7:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 80, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 75, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 8:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 85, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 80, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 9:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 100, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 85, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 10:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 105, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 100, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 11:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 110, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 105, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 12:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-			Imgproc.threshold(temp, temp, 115, 255, Imgproc.THRESH_BINARY);
+			Imgproc.threshold(temp, temp, 110, 255, Imgproc.THRESH_BINARY);
 			break;
 		case 13:
+			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
+			Imgproc.threshold(temp, temp, 115, 255, Imgproc.THRESH_BINARY);
+			break;
+		case 14:
 			Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
 			Imgproc.threshold(temp, temp, 120, 255, Imgproc.THRESH_BINARY);
 			break;

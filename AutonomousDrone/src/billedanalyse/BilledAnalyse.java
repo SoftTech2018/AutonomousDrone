@@ -83,8 +83,8 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		}
 		//		System.out.println("Liste størrelse "+list.size());
 		//Returnerer biledet, osm QR læseren skal læse
-		//		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
-		String qrText = qrs.applyFilters(bm.readQrSkewed(temp));
+		String qrText = bm.warpQrImage(list.get(0), qrs, temp);
+////		String qrText = qrs.applyFilters(bm.readQrSkewed(temp));
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
 			//			System.out.println("QR kode < 3");
 			return false;
@@ -603,7 +603,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 					//					findQR(testimg);
 					//					frames[2]=testimg;
 					//										frames[0] = bm.filterMat(img);
-					//					this.findDronePos2(img);
+//										this.findDronePos2(img);
 				} 
 				frames[0]=img;
 
