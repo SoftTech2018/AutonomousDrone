@@ -24,8 +24,8 @@ public class ColorTracker {
 
 	private enum COLOR {green, red}
 
-	private static final double MIN_OBJECT_AREA = 800; // Svarer ca. til flyvehøjde på 2,5-3 meter
-	private static final double MAX_OBJECT_AREA = 6500; // Svarer ca. til flyvehøjde under 1 meter
+	private static final double MIN_OBJECT_AREA = 800 * 1; // Svarer ca. til flyvehøjde på 2,5-3 meter
+	private static final double MAX_OBJECT_AREA = 6500 * 1; // Svarer ca. til flyvehøjde under 1 meter
 
 	private ArrayList<Squares> squares;
 	private IDroneControl dc;

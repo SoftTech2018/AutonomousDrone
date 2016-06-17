@@ -40,7 +40,7 @@ public class DroneControl implements IDroneControl {
 	private final int SPEED = 20; /* % */
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 1500; /* mm */
-	private final int DURATION = 330; /* ms */
+	private final int DURATION = 380; /* ms */
 	// private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll, altitude;
@@ -260,7 +260,7 @@ public class DroneControl implements IDroneControl {
 		if (DRONE_DEBUG) {
 			System.out.println("DroneControl: Flyver Op");
 		}
-		cmd.up(100).doFor(30);
+		cmd.up(100).doFor(60);
 		cmd.hover();
 	}
 
@@ -472,11 +472,13 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void flyDrone(double dist) {
-		final double FACTOR = 10; // Tidsfaktor
-		if (dist > 0) {
-			cmd.forward(SPEED).doFor((long) (FACTOR * dist));
-		} else {
-			cmd.backward(SPEED).doFor((long) (FACTOR * dist));
+		while(dist > 50){
+			cmd.forward(100).doFor(100);
+			cmd.hover();
+			dist = dist - 100; // Dronen er flyttet ca. 1 meter
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {}
 		}
 	}
 

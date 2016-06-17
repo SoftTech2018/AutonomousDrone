@@ -362,6 +362,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 */
 	private void opgave2() throws InterruptedException{
 		dc.up2(); // Flyv lidt op så vi kan se QR-koder. Skal måske fjernes!
+		dc.up2();
 		Thread.sleep(1000);
 
 		// Start QR scanning
@@ -799,9 +800,9 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}	
 				Log.writeLog("Genstand objekt lavet.");// TODO - DEBUG
 				Koordinat k = opgrum.rotateCoordinate(sq, drone);
-				Log.writeLog("RotateCoordinate udført.");// TODO - DEBUG
+				Log.writeLog("RotateCoordinate udført. Drone Koordinat: " + drone);// TODO - DEBUG
 				opgrum.addGenstandTilKoordinat(k, g);
-				Log.writeLog("Genstand tilføjet til OpgaveRum: " +k); // TODO - DEBUG
+				Log.writeLog("Genstand tilføjet til OpgaveRum: " +k + "\tBilledKoordinat: (" + sq.x + "," + sq.y + ")"); // TODO - DEBUG
 			}
 		} else {
 			Log.writeLog("Ingen objekter fundet!");
