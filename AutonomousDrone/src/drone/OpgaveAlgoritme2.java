@@ -524,23 +524,41 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 * Let, Drej, Drej tilbage, Land, vent, Let, Hover, Land
 	 * @throws InterruptedException
 	 */
-	private void findPapkasse() throws InterruptedException{
-		//		dc.takeoff();
-		dc.hover();
-
-		dc.turnDroneTo(-135);
-		dc.hover();
-		Thread.sleep(2000);
-		dc.turnDroneTo(0);
-
-		dc.hover();
-		dc.land();
-		Thread.sleep(10000);
+	private Koordinat findPapkasse() throws InterruptedException{
 		dc.takeoff();
 		dc.hover();
-		Thread.sleep(10000);
+		Koordinat dronePos = findDronePos();
+		Koordinat papKasse = new Koordinat(0, 0);
+		//Find papkassen mens dronen roterer
+//		while(pkf.findPapkasse(org))
+		boolean a = true;
+		while (a /*Mens papkassen ikke er fundet*/ ) {
+			dc.turnDroneTo(-45);
+			dc.hover();
+		}
+		Log.writeLog("Papkassefundet. Beregner koordinater");
+		//Papkassen er fundet, og vi får en afstand tilbage fra metoden
+		int dist = 300;
+		//Udregn papkassens position i forhold til dronens position og afstand
+		int[] data = dc.getFlightData(); //vinkel mellem QR kode og papkasse
+		// enhedsvektor = ex = cos(yaw), ey = sin(yaw)
+		papKasse.setX((int) Math.cos(data[2]) * dist); // vektor x = ex * dist
+		papKasse.setY((int) Math.sin(data[2]) * dist); // vektor y = ey * dist
+		papKasse.setX(papKasse.getX() + dronePos.getX());
+		papKasse.setY(papKasse.getY() + dronePos.getY());
+		Thread.sleep(2000);
+		dc.turnDroneTo(0);
+		
+		dc.hover();
 		dc.land();
-	}
+		Thread.sleep(10000);
+//		dc.takeoff();
+//		dc.hover();
+//		Thread.sleep(3000);
+//		dc.land();
+		Log.writeLog("Papkassens koordinater er: (" + papKasse.getX() + "," + papKasse.getY() + ")");
+		return papKasse;
+		}
 
 	/**
 	 * Finder drone position kun ved at kigge fremad. Dronen roteres IKKE.
