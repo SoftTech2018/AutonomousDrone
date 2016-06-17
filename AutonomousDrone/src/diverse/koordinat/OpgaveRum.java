@@ -317,7 +317,7 @@ public class OpgaveRum {
 		double xcorrected = (x-xcenter)*xcorrect;
 		double ycorrected = (y-ycenter)*ycorrect;
 
-		double factor = 2.5;
+		double factor = 7.7;
 		double dronex = drone.getX();
 		double droney = drone.getY();
 
