@@ -309,7 +309,7 @@ public class OpgaveRum {
 
 		System.out.println("phi: "+phi);
 
-		int xcenter = 480;
+		int xcenter = 640;
 		int ycenter = 360;
 		int xcorrect = 1;
 		int ycorrect = -1;
