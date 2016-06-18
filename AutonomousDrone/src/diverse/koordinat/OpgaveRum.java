@@ -297,18 +297,22 @@ public class OpgaveRum {
 		double factor = 7.7;
 		factor = 960/(2*((height*Math.sin(arad))/Math.sin(brad)));
 
-		long phi = 0;
+		double phi = 0;
 
 		if(yaw > 0){
 			phi = 360 - yaw;
 		} else {
-			phi=yaw*-1;
+			phi = yaw*-1;
 		}
 
-		if(phi >= 90){
+		if (phi >= 90){
 			phi-=90;
 		} else {
 			phi = 360 - (90 - phi);
+		}
+		
+		if(phi%90 == 0){
+			phi += 0.000000001;			
 		}
 
 		System.out.println("phi: "+phi);
@@ -351,8 +355,8 @@ public class OpgaveRum {
 		double xny = x2+dronex;
 		double yny = y2+droney;
 
-		System.out.println("x2: "+xny);
-		System.out.println("y2: "+yny);
+		System.out.println("x out: "+xny);
+		System.out.println("y out: "+yny);
 
 		return new Koordinat((int)xny, (int)yny);
 	}
