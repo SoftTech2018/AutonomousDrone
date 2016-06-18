@@ -42,7 +42,7 @@ public class DroneControl implements IDroneControl {
 	private final int SPEED = 20; /* % */
 	private final int MINALT = 1000; /* mm */
 	private final int MAXALT = 1500; /* mm */
-	private final int DURATION = 380; /* ms */
+	private final int DURATION = 450; /* ms */
 	// private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll, altitude;
@@ -108,17 +108,17 @@ public class DroneControl implements IDroneControl {
 		// }
 		// });
 
-		// Nedenstående giver altid 0
+		// Højdemåler i mm
 		ndm.addAltitudeListener(new AltitudeListener(){
 			@Override
 			public void receivedAltitude(int arg0) {
+				DroneControl.this.altitude = (int) (arg0/10);
 //				System.err.println("Højde er: " + arg0);
-				DroneControl.this.altitude = (int) arg0;
 			}
 
 			@Override
 			public void receivedExtendedAltitude(Altitude arg0) {
-				DroneControl.this.altitude = (int) arg0.getRaw();
+				DroneControl.this.altitude = (int) (arg0.getRaw()/10);
 //				System.err.println("Højde2 er: " + DroneControl.this.altitude);
 			}
 		});
@@ -421,9 +421,9 @@ public class DroneControl implements IDroneControl {
 	public int[] getFlightData() {
 		if (DRONE_DEBUG) {
 			System.out.println(
-					"Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw + ", YawCorrection: " + yawCorrection);
+					"Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw + ", YawCorrection: " + yawCorrection + ", Højde: " + altitude);
 		}
-		int out[] = { pitch, roll, yaw + yawCorrection };
+		int out[] = { pitch, roll, yaw + yawCorrection, altitude };
 		return out;
 	}
 
@@ -445,7 +445,7 @@ public class DroneControl implements IDroneControl {
 		final int VINKELFEJL = 5; // Fejlmargin i sigte
 
 		// Find YAW-værdien som dronen bør have når den peger på målet
-		int targetYaw = (int) (this.yaw + rotVinkel);
+		int targetYaw = (int) (this.getFlightData()[2] + rotVinkel);
 		if (targetYaw > 180) {
 			targetYaw = 360 - targetYaw;
 		} else if (targetYaw < -180) {
@@ -460,7 +460,7 @@ public class DroneControl implements IDroneControl {
 
 		// Korrektion, finjustering af sigte
 		int vinkel;
-		while ((vinkel = (targetYaw - this.yaw)) > VINKELFEJL || vinkel < -VINKELFEJL) {
+		while ((vinkel = (targetYaw - this.getFlightData()[2])) > VINKELFEJL || vinkel < -VINKELFEJL) {
 			if (vinkel < 0) { // Vi skal dreje til venstre
 				cmd.spinLeft(SPEED * 2).doFor(FACTOR);
 			} else if (vinkel > 0) { // Vi skal dreje til højre
@@ -468,7 +468,7 @@ public class DroneControl implements IDroneControl {
 			}
 			System.err.println("Justerer vinkel: " + vinkel);
 		}
-		Log.writeLog("Roteret dronen til YAW: " + targetYaw + " - Resultat: " + this.yaw);
+		Log.writeLog("Roteret dronen til YAW: " + targetYaw + " - Resultat: " + this.getFlightData()[2]);
 		cmd.hover();
 	}
 
@@ -502,7 +502,9 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void turnDroneTo(int targetYaw) {
-		this.turnDrone(targetYaw - this.yaw);
+		this.turnDrone(targetYaw - this.getFlightData()[2]);
 	}
+	
+
 
 }

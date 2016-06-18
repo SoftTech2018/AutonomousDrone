@@ -143,7 +143,7 @@ public class ColorTracker {
 					
 					// Hvis det fundne objekt er i kanten af billedet, er der meget stor fejlmargin
 					// Objektet frasorteres derfor
-					final int delta = 25;
+					final int delta = 185; // 160 pixels er sorte, herefter 25 pixels fejlmargin
 					if(x < delta || x > out.size().width - delta){ 
 						continue;
 					}
