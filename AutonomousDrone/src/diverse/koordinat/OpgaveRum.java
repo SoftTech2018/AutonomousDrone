@@ -328,8 +328,10 @@ public class OpgaveRum {
 		
 		double dronex = drone.getX();
 		double droney = drone.getY();
-
-		y*=-1;
+		
+//		System.out.println("x in: "+xcorrected/factor);
+//		System.out.println("y in: "+ycorrected/factor);
+		
 		double cosphi = Math.cos(Math.toRadians(phi));
 		double sinphi = Math.sin(Math.toRadians(phi));
 
@@ -349,14 +351,14 @@ public class OpgaveRum {
 		double y2 = rotmat[1][2] / rotmat[1][1];
 		double x2 = rotmat[0][2] - rotmat[0][1]*y2;
 
-		System.out.println("x2: "+x2);
-		System.out.println("y2: "+y2);
+//		System.out.println("x out: "+x2);
+//		System.out.println("y out: "+y2);
 
 		double xny = x2+dronex;
 		double yny = y2+droney;
 
-		System.out.println("x out: "+xny);
-		System.out.println("y out: "+yny);
+//		System.out.println("x final: "+xny);
+//		System.out.println("y final: "+yny);
 
 		return new Koordinat((int)xny, (int)yny);
 	}
