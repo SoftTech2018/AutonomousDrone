@@ -8,7 +8,7 @@ import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.M2;
 import diverse.koordinat.OpgaveRum;
-
+import diverse.koordinat.Genstand.GENSTAND_FARVE;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -114,7 +114,12 @@ public class GuiRoom extends Canvas{
 
 			for (int i = 0; i < objects.size(); i++) {
 				Koordinat koord = objects.get(i);
+				if(koord.getGenstande().getFarve() == GENSTAND_FARVE.RØD){
 				gc.setFill(Color.RED);
+				}else{
+					gc.setFill(Color.LIGHTGREEN);
+
+				}
 				gc.fillRect((koord.getX()/5)+54, (koord.getY()/5)+40, 2, 2);
 			}
 

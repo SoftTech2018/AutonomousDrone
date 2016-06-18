@@ -125,7 +125,7 @@ public class OpgaveRum {
 				}
 				if(addObject){				
 					fundneGenstande.add(koordinat);
-					Log.writeLog("MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + genstand.getFarve());
+					Log.writeLog(koordinat);
 				}
 			} else {
 				fundneGenstande.add(koordinat);
