@@ -287,11 +287,15 @@ public class OpgaveRum {
 		return yaw;
 	}
 
-	public Koordinat rotateCoordinate(Squares sqs, Koordinat drone){
+	public Koordinat rotateCoordinate(Squares sqs, Koordinat drone, int height){
 
 		int yaw = sqs.yaw;
 		int x = sqs.x;
 		int y = sqs.y;
+		double arad = Math.toRadians(23.43);
+		double brad = Math.toRadians(66.57);
+		double factor = 7.7;
+		factor = 960/(2*((height*Math.sin(arad))/Math.sin(brad)));
 
 		long phi = 0;
 
@@ -317,7 +321,7 @@ public class OpgaveRum {
 		double xcorrected = (x-xcenter)*xcorrect;
 		double ycorrected = (y-ycenter)*ycorrect;
 
-		double factor = 7.7;
+		
 		double dronex = drone.getX();
 		double droney = drone.getY();
 

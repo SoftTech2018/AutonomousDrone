@@ -31,10 +31,10 @@ public class PapKasseFinder {
 	 * @return Koordinaterne for centrum af de identificerede papkasser. Returnerer null hvis intet blev fundet
 	 */
 	public int findPapkasse(Mat org){
-	
+
 		PunktNavigering pn = new PunktNavigering();
 
-//				org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse12.jpg")));
+		//				org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse12.jpg")));
 
 
 		Mat out = new Mat();
@@ -44,12 +44,19 @@ public class PapKasseFinder {
 
 		Imgproc.cvtColor(org, temp, Imgproc.COLOR_BGR2HSV);
 
-		double huemin = 90;
-		double huemax = 140;
-		double satmin = 100;
-		double satmax = 200;
-		double valmin = 40;
-		double valmax = 190;
+		double huemin = 120;
+		double huemax = 150;
+		double satmin = 75;
+		double satmax = 120;
+		double valmin = 35;
+		double valmax = 90;
+
+		//		double huemin = 90;
+		//		double huemax = 140;
+		//		double satmin = 100;
+		//		double satmax = 200;
+		//		double valmin = 40;
+		//		double valmax = 190;
 
 		//		double huemin = 90;
 		//		double huemax = 140;
@@ -105,12 +112,12 @@ public class PapKasseFinder {
 		Point kasseh = new Point();
 		Point kassel = new Point();
 		if (!centers.isEmpty()&& centers.size()>=2){
-//			for(Point p : centers){
-//				sumx+=p.x;
-//				sumy+=p.y;
-//			}
-//			centerx = sumx / centers.size();
-//			centery = sumy / centers.size();
+			//			for(Point p : centers){
+			//				sumx+=p.x;
+			//				sumy+=p.y;
+			//			}
+			//			centerx = sumx / centers.size();
+			//			centery = sumy / centers.size();
 			for(int i = 0; i<centers.size(); i++){
 				for(int j = i+1; j<centers.size(); j++){
 					if(j<centers.size()){
@@ -128,8 +135,8 @@ public class PapKasseFinder {
 							kassecenter.x = centerix;
 							kassecenter.y = nyy;
 							dist = (int) pn.calcDist(ydiff, REAL_HEIGHT);
-//							Imgproc.circle(org, new Point(kassecenter.x,kassecenter.y), 2, new Scalar(255, 255, 255),2);			
-//							Imgproc.putText(org, " "+dist+" mm", new Point(kassecenter.x,kassecenter.y), 1, 2, new Scalar(255, 255, 255), 2);							
+							//							Imgproc.circle(org, new Point(kassecenter.x,kassecenter.y), 2, new Scalar(255, 255, 255),2);			
+							//							Imgproc.putText(org, " "+dist+" mm", new Point(kassecenter.x,kassecenter.y), 1, 2, new Scalar(255, 255, 255), 2);							
 						}
 					}
 				}
@@ -137,7 +144,7 @@ public class PapKasseFinder {
 		}
 
 		//		UtilImageIO.saveImage(toBufferedImage(org), UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse.png"));
-//				ShowImages.showWindow(toBufferedImage(org),"Title",true);
+		//				ShowImages.showWindow(toBufferedImage(org),"Title",true);
 		return dist;
 	}
 
