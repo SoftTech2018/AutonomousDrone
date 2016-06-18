@@ -43,7 +43,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	private Image[] imageToShow;
 	private Mat[] frames;
-	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator = true, papKasseLocator, posPrecision = true;
+	private boolean objTrack, greyScale, qr, webcam = true, opticalFlow, droneLocator, papKasseLocator, posPrecision = true;
 	private Mat webcamFrame;
 	private Mat matFrame;
 	private QRCodeScanner qrs;
@@ -283,6 +283,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	@Override
 	public void setQR(boolean qr){
+		this.droneLocator = qr;
 		this.qr = qr;
 	}
 

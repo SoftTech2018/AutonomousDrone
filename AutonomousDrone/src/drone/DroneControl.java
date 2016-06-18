@@ -41,8 +41,8 @@ public class DroneControl implements IDroneControl {
 	// faktor 5
 	private final int SPEED = 20; /* % */
 	private final int MINALT = 1000; /* mm */
-	private final int MAXALT = 1500; /* mm */
-	private final int DURATION = 450; /* ms */
+	private final int MAXALT = 2500; /* mm */
+	private final int DURATION = 750; /* ms */
 	// private WritableImage imageOutput;
 	private BufferedImage bufImgOut;
 	private int pitch, yaw, roll, altitude;
@@ -113,13 +113,13 @@ public class DroneControl implements IDroneControl {
 			@Override
 			public void receivedAltitude(int arg0) {
 				DroneControl.this.altitude = (int) (arg0/10);
-//				System.err.println("Højde er: " + arg0);
+				//				System.err.println("Højde er: " + arg0);
 			}
 
 			@Override
 			public void receivedExtendedAltitude(Altitude arg0) {
 				DroneControl.this.altitude = (int) (arg0.getRaw()/10);
-//				System.err.println("Højde2 er: " + DroneControl.this.altitude);
+				//				System.err.println("Højde2 er: " + DroneControl.this.altitude);
 			}
 		});
 	}
@@ -268,9 +268,9 @@ public class DroneControl implements IDroneControl {
 
 	public void down2() throws InterruptedException {
 		if (DRONE_DEBUG) {
-			System.out.println("DroneControl: Flyver Op");
+			System.out.println("DroneControl: Flyver nNed");
 		}
-		cmd.down(100).doFor(10);
+		cmd.down(100).doFor(60);
 		cmd.hover();
 	}
 
@@ -287,7 +287,7 @@ public class DroneControl implements IDroneControl {
 		if (!timeMode) {
 			cmd.forward(SPEED);
 		} else {
-			cmd.forward(SPEED*3).doFor(DURATION);
+			cmd.forward(SPEED*2).doFor(DURATION);
 			cmd.hover();
 			//			Thread.sleep(DURATION);
 		}
@@ -307,7 +307,7 @@ public class DroneControl implements IDroneControl {
 		if (!timeMode) {
 			cmd.backward(SPEED);
 		} else {
-			cmd.backward(80).doFor(100);
+			cmd.backward(SPEED*2).doFor(DURATION);
 			cmd.hover();
 			//			Thread.sleep(DURATION);
 		}
@@ -475,10 +475,9 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void flyDrone(double dist) {
 		while(dist > 50){
-			cmd.forward(100).doFor(100);
-			cmd.hover();
-			dist = dist - 100; // Dronen er flyttet ca. 1 meter
 			try {
+				this.forward();
+				dist = dist - 100; // Dronen er flyttet ca. 1 meter
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {}
 		}
@@ -504,7 +503,7 @@ public class DroneControl implements IDroneControl {
 	public void turnDroneTo(int targetYaw) {
 		this.turnDrone(targetYaw - this.getFlightData()[2]);
 	}
-	
+
 
 
 }
