@@ -545,7 +545,6 @@ public class BilledManipulation {
 			for (int i = 0; i < qrFirkantAll.size(); i++) {
 				Koordinat key = qrFirkantAll.get(i).getCentrum();
 				if(gruppering.isEmpty()){
-					Log.writeLog("Gruppering er tom");
 					gruppering.put(key, new ArrayList<QrFirkant>());
 					gruppering.get(key).add(qrFirkantAll.get(i));
 					kontrol.add(key);
@@ -556,11 +555,11 @@ public class BilledManipulation {
 						Koordinat key2 = kontrol.get(j);
 						if(!checkCentrum2(key2,key)){
 							gruppering.get(key2).add(qrFirkantAll.get(i));
-							Log.writeLog("Firkant i samme gruppering");
+//							Log.writeLog("Firkant i samme gruppering");
 						} else {
 							gruppering.put(key, new ArrayList<QrFirkant>());
 							gruppering.get(key).add(qrFirkantAll.get(i));
-							Log.writeLog("Firkant ikke i samme gruppering");
+//							Log.writeLog("Firkant ikke i samme gruppering");
 							kontrol.add(key);
 						}						
 					}
@@ -569,7 +568,7 @@ public class BilledManipulation {
 			}
 			
 			for (Koordinat key : gruppering.keySet()) {
-				Log.writeLog("Key: "+key);
+//				Log.writeLog("Key: "+key);
 				ArrayList<QrFirkant> test = gruppering.get(key);
 				int minA = test.get(0).getAreal();
 				int id=0;
@@ -582,22 +581,22 @@ public class BilledManipulation {
 				qrFirkant.add(test.get(id));
 			}
 			
-			Log.writeLog("MAPPET STØRRELSE "+gruppering.size());
+//			Log.writeLog("MAPPET STØRRELSE "+gruppering.size());
 			
 		}
 		if(qrFirkant.size()>=2){
-			Log.writeLog("over 2 grupperinger");
+//			Log.writeLog("over 2 grupperinger");
 			int maxA = 0;
 			int nextMaxA = 0;
 			int id=0;
 			int id2=0;
 			//Finder største areal
 			for (int i = 0; i < qrFirkant.size(); i++) {
-				System.err.println("Areal størrelser : "+ qrFirkant.get(i).getAreal());
+//				System.err.println("Areal størrelser : "+ qrFirkant.get(i).getAreal());
 				//bruger qr med største areal
 //				if(qrFirkant.get(i).getCentrum().getX()>320 && qrFirkant.get(i).getCentrum().getX()<960){ // denne if-else skal måske fjernes
 					if(qrFirkant.get(i).getAreal()>=maxA){
-						System.err.println("maxA");
+//						System.err.println("maxA");
 						maxA = qrFirkant.get(i).getAreal();
 						id = i;
 					}									
@@ -607,7 +606,7 @@ public class BilledManipulation {
 			for (int i = 0; i < qrFirkant.size(); i++) {
 				if(qrFirkant.get(i).getAreal()<=maxA && qrFirkant.get(i).getAreal()>=nextMaxA){
 					if(checkCentrum(qrFirkant.get(id), qrFirkant.get(i))){
-						System.err.println("nextMaxA");
+//						System.err.println("nextMaxA");
 						nextMaxA = qrFirkant.get(i).getAreal();
 						id2 = i;						
 					}
@@ -700,7 +699,6 @@ public class BilledManipulation {
 		Koordinat f1k = f1.getCentrum();
 		Koordinat f2k = f2.getCentrum();
 		int dist = f1k.dist(f2k);
-		System.out.println("Dist ved centrum check "+dist);
 		if(dist>100){
 			return true;
 		} else {
@@ -712,7 +710,6 @@ public class BilledManipulation {
 //		Koordinat f1k = f1.getCentrum();
 //		Koordinat f2k = f2.getCentrum();
 		int dist = f1.dist(f2);
-		System.out.println("Dist ved centrum check "+dist);
 		if(dist>100){
 			return true;
 		} else {
