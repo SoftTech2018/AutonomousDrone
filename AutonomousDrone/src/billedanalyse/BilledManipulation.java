@@ -491,7 +491,7 @@ public class BilledManipulation {
 
 		temp = toGray(temp);
 		Imgproc.GaussianBlur(temp, temp, new Size(5,5), -1);
-		Imgproc.Canny(temp, temp, 50, 100);
+		Imgproc.Canny(temp, temp, 52, 106);
 
 		ArrayList<QrFirkant> qrFirkantAll = new ArrayList<QrFirkant>();
 		QrFirkant firkant1, firkant2;
@@ -505,7 +505,7 @@ public class BilledManipulation {
 			//Konverterer MatOfPoint til MatOfPoint2f, så ApproxPoly kan bruges
 			MatOfPoint2f mop2 = new MatOfPoint2f();
 			contours.get(i).convertTo(mop2, CvType.CV_32FC1); 
-			double epsilon = 0.01*Imgproc.arcLength(mop2, true);
+			double epsilon = 0.025*Imgproc.arcLength(mop2, true);
 			Imgproc.approxPolyDP(mop2, mop2, epsilon, true);
 			//Konverterer MatOfPoint2f til MatOfPoint
 			mop2.convertTo(contours.get(i), CvType.CV_32S);
