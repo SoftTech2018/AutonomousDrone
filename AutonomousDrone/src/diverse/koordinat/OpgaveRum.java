@@ -116,7 +116,7 @@ public class OpgaveRum {
 				boolean addObject = true;
 				for(int i=0; i<fundneGenstande.size(); i++){
 					if(fundneGenstande.get(i).getGenstande().getFarve().equals(genstand.getFarve())){
-						if(fundneGenstande.get(i).dist(koordinat) < 20){ // Mindst 20 cm mellem hvert målobjekt af samme farve
+						if(fundneGenstande.get(i).dist(koordinat) < 40){ // Mindst 40 cm mellem hvert målobjekt af samme farve
 							addObject = false;
 						}
 					} else if (fundneGenstande.get(i).dist(koordinat) < 5){ // Mindst 5 cm mellem hvert målobjekt af forskellig farve

@@ -495,13 +495,17 @@ public class OpgaveAlgoritme2 implements Runnable {
 		//		Log.writeLog("Flyver ned til QR-højde");
 		this.setDroneHeight(130, 150);
 		Thread.sleep(3500);
-		dc.forward();
-		Thread.sleep(3500);
-		dc.backward();
-		Thread.sleep(3500);
-		dc.strafeLeft(0);
-		Thread.sleep(3500);
-		dc.strafeRight(0);
+		
+//		dc.forward();
+//		Thread.sleep(3500);
+//		dc.backward();
+//		Thread.sleep(3500);
+//		dc.strafeLeft(0);
+//		Thread.sleep(3500);
+//		dc.strafeRight(0);
+//		Thread.sleep(3500);
+		
+		dh.flyToKoordinat(new Koordinat(0,0), new Koordinat(125,125));
 		Thread.sleep(3500);
 		destroy();
 	}

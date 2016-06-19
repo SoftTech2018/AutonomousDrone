@@ -24,7 +24,7 @@ public class ColorTracker {
 
 	private enum COLOR {green, red}
 
-	private static final double MIN_OBJECT_AREA = 350; // Svarer ca. til flyvehøjde på 2,5 meter
+	private static final double MIN_OBJECT_AREA = 400; // Svarer ca. til flyvehøjde på 2,5 meter
 	private static final double MAX_OBJECT_AREA = 2500; // Svarer ca. til flyvehøjde under 1,5 meter
 
 	private ArrayList<Squares> squares;
@@ -143,9 +143,9 @@ public class ColorTracker {
 					
 					// Hvis det fundne objekt er i kanten af billedet, er der meget stor fejlmargin
 					// Objektet frasorteres derfor
-					final int delta = 185; // 160 pixels er sorte, herefter 25 pixels fejlmargin
-					if(x < delta || x > out.size().width - delta){ 
-						continue;
+					final int delta = 25; // 160 pixels er sorte i x-retningen, herefter 25 pixels fejlmargin
+					if(x < delta + 160 || x > out.size().width - (delta + 160)){ 
+						continue; 
 					}
 					if(y < (int) (delta/2) || y > out.size().height - (int) (delta/2)){
 						continue;
