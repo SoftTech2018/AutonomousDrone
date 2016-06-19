@@ -81,7 +81,7 @@ public class YawCalc{
 			tempYaw = regulator*(180 - (90 + nyB));
 		}
 
-		int nyYaw = 0;
+		int nyYaw = (int) tempYaw;
 
 		if(qr.getText()!=null || !qr.getText().isEmpty()){
 			int wall = Integer.parseInt(""+qr.getText().charAt(2));			
@@ -91,16 +91,12 @@ public class YawCalc{
 			} else if (wall == 2){
 				nyYaw = (int)(90 + tempYaw);
 			} else if (wall == 3){
-				if(tempYaw<0){
+				if(tempYaw < 0){
 					nyYaw = (int)(180 + tempYaw);
 				} else {
 					nyYaw = (int)(-180 + tempYaw);
 				}
-			} else {
-				nyYaw = (int) tempYaw;
 			}
-		} else {
-			nyYaw = (int) tempYaw;
 		}
 
 		System.err.println("nyYAW: "+nyYaw);
