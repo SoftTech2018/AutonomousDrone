@@ -4,7 +4,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -23,6 +25,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
+import diverse.Log;
 import diverse.QrFirkant;
 import diverse.YawCalc;
 import diverse.koordinat.Koordinat;
@@ -334,7 +337,7 @@ public class BilledManipulation {
 					//					Imgproc.putText(out, "3", new Point(list.get(3).x, list.get(3).y), 1, 5, new Scalar(255, 255, 255), 2);
 					//					Imgproc.putText(out, "list.get(1)", new Point(list.get(1).x, list.get(1).y), 1, 5, new Scalar(255, 255, 255), 2);
 					//					Imgproc.putText(out, Double.toString((int)l1*l2), new Point(list.get(0).x, list.get(0).y), 1, 5, new Scalar(255, 255, 255), 2);
-					//					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
+//										Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
 				}
 				//				return test3;
 			}
@@ -387,11 +390,12 @@ public class BilledManipulation {
 
 			Imgproc.warpPerspective(out, test3, warp, new Size(qr.cols(),qr.rows()));
 			//Dette må ikke slettes, skal bruges til at justere threshold værdier
-			//			Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
+//						Imgproc.cvtColor(test3, test3, Imgproc.COLOR_RGB2GRAY);
 			//DETTE SKAL ÆNDRES I FORHOLD TIL LYS-STYRKEN I LOKALET
-			//			Imgproc.threshold(test3, test3, min, max, Imgproc.THRESH_BINARY);
+//						Imgproc.threshold(test3, test3, min, max, Imgproc.THRESH_BINARY);
 			//			System.err.println("Min er "+min + " og max er "+max);
 			return test3;
+//			return out;
 		} 
 
 		return mat;
@@ -489,7 +493,7 @@ public class BilledManipulation {
 		Imgproc.GaussianBlur(temp, temp, new Size(5,5), -1);
 		Imgproc.Canny(temp, temp, 50, 100);
 
-		ArrayList<QrFirkant> qrFirkant = new ArrayList<QrFirkant>();
+		ArrayList<QrFirkant> qrFirkantAll = new ArrayList<QrFirkant>();
 		QrFirkant firkant1, firkant2;
 
 		//Contours gemmes i array
@@ -524,14 +528,65 @@ public class BilledManipulation {
 				double y3 = list.get(3).y;
 
 				if(checkFirkant(l1,l2)){
-					//					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
-					qrFirkant.add(new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3)));
+//					Imgproc.drawContours(out, contours, i, new Scalar(0,0,255), 3);
+//					QrFirkant qr = new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3));
+					qrFirkantAll.add(new QrFirkant(new Point(x0,y0),new Point(x1,y1),new Point(x2,y2),new Point(x3,y3)));
+					
 				}
 			}
 		}
+			
 		ArrayList<QrFirkant> qrFirkant2 = new ArrayList<QrFirkant>();
+		ArrayList<QrFirkant> qrFirkant = new ArrayList<QrFirkant>();
+		if(qrFirkantAll.size()>=2){
+			
+			Map<Koordinat, ArrayList<QrFirkant>> gruppering = new HashMap<Koordinat,ArrayList<QrFirkant>>();
+			ArrayList<Koordinat> kontrol = new ArrayList<Koordinat>();
+			for (int i = 0; i < qrFirkantAll.size(); i++) {
+				Koordinat key = qrFirkantAll.get(i).getCentrum();
+				if(gruppering.isEmpty()){
+					Log.writeLog("Gruppering er tom");
+					gruppering.put(key, new ArrayList<QrFirkant>());
+					gruppering.get(key).add(qrFirkantAll.get(i));
+					kontrol.add(key);
+				} else {
+					
+//					for (Koordinat key2 : gruppering.keySet()) {
+					for (int j = 0; j < gruppering.size(); j++) {
+						Koordinat key2 = kontrol.get(j);
+						if(!checkCentrum2(key2,key)){
+							gruppering.get(key2).add(qrFirkantAll.get(i));
+							Log.writeLog("Firkant i samme gruppering");
+						} else {
+							gruppering.put(key, new ArrayList<QrFirkant>());
+							gruppering.get(key).add(qrFirkantAll.get(i));
+							Log.writeLog("Firkant ikke i samme gruppering");
+							kontrol.add(key);
+						}						
+					}
+//					}
+				}
+			}
+			
+			for (Koordinat key : gruppering.keySet()) {
+				Log.writeLog("Key: "+key);
+				ArrayList<QrFirkant> test = gruppering.get(key);
+				int minA = test.get(0).getAreal();
+				int id=0;
+				for(int i=0; i<test.size();i++){
+					if(test.get(i).getAreal()<=minA){
+						minA = test.get(i).getAreal();
+						id = i;
+					}
+				}
+				qrFirkant.add(test.get(id));
+			}
+			
+			Log.writeLog("MAPPET STØRRELSE "+gruppering.size());
+			
+		}
 		if(qrFirkant.size()>=2){
-			System.err.println("Der er " + qrFirkant.size() + " firkanter i qrFirkant");
+			Log.writeLog("over 2 grupperinger");
 			int maxA = 0;
 			int nextMaxA = 0;
 			int id=0;
@@ -540,11 +595,13 @@ public class BilledManipulation {
 			for (int i = 0; i < qrFirkant.size(); i++) {
 				System.err.println("Areal størrelser : "+ qrFirkant.get(i).getAreal());
 				//bruger qr med største areal
-				if(qrFirkant.get(i).getAreal()>=maxA){
-					System.err.println("maxA");
-					maxA = qrFirkant.get(i).getAreal();
-					id = i;
-				}				
+//				if(qrFirkant.get(i).getCentrum().getX()>320 && qrFirkant.get(i).getCentrum().getX()<960){ // denne if-else skal måske fjernes
+					if(qrFirkant.get(i).getAreal()>=maxA){
+						System.err.println("maxA");
+						maxA = qrFirkant.get(i).getAreal();
+						id = i;
+					}									
+//				}
 			}
 			//Finder næst største areal
 			for (int i = 0; i < qrFirkant.size(); i++) {
@@ -564,17 +621,20 @@ public class BilledManipulation {
 			qrFirkant2.add(firkant2);
 
 			if(qrFirkant2.size()!=2){// || !checkAreal(firkant1,firkant2) || !checkCentrum(firkant1,firkant2)
-				System.err.println("fejl 1");
+//				System.err.println("fejl 1");
+				Log.writeLog("FEJL 1");
 				return null;
 			}
 			if(!checkAreal(firkant1,firkant2)){
-				System.err.println("fejl 2");
+//				System.err.println("fejl 2");
+				Log.writeLog("FEJL 2");
 				return null;
 			}
 			if(!checkCentrum(firkant1,firkant2)){
-				System.err.println("fejl 3");
-				System.err.println("Firkant 1 = " + firkant1.getCentrum().getX());
-				System.err.println("Firkant 2 = " + firkant2.getCentrum().getX());
+				Log.writeLog("FEJL 3");
+//				System.err.println("fejl 3");
+//				System.err.println("Firkant 1 = " + firkant1.getCentrum().getX());
+//				System.err.println("Firkant 2 = " + firkant2.getCentrum().getX());
 				return null;
 			}
 			return qrFirkant2;
@@ -641,7 +701,19 @@ public class BilledManipulation {
 		Koordinat f2k = f2.getCentrum();
 		int dist = f1k.dist(f2k);
 		System.out.println("Dist ved centrum check "+dist);
-		if(dist>50){
+		if(dist>100){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean checkCentrum2(Koordinat f1, Koordinat f2){
+//		Koordinat f1k = f1.getCentrum();
+//		Koordinat f2k = f2.getCentrum();
+		int dist = f1.dist(f2);
+		System.out.println("Dist ved centrum check "+dist);
+		if(dist>100){
 			return true;
 		} else {
 			return false;
