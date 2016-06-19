@@ -287,9 +287,14 @@ public class DroneControl implements IDroneControl {
 		if (!timeMode) {
 			cmd.forward(SPEED);
 		} else {
-			cmd.forward(SPEED*2).doFor(DURATION);
+//			cmd.forward(SPEED*2).doFor(DURATION);
+//			cmd.hover();
+			
+			cmd.forward(SPEED*2).doFor((long) (DURATION*0.5));
 			cmd.hover();
-			//			Thread.sleep(DURATION);
+			Thread.sleep(2000);
+			cmd.forward(SPEED*2).doFor((long) (DURATION*0.5));
+			cmd.hover();	
 		}
 		// cmd.hover();
 	}
@@ -307,9 +312,14 @@ public class DroneControl implements IDroneControl {
 		if (!timeMode) {
 			cmd.backward(SPEED);
 		} else {
-			cmd.backward(SPEED*2).doFor(DURATION);
+//			cmd.backward(SPEED*2).doFor(DURATION);
+//			cmd.hover();
+			
+			cmd.backward(SPEED*2).doFor((long) (DURATION*0.5));
 			cmd.hover();
-			//			Thread.sleep(DURATION);
+			Thread.sleep(2000);
+			cmd.backward(SPEED*2).doFor((long) (DURATION*0.5));
+			cmd.hover();
 		}
 		// cmd.hover();
 	}
@@ -487,7 +497,16 @@ public class DroneControl implements IDroneControl {
 	public void strafeRight(int dist) {
 		final double FACTOR = 11;
 		//		cmd.goRight(SPEED * 2).doFor((long) (FACTOR * dist));
-		cmd.goRight(SPEED*3).doFor((DURATION)); // test
+//		cmd.goRight(SPEED*3).doFor((DURATION)); // test
+//		cmd.hover(); // test
+		
+
+		cmd.goRight(SPEED*3).doFor((long) (DURATION*0.5)); // test
+		cmd.hover(); // test
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {}
+		cmd.goRight(SPEED*3).doFor((long) (DURATION*0.5)); // test
 		cmd.hover(); // test
 	}
 
@@ -495,13 +514,41 @@ public class DroneControl implements IDroneControl {
 	public void strafeLeft(int dist) {
 		final double FACTOR = 11;
 		//		cmd.goLeft(SPEED * 2).doFor((long) (FACTOR * dist));
-		cmd.goLeft(SPEED*3).doFor((DURATION)); // test
+//		cmd.goLeft(SPEED*3).doFor((DURATION)); // test
+//		cmd.hover(); // test
+		
+		cmd.goLeft(SPEED*3).doFor((long) (DURATION*0.5)); // test
+		cmd.hover(); // test
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {}
+		cmd.goLeft(SPEED*3).doFor((long) (DURATION*0.5)); // test
 		cmd.hover(); // test
 	}
 
 	@Override
 	public void turnDroneTo(int targetYaw) {
-		this.turnDrone(targetYaw - this.getFlightData()[2]);
+		int yaw;
+		while(Math.abs(yaw = (this.getFlightData()[2] - targetYaw)) > 5){
+			if(yaw < 0){
+				yaw = Math.abs(yaw);
+			} else {
+				yaw = 360 - yaw;
+			}
+			Log.writeLog("Dronen drejes: " + yaw);
+			if(yaw > 180){
+				cmd.spinLeft(80).doFor(40);
+				cmd.spinRight(80).doFor(10);
+			} else {
+				cmd.spinRight(80).doFor(40);
+				cmd.spinLeft(80).doFor(10);
+			}
+			cmd.hover();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {	}
+		}
+//		this.turnDrone(targetYaw - this.getFlightData()[2]);
 	}
 
 

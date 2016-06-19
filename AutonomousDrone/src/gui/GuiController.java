@@ -689,7 +689,7 @@ public class GuiController {
 	@FXML
 	void flyUp(ActionEvent event) {
 		try {
-			dc.up();
+			dc.up2();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -699,7 +699,7 @@ public class GuiController {
 	@FXML
 	void flyDown(ActionEvent event) {
 		try {
-			dc.down();
+			dc.down2();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

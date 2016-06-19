@@ -12,7 +12,7 @@ public class DroneHelper {
 
 	private IDroneControl dc;
 	private Koordinat papKasse;
-	private int adjustment = 100, xMax = 613, xMin = 400, yMax = 728, yMin = 200, directionChange = 0;
+	private int adjustment = 100, xMax = 763, xMin = 400, yMax = 978, yMin = 200, directionChange = 0;
 
 	public enum DIRECTION { UP, DOWN, LEFT, RIGHT, STOPPED };
 
@@ -243,23 +243,23 @@ public class DroneHelper {
 				newDir = DIRECTION.LEFT;
 			}
 		}
-		
+
 		// Beregn den estimerede position når næste bevægelse er udført
 		// Tjek om bevægelsen fra nuværende til estimeret position vil ramme papkassen
 		int xKoor = drone.getX();
 		int yKoor = drone.getY();
 		switch(newDir){
 		case UP:
-			yKoor += 75;
+			yKoor += 100;
 			break;
 		case DOWN:
-			yKoor -= 75;
+			yKoor -= 100;
 			break;
 		case LEFT:
-			xKoor -= 75;
+			xKoor -= 100;
 			break;
 		case RIGHT:
-			xKoor += 75;
+			xKoor += 100;
 			break;
 		case STOPPED:
 			break;
@@ -394,5 +394,72 @@ public class DroneHelper {
 
 	public Koordinat getPapkasse() {
 		return papKasse;
+	}
+
+	/**
+	 * Flyver YOLO-style fra et start koordinat til et slut koordinat udelukkende vha. frem, tilbage, strafe
+	 * Det antages at dronens YAW = 0.
+	 * @param start
+	 * @param slut
+	 * @return True hvis bevægelsen blev udført. False hvis der ikke er en gyldig rute (udenom papkassen)
+	 * @throws InterruptedException
+	 */
+	public boolean flyToKoordinat(Koordinat start, Koordinat slut) throws InterruptedException{
+		int xDist = slut.getX()- start.getX();
+		int yDist = slut.getY() - start.getY();
+		Log.writeLog("Dronen skal flyttes: " + xDist + "cm af X-aksen.");
+		Log.writeLog("Dronen skal flyttes: " + yDist + "cm af Y-aksen.");
+		if(!this.papkasseTjek(start, new Koordinat(slut.getX(), start.getY()), 100)){
+			if(!this.papkasseTjek(new Koordinat(slut.getX(), start.getY()), slut, 100)){
+				// Bevæg frem/tilbage først
+				while(xDist > 50){
+					dc.forward();
+					xDist = xDist - 100;
+					Thread.sleep(3000);
+				}
+				while(xDist < -50){
+					dc.backward();
+					xDist = xDist + 100;
+					Thread.sleep(3000);
+				}	
+				while(yDist > 50){
+					dc.strafeLeft(0);
+					yDist = yDist - 100;
+					Thread.sleep(3000);
+				}
+				while(yDist < -50){
+					dc.strafeRight(0);
+					yDist = yDist + 100;
+					Thread.sleep(3000);
+				}
+				return true;
+			}
+		} else if(!this.papkasseTjek(start, new Koordinat(start.getX(), slut.getY()), 100)){
+			if(!this.papkasseTjek(new Koordinat(start.getX(), slut.getY()), slut, 100)){
+				// Bevæg venstre/højre først
+				while(yDist > 50){
+					dc.strafeLeft(0);
+					yDist = yDist - 100;
+					Thread.sleep(3000);
+				}
+				while(yDist < -50){
+					dc.strafeRight(0);
+					yDist = yDist + 100;
+					Thread.sleep(3000);
+				}
+				while(xDist > 50){
+					dc.forward();
+					xDist = xDist - 100;
+					Thread.sleep(3000);
+				}
+				while(xDist < -50){
+					dc.backward();
+					xDist = xDist + 100;
+					Thread.sleep(3000);
+				}	
+				return true;
+			}
+		} 
+		return false;
 	}
 }

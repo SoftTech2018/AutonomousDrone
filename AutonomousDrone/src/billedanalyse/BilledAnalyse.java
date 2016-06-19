@@ -137,7 +137,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//			//			
 		//		}
 		//		System.out.println("Afstand 1 = " + dist1 + "Afstand 2 = + " + dist2);
-		opgrum.setCircleInfo(v1, v2, dist1, dist2);
+
 		//		System.out.println("f1 ck: "+readQr.getCentrum().getX() + " og f2 ck: "+readQr2.getCentrum().getX());
 
 		// Find skæringspunktet der ligger inde i rummets koordinatsystem
@@ -147,6 +147,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			if(intersections[i].x > 0 && intersections[i].x < 963 && intersections[i].y > 0 && intersections[i].y < 1078){
 				Koordinat drone = new Koordinat((int) intersections[i].x, (int)intersections[i].y);
 				this.setDroneKoordinat(drone, true); // Opdater dronens position på GUI m.m.
+				opgrum.setCircleInfo(v1, v2, dist1, dist2);
 				return true;
 			}
 		}
@@ -235,7 +236,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			this.updateDroneKoordinat(drone);
 			this.posPrecision = true;
 		} else if (posPrecision){ // En QR-kode er brugt til positionsbestemmelse
-			if(System.currentTimeMillis() - droneKoordinatUpdated > 3500){
+			if((System.currentTimeMillis() - droneKoordinatUpdated) > 3500){
 				this.updateDroneKoordinat(drone);
 				posPrecision = false;
 			}
