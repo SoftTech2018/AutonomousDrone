@@ -74,7 +74,6 @@ public class YawCalc{
 		if(linex > middle && line2x > linex || linex < middle && line2x < linex){
 			nyC = 180 - C;
 			nyB = 180 - (nyA + nyC);
-			//				int b2 = (int) (180 - nyB);
 			tempYaw = regulator*(180 - (90 + (180 - nyB)));
 		} else {
 			nyC = C;
@@ -84,7 +83,7 @@ public class YawCalc{
 
 		int nyYaw = 0;
 
-		if(qr.getText()!=null){
+		if(qr.getText()!=null || !qr.getText().isEmpty()){
 			int wall = Integer.parseInt(""+qr.getText().charAt(2));			
 
 			if(wall == 0){
@@ -97,7 +96,11 @@ public class YawCalc{
 				} else {
 					nyYaw = (int)(-180 + tempYaw);
 				}
-			}				
+			} else {
+				nyYaw = (int) tempYaw;
+			}
+		} else {
+			nyYaw = (int) tempYaw;
 		}
 
 		System.err.println("nyYAW: "+nyYaw);
