@@ -163,7 +163,7 @@ public class PapKasseFinder {
 				int y = (int)(moment.get_m01() / area);
 				double mudiff = Math.abs(moment.get_mu20()-moment.get_mu02());
 //				Imgproc.drawContours(org, contours, i, new Scalar(255,0,0), 3);
-				if(area>1500 && area < 8000){
+				if(area>1500 && area < 10000){
 //					System.out.println("rect height: "+rect.height);
 //					System.out.println("rect width: "+rect.width);
 //					Imgproc.rectangle(org, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 0, 0, 255), 3); 

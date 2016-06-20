@@ -83,7 +83,7 @@ public class Log {
 		String stringToLog = "MÅLOBJEKT FUNDET! \t" + koordinat.toString() + "\t FARVE: " + koordinat.getGenstande().getFarve() + "\n"; 
 
 		try {
-			PrintWriter fw = new PrintWriter(new BufferedWriter(new FileWriter("objectLog.txt", false)));
+			PrintWriter fw = new PrintWriter(new BufferedWriter(new FileWriter("objectLog.txt", true)));
 
 			fw.write(stringToLog);
 			fw.close();

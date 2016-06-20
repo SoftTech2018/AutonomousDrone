@@ -347,7 +347,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		if(dist[0] > 0){
 			Koordinat papkasse = this.beregnPapkasse(drone, dist[0], dist[1]);
 			// Logisk tjek for om papkassen er nogenlunde i midten af rummet
-			if (papkasse.getX() < 300 || papkasse.getX() > 800 || papkasse.getY() < 200 || papkasse.getY() > 700){
+			if (papkasse.getX() < 963 && papkasse.getX() > 0 && papkasse.getY() > 0 && papkasse.getY() < 1078){
 				dh.setPapKasse(papkasse);
 				opgrum.setObstacleCenter(papkasse); // Tilføj papkasse på GUI
 				Log.writeLog("Papkasse fundet: " + papkasse);
@@ -364,7 +364,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		int moves = 0; // TODO - Bruges til debug
 		DIRECTION lastDir = null;
 		// ** START WHILE LØKKE **
-		while(dh.getCenterAreal() > 40000){ // Svarer til et område på 4 x 1 meter
+		while(dh.getCenterAreal() > 20000){ // Svarer til et område på 2 x 1 meter
 			//					while(moves < 8){ // TODO - Bruges til debug
 
 			this.setDroneHeight(230, 250); // Flyv til ca. 2,4 - 2,6 meters højde
@@ -443,6 +443,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 			//					opgrum.setObstacleCenter(papkasse); // Tilføj papkasse på GUI
 			//				}
 			//			}
+			opgrum.setDronePosition(drone, -179);
 			moves++; // TODO - Bruges til debug
 		}// ** SLUT WHILE LØKKE **
 

@@ -433,7 +433,13 @@ public class DroneControl implements IDroneControl {
 			System.out.println(
 					"Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw + ", YawCorrection: " + yawCorrection + ", Højde: " + altitude);
 		}
-		int out[] = { pitch, roll, yaw + yawCorrection, altitude };
+		int yawCorrected =  yaw + yawCorrection;
+		if(yawCorrected >= 180){
+			yawCorrected = 359 - yawCorrected;
+		} else if (yawCorrected <= -180){
+			yawCorrected = 359 + yawCorrected;
+		}
+		int out[] = { pitch, roll, yawCorrected, altitude };
 		return out;
 	}
 

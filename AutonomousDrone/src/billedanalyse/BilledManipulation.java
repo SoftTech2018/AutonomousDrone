@@ -624,11 +624,11 @@ public class BilledManipulation {
 				Log.writeLog("FEJL 1");
 				return null;
 			}
-			if(!checkAreal(firkant1,firkant2)){
-//				System.err.println("fejl 2");
-				Log.writeLog("FEJL 2");
-				return null;
-			}
+//			if(!checkAreal(firkant1,firkant2)){
+////				System.err.println("fejl 2");
+//				Log.writeLog("FEJL 2");
+//				return null;
+//			}
 			if(!checkCentrum(firkant1,firkant2)){
 				Log.writeLog("FEJL 3");
 //				System.err.println("fejl 3");

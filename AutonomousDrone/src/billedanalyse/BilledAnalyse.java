@@ -207,6 +207,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 		// Find vinklen til QR koden
 		// Dronens YAW + vinklen i kameraet til QR-koden
+		double yawCorrection = this.yawCalc.getYaw(this.getFirkant());
+		if(yawCorrection > -180 && yawCorrection < 180){
+			dc.setYawCorrection(yawCorrection);			
+		}
 		int yaw = -1*dc.getFlightData()[2]; // Spejlvend YAW så vinklen passer med radianer
 		int imgAngle = (int) punktNav.getAngle(readQr.getCentrum().getX(), (int) (frame.size().width/2)); // DeltaX fra centrum af billedet til centrum af QR koden/firkanten
 		int totalAngle = yaw - imgAngle;
@@ -234,6 +238,10 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private void setDroneKoordinat(Koordinat drone, boolean toQrKoderMetode){
 		if(toQrKoderMetode){ // To QR-koder er brugt til positionsbestemmelse
 			this.updateDroneKoordinat(drone);
+			double yawCorrection = this.yawCalc.getYaw(this.getFirkant()); // TODO - Erstat med metode der benytter 2 QR-koder
+			if(yawCorrection > -180 && yawCorrection < 180){
+				dc.setYawCorrection(yawCorrection);			
+			}
 			this.posPrecision = true;
 		} else if (posPrecision){ // En QR-kode er brugt til positionsbestemmelse
 			if((System.currentTimeMillis() - droneKoordinatUpdated) > 3500){
@@ -243,10 +251,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		} else {
 			this.updateDroneKoordinat(drone);
 			posPrecision = false;
-		}
-		double yawCorrection = this.yawCalc.getYaw(this.getFirkant());
-		if(yawCorrection > -180 && yawCorrection < 180){
-			dc.setYawCorrection(yawCorrection);			
 		}
 	}
 

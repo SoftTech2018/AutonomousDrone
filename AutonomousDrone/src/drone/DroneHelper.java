@@ -24,7 +24,7 @@ public class DroneHelper {
 	 */
 	public DroneHelper(IDroneControl dc, int x, int y){
 		this.dc = dc;
-		xMax = x - 200;
+		xMax = x - 250;
 		xMin = 500;
 		yMax = y - 200;
 		yMin = 200;
@@ -488,24 +488,25 @@ public class DroneHelper {
 	public boolean turnDroneByPosition(Koordinat drone) throws InterruptedException {
 		boolean adjusted = false;
 		int yaw = dc.getFlightData()[2];
-		if(drone.getX() > xMin){
-			if(Math.abs((Math.abs(yaw) - 90)) >= 5){
+		if(drone.getX() > xMax - 350){ // Tæt på glasvæggen
+			if(Math.abs(yaw) >= 5){
 				if(drone.getY() < 400){
-					dc.turnDroneTo(90); // Peg mod væg2
+					dc.turnDroneTo(0); // Peg mod glasvæg
 					adjusted = true;
-				} else if (drone.getY() > y-400){
-					dc.turnDroneTo(-90); // Peg mod væg0
-					adjusted = true;
-				}
+				} 
 			}
+		} else if (drone.getY() > y-400){ // Langt fra glasvæg og i toppen af rummet
+			dc.turnDroneTo(-90); // Peg mod væg0
+			adjusted = true;
 		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 400){
+			// Langt fra glasvæg og midt i rummet
 			if(Math.abs(yaw) - 179 > 5){			
 				dc.turnDroneTo(-179);
 				adjusted = true;
 			}
-		} else {
-			if(Math.abs(yaw)> 5){
-				dc.turnDroneTo(0);
+		} else if (drone.getY() < 400){
+			if(Math.abs(yaw) - 90 > 5){
+				dc.turnDroneTo(90);
 				adjusted = true;
 			}
 		}
