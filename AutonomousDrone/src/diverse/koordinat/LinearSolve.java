@@ -54,7 +54,7 @@ public class LinearSolve  {
 		double cameraDistance = Math.sqrt(Math.pow(dp.x-cameraPoint.x, 2)+ Math.pow(dp.y-cameraPoint.y,2));
 //		System.out.println("Distance fra cam girl til punkt " + cameraDistance);
 //		System.out.println("BaseDistance = " +baseDistance);
-//		Log.writeLog("Cam girl distance er : " + cameraDistance);
+		
 		double degree = Math.toDegrees(Math.acos((baseDistance/cameraDistance)));
 		if(baseDegrees == 0){
 			if (dp.y > cameraPoint.y){
@@ -82,9 +82,10 @@ public class LinearSolve  {
 				degree =  baseDegrees + degree;
 			}
 		}
+		Log.writeYawLog("Dronens Position: "+ dp +"\n" + "Punktet Kameraet peger på: " +cameraPoint+"\nDistance fra drone til punket er" + cameraDistance +"\nberegnet vinkel" + degree);
 
 
-//		Log.writeLog("Den samlede vinkel er : " + degree);
+
 		return degree;
 	}
 

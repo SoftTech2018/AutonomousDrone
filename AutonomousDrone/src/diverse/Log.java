@@ -91,7 +91,18 @@ public class Log {
 			e.printStackTrace();
 			System.out.println("Filen kunne ikke åbnes");
 		}
+	}
+		public static void writeYawLog(String string){
+			String stringToLog = new Date() + ": " + string + "\n";
+			try {
+				PrintWriter fw = new PrintWriter(new BufferedWriter(new FileWriter("yawLog.txt", true)));
 
+				fw.write(stringToLog);
+				fw.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Filen kunne ikke åbnes");
+			}
+		}
 
 	}
-}

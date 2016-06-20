@@ -209,8 +209,8 @@ public class YawCalc{
 		 CameraViewPoint = LinearSolve.calcCameraViewPointOnY(a, b, qrKoordinat.x );
 //		 System.out.println( "der læses på X aksen");
 		}
-//		System.out.println("væggens koordinat er: " + CameraViewPoint);
-//		System.out.println("base degrees er " + baseDegrees);
+
+		Log.writeYawLog("Væggen er: " + wall + "\n phi er: " + phi + " K");
 		double angle = LinearSolve.getYawAngle(dronePosition, CameraViewPoint, baseDistance, baseDegrees);
 //		System.out.println("************************ Vinklen er " + angle + " *****************************'");
 
