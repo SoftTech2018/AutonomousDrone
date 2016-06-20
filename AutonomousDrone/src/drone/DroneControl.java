@@ -77,7 +77,7 @@ public class DroneControl implements IDroneControl {
 
 	@Override
 	public void setYawCorrection(double calcYaw) {
-		//		Log.writeLog("Yaw: " + yaw + "\tBeregnet yaw: " + calcYaw);
+//				Log.writeLog("Beregnet yaw: " + calcYaw);
 		yawCorrection = (int) calcYaw - yaw;
 	}
 

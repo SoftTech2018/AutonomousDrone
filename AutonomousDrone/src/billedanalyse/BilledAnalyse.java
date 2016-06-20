@@ -242,15 +242,16 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private void setDroneKoordinat(Koordinat drone, boolean toQrKoderMetode){
 		if(toQrKoderMetode){ // To QR-koder er brugt til positionsbestemmelse
 			this.updateDroneKoordinat(drone);
-			int yawCorrection = this.yawCalc.findYaw(this.getFirkant(), drone);
-			if(yawCorrection > 179){
-				yawCorrection = 359 - yawCorrection;
-			} else {
-				yawCorrection = yawCorrection * -1;
-			}
+//			int yawCorrection = this.yawCalc.findYaw(this.getFirkant(), drone);
+			int yawCorrection = this.yawCalc.findYaw(bm.getFirkanten(), drone);
+//			if(yawCorrection > 179){
+//				yawCorrection = 359 - yawCorrection;
+//			} else {
+//				yawCorrection = yawCorrection * -1;
+//			}
 //			Log.writeLog("DEBUG: yawCorrection er: " + yawCorrection);
 			if(yawCorrection > -180 && yawCorrection < 180){
-//				dc.setYawCorrection(yawCorrection);			
+				dc.setYawCorrection(yawCorrection);			
 			}
 			this.posPrecision = true;
 		} else if (posPrecision){ // En QR-kode er brugt til positionsbestemmelse

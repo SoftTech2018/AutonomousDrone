@@ -500,11 +500,11 @@ public class DroneHelper {
 				dc.turnDroneTo(-90);
 				adjusted = true;
 			}
-		} else if (drone.getY() > y-400){ // Langt fra glasvæg og i toppen af rummet
+		} else if (drone.getY() > y-500){ // Langt fra glasvæg og i toppen af rummet
 			Log.writeLog("Peger drone mod W02");
 			dc.turnDroneTo(-90); // Peg mod væg0
 			adjusted = true;
-		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 400){
+		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 500){
 			// Langt fra glasvæg og midt i rummet
 			Log.writeLog("Peger drone mod W03");	
 			dc.turnDroneTo(-179);

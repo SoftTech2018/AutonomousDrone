@@ -384,6 +384,12 @@ public class OpgaveAlgoritme2 implements Runnable {
 			}
 
 			this.setDroneHeight(135, 160); // Flyv til QR-kode højde
+			
+			Koordinat temp = this.findDronePos3();
+			if(temp!=null){
+				drone = temp;
+			}
+			dh.turnDroneByPosition(drone);
 
 			// Flyv 1. step baseret på position og retning
 			lastDir = dh.moveDrone(drone, lastDir);
@@ -524,7 +530,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		Log.writeLog("Finder drone position...");
 
 		// Kør løkken indtil der er fundet en position. Max 10000ms (10 sek)
-		while((drone = ba.getDroneKoordinat()) == null && (System.currentTimeMillis() - start) < 20000){
+		while((drone = ba.getDroneKoordinat()) == null && (System.currentTimeMillis() - start) < 10000){
 			if(this.landingsPlads==null){ // Vi -skal- finde vores position hvis vi lige er lettet
 				QrFirkant firkanten = ba.getFirkant();
 				if(firkanten==null){
@@ -536,7 +542,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 				}
 
 				// Find firkant og bevæg dronen mod/væk fra den afhængig af afstand
-				if((System.currentTimeMillis() - start) > 6000){ 
+				if((System.currentTimeMillis() - start) > 3000){ 
 					if(firkanten.getHeight() > 500){ // TODO - korrekte pixelværdier for grænsetilfælde
 						// bagud
 						Log.writeLog("Justerer drone position i forhold til QR-kode. BAGLÆNS");
