@@ -488,16 +488,22 @@ public class DroneHelper {
 	public boolean turnDroneByPosition(Koordinat drone) throws InterruptedException {
 		boolean adjusted = false;
 		int yaw = dc.getFlightData()[2];
-		if(drone.getX() > xMax - 300){ // Tæt på glasvæggen
+		if(drone.getX() > x - 300){ // Tæt på glasvæggen
 			if(Math.abs(yaw) >= 5){
-				Log.writeLog("Peger drone mod W01");
-				if(drone.getY() < 400){
+				Log.writeLog("Peger drone mod W01." + drone.getX() + " : x: " + x);
+				if(drone.getY() > 400){
 					dc.turnDroneTo(0); // Peg mod glasvæg
 					adjusted = true;
-				} 
+				} else if (drone.getY() < 400){
+					dc.turnDroneTo(90);
+					adjusted = true;
+				} else {
+					dc.turnDroneTo(-90);
+					adjusted = true;
+				}
 			}
 		} else if (drone.getY() > y-400){ // Langt fra glasvæg og i toppen af rummet
-			Log.writeLog("Peger drone mod W0");
+			Log.writeLog("Peger drone mod W02");
 			dc.turnDroneTo(-90); // Peg mod væg0
 			adjusted = true;
 		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 400){
@@ -509,10 +515,10 @@ public class DroneHelper {
 			}
 		} else if (drone.getY() < 400){
 			Log.writeLog("Peger drone mod W00");
-			if(Math.abs(yaw) - 90 > 5){
+//			if(Math.abs(yaw) - 90 > 5){
 				dc.turnDroneTo(90);
 				adjusted = true;
-			}
+//			}
 		}
 		if(adjusted){			
 			Log.writeLog("Droneretning er justeret");

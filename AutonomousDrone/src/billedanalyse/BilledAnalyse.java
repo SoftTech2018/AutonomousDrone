@@ -160,16 +160,23 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 //		if(qrFirkanter==null || qrFirkanter.isEmpty()){
 //			return;
 //		}
-		String qrText = qrs.applyFilters(bm.readQrSkewed(frame));
+		Mat temp = new Mat();
+		frame.copyTo(temp);
+//		String qrText = qrs.applyFilters(bm.readQrSkewed(frame));
 		//		System.err.println("QR text: " + qrText);
+		
+		// Tjek om den læste QR-kode matcher en fundet firkant i billedet
+		QrFirkant readQr = bm.getFirkanten();
+		if(readQr==null){
+			return;
+		}
+		String qrText = bm.warpQrImage(readQr, qrs, temp);
+		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
 		if(qrText.length() < 3){ // Der kan ikke læses nogen QR-kode
 			return;
 		}
+		readQr.setText(qrTextArray[0]);
 
-		// Tjek om den læste QR-kode matcher en fundet firkant i billedet
-		QrFirkant readQr = null;
-		String[] qrTextArray = qrText.split(","); // 0 = QR koden, 1 = x koordinat, 2 = y koordinat
-		readQr = bm.getFirkanten();
 		//		Koordinat qrCentrum = bm.getQrCenter();
 		//		readQr = qrFirkanter.get(0);
 		//		int minDist = readQr.getCentrum().dist(qrCentrum);
@@ -190,10 +197,6 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		//			System.err.println("Ingen matchende firkant fundet!");
 		//			return;
 		//		}
-		if(readQr==null){
-			return;
-		}
-		readQr.setText(qrTextArray[0]);
 
 		// Find det rigtige koordinat på den aflæse vægmarkering
 		Vector2 v = this.opgrum.getMultiMarkings(readQr.getText())[1];
@@ -243,7 +246,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			if(yawCorrection > 179){
 				yawCorrection = 360 - yawCorrection;
 			}
-			Log.writeLog("DEBUG: yawCorrection er: " + yawCorrection);
+//			Log.writeLog("DEBUG: yawCorrection er: " + yawCorrection);
 			if(yawCorrection > -180 && yawCorrection < 180){
 				dc.setYawCorrection(yawCorrection);			
 			}

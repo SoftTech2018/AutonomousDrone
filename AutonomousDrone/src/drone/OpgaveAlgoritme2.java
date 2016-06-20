@@ -112,7 +112,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 			
 
 			this.opgave2(); // Afsøg opgaverummet
-			//			this.testFlight();
+//						this.testFlight();
 			destroy(); // Land dronen
 		}
 	}
@@ -587,31 +587,43 @@ public class OpgaveAlgoritme2 implements Runnable {
 		//		Log.writeLog("Flyver ned til QR-højde");
 		this.setDroneHeight(130, 150);
 		Thread.sleep(3500);
+		
+		dh.turnDroneByPosition(new Koordinat(650, 250));
+		Thread.sleep(3000);
+		
+		dh.turnDroneByPosition(new Koordinat(750, 500));
+		Thread.sleep(3000);
+		
+		dh.turnDroneByPosition(new Koordinat(650, 900));
+		Thread.sleep(3000);
+		
+		dh.turnDroneByPosition(new Koordinat(500, 250));
+		Thread.sleep(3000);
 
-		ba.setDroneLocator(true);
-		Koordinat start = this.findDronePos3();
-		if(start!= null){
-			Log.writeLog("Landingsplads: " + start);			
-		}
-		ba.setDroneLocator(false);
-		Thread.sleep(1000);
-
-		ba.setPapKasseLocator(true);
-		dc.turnDroneTo(-135);
-		Thread.sleep(3500);
-
-		int dist;
-		if((dist = ba.getPapKasse()[0]) > 0){
-			Log.writeLog("Distance til papkasse: " + dist + "cm. YAW: " + dc.getFlightData()[2]);
-		}
-
-		dc.turnDroneTo(135);
-		Thread.sleep(3500);
-		if((dist = ba.getPapKasse()[0]) > 0){
-			Log.writeLog("Distance til papkasse: " + dist + "cm. YAW: " + dc.getFlightData()[2]);
-		}
-		ba.setPapKasseLocator(false);
-		Thread.sleep(3500);
+//		ba.setDroneLocator(true);
+//		Koordinat start = this.findDronePos3();
+//		if(start!= null){
+//			Log.writeLog("Landingsplads: " + start);			
+//		}
+//		ba.setDroneLocator(false);
+//		Thread.sleep(1000);
+//
+//		ba.setPapKasseLocator(true);
+//		dc.turnDroneTo(-135);
+//		Thread.sleep(3500);
+//
+//		int dist;
+//		if((dist = ba.getPapKasse()[0]) > 0){
+//			Log.writeLog("Distance til papkasse: " + dist + "cm. YAW: " + dc.getFlightData()[2]);
+//		}
+//
+//		dc.turnDroneTo(135);
+//		Thread.sleep(3500);
+//		if((dist = ba.getPapKasse()[0]) > 0){
+//			Log.writeLog("Distance til papkasse: " + dist + "cm. YAW: " + dc.getFlightData()[2]);
+//		}
+//		ba.setPapKasseLocator(false);
+//		Thread.sleep(3500);
 
 		//		dc.forward();
 		//		Thread.sleep(3500);
@@ -622,8 +634,8 @@ public class OpgaveAlgoritme2 implements Runnable {
 		//		dc.strafeRight(0);
 		//		Thread.sleep(3500);
 
-		dc.turnDroneTo(0);
-		Thread.sleep(3500);
+//		dc.turnDroneTo(0);
+//		Thread.sleep(3500);
 
 		//		dh.flyToKoordinat(new Koordinat(0,0), new Koordinat(125,125));
 		//		Thread.sleep(3500);
