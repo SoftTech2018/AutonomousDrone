@@ -243,7 +243,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 		if(toQrKoderMetode){ // To QR-koder er brugt til positionsbestemmelse
 			this.updateDroneKoordinat(drone);
 //			int yawCorrection = this.yawCalc.findYaw(this.getFirkant(), drone);
-			int yawCorrection = this.yawCalc.findYaw(bm.getFirkanten(), drone);
+			int yawCorrection = (int) this.yawCalc.getYaw(bm.getFirkanten());
 //			if(yawCorrection > 179){
 //				yawCorrection = 359 - yawCorrection;
 //			} else {
