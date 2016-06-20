@@ -92,9 +92,9 @@ public class YawCalc{
 				nyYaw = (int)(90 + tempYaw);
 			} else if (wall == 3){
 				if(tempYaw < 0){
-					nyYaw = (int)(180 + tempYaw);
+					nyYaw = (int)(179 + tempYaw);
 				} else {
-					nyYaw = (int)(-180 + tempYaw);
+					nyYaw = (int)(-179 + tempYaw);
 				}
 			}
 		}
