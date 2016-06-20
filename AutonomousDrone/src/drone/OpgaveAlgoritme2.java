@@ -51,7 +51,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		this.dc = dc;
 		this.ba = ba;
 		this.punktNav = new PunktNavigering();
-//		this.createPoints();
+		//		this.createPoints();
 		this.opgrum = opgrum;
 		this.dh = new DroneHelper(dc, opgrum.getWidth(), opgrum.getLength());
 	}
@@ -294,13 +294,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	private int findPapkasse() throws InterruptedException{
+	private int[] findPapkasse() throws InterruptedException{
 		int dist = -1;
 		int targetYaw = -45;
 		int turns = 1;
 		ba.setPapKasseLocator(true);
 		Thread.sleep(2000);
-		while((dist = ba.getPapKasse()) < 0 && turns < 8){
+		while((dist = ba.getPapKasse()[0]) < 0 && turns < 8){
 			ba.setPapKasseLocator(false);
 			if(targetYaw < -179){
 				targetYaw = 360 + targetYaw;
@@ -313,7 +313,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		}
 		ba.setPapKasseLocator(false);
 		dc.turnDroneTo(0);
-		return dist;
+		return ba.getPapKasse();
 	}
 
 	/**
@@ -343,16 +343,16 @@ public class OpgaveAlgoritme2 implements Runnable {
 		ba.setDroneLocator(false);
 
 		// Lokaliser papkassen i lokalet
-		//		int dist = this.findPapkasse();
-		//		if(dist > 0){
-		//			Koordinat papkasse = this.findPapkasse(drone, dist);
-		//			// Logisk tjek for om papkassen er nogenlunde i midten af rummet
-		//			if (papkasse.getX() < 300 || papkasse.getX() > 800 || papkasse.getY() < 200 || papkasse.getY() > 700){
-		//				dh.setPapKasse(papkasse);
-		//				opgrum.setObstacleCenter(papkasse); // Tilføj papkasse på GUI
-		//				Log.writeLog("Papkasse fundet: " + papkasse);
-		//			}
-		//		}
+		int[] dist = this.findPapkasse();
+		if(dist[0] > 0){
+			Koordinat papkasse = this.beregnPapkasse(drone, dist[0], dist[1]);
+			// Logisk tjek for om papkassen er nogenlunde i midten af rummet
+			if (papkasse.getX() < 300 || papkasse.getX() > 800 || papkasse.getY() < 200 || papkasse.getY() > 700){
+				dh.setPapKasse(papkasse);
+				opgrum.setObstacleCenter(papkasse); // Tilføj papkasse på GUI
+				Log.writeLog("Papkasse fundet: " + papkasse);
+			}
+		}
 
 		dc.turnDroneTo(0);
 		ba.setDroneLocator(true);
@@ -573,13 +573,13 @@ public class OpgaveAlgoritme2 implements Runnable {
 		Thread.sleep(3500);
 
 		int dist;
-		if((dist = ba.getPapKasse()) > 0){
+		if((dist = ba.getPapKasse()[0]) > 0){
 			Log.writeLog("Distance til papkasse: " + dist + "cm. YAW: " + dc.getFlightData()[2]);
 		}
 
 		dc.turnDroneTo(135);
 		Thread.sleep(3500);
-		if((dist = ba.getPapKasse()) > 0){
+		if((dist = ba.getPapKasse()[0]) > 0){
 			Log.writeLog("Distance til papkasse: " + dist + "cm. YAW: " + dc.getFlightData()[2]);
 		}
 		ba.setPapKasseLocator(false);
@@ -765,7 +765,7 @@ public class OpgaveAlgoritme2 implements Runnable {
 		ArrayList<Squares> squares = ba.getColorSquares();
 		int height = dc.getFlightData()[3];
 		if(squares!=null && !squares.isEmpty()){
-//			Log.writeLog("Fundet " + squares.size() + " genstande inden frasortering.");// TODO - DEBUG
+			//			Log.writeLog("Fundet " + squares.size() + " genstande inden frasortering.");// TODO - DEBUG
 			for(Squares sq : squares){
 				//				Log.writeLog("FOR-løkke startet.");// TODO - DEBUG
 				Genstand g;
