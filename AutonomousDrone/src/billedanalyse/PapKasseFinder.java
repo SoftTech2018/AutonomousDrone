@@ -26,6 +26,7 @@ public class PapKasseFinder {
 
 	private static final int REAL_HEIGHT = 390;
 	private int dist = -1;
+	int [] output = new int[2];
 
 	/**
 	 * Finder papkasser baseret på farve i et billede
@@ -36,7 +37,7 @@ public class PapKasseFinder {
 
 		PunktNavigering pn = new PunktNavigering();
 		
-		int [] output = new int[2];
+		
 		
 //		org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/5.jpg")));
 
@@ -302,6 +303,9 @@ public class PapKasseFinder {
 				output[0] = -1;
 				output[1] = -1;
 			}
+		} else {
+			output[0] = -1;
+			output[1] = -1;
 		}
 
 		
@@ -331,8 +335,8 @@ public class PapKasseFinder {
 		return mat;
 	}
 
-	public int getDist() {
-		return dist;
+	public int[] getDist() {
+		return output;
 	}
 
 }
