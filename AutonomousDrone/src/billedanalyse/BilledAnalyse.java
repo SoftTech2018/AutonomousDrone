@@ -69,6 +69,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 
 	public void setOpgaveRum(OpgaveRum opgRum){
 		this.opgrum = opgRum;
+		this.yawCalc.setOpgaveRum(opgRum);
 	}
 
 	private boolean findDronePos2(Mat frame){
@@ -238,7 +239,11 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	private void setDroneKoordinat(Koordinat drone, boolean toQrKoderMetode){
 		if(toQrKoderMetode){ // To QR-koder er brugt til positionsbestemmelse
 			this.updateDroneKoordinat(drone);
-			double yawCorrection = this.yawCalc.getYaw(this.getFirkant()); // TODO - Erstat med metode der benytter 2 QR-koder
+			int yawCorrection = this.yawCalc.findYaw(this.getFirkant(), drone);
+			if(yawCorrection > 179){
+				yawCorrection = 360 - yawCorrection;
+			}
+			Log.writeLog("DEBUG: yawCorrection er: " + yawCorrection);
 			if(yawCorrection > -180 && yawCorrection < 180){
 				dc.setYawCorrection(yawCorrection);			
 			}
@@ -260,7 +265,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	 */
 	private void updateDroneKoordinat(Koordinat drone){
 		int yaw = dc.getFlightData()[2];
-		Log.writeLog("DroneKoordinat opdateret: " + drone.toString() + "\t YAW: " + yaw);
+//		Log.writeLog("DroneKoordinat opdateret: " + drone.toString() + "\t YAW: " + yaw);
 		this.droneKoordinat = drone;			
 		this.droneKoordinatUpdated = System.currentTimeMillis();
 		this.opgrum.setDronePosition(drone, Math.toRadians(-1*yaw));

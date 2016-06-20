@@ -290,9 +290,9 @@ public class DroneControl implements IDroneControl {
 //			cmd.forward(SPEED*2).doFor(DURATION);
 //			cmd.hover();
 			
-			cmd.forward(SPEED*2).doFor((long) (DURATION*0.5));
-			cmd.hover();
-			Thread.sleep(2000);
+//			cmd.forward(SPEED*2).doFor((long) (DURATION*0.5));
+//			cmd.hover();
+//			Thread.sleep(2000);
 			cmd.forward(SPEED*2).doFor((long) (DURATION*0.5));
 			cmd.hover();	
 		}
@@ -315,9 +315,9 @@ public class DroneControl implements IDroneControl {
 //			cmd.backward(SPEED*2).doFor(DURATION);
 //			cmd.hover();
 			
-			cmd.backward(SPEED*2).doFor((long) (DURATION*0.5));
-			cmd.hover();
-			Thread.sleep(2000);
+//			cmd.backward(SPEED*2).doFor((long) (DURATION*0.5));
+//			cmd.hover();
+//			Thread.sleep(2000);
 			cmd.backward(SPEED*2).doFor((long) (DURATION*0.5));
 			cmd.hover();
 		}
@@ -507,11 +507,11 @@ public class DroneControl implements IDroneControl {
 //		cmd.hover(); // test
 		
 
-		cmd.goRight(SPEED*3).doFor((long) (DURATION*0.5)); // test
-		cmd.hover(); // test
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {}
+//		cmd.goRight(SPEED*3).doFor((long) (DURATION*0.5)); // test
+//		cmd.hover(); // test
+//		try {
+//			Thread.sleep(2000);
+//		} catch (InterruptedException e) {}
 		cmd.goRight(SPEED*3).doFor((long) (DURATION*0.5)); // test
 		cmd.hover(); // test
 	}
@@ -523,25 +523,25 @@ public class DroneControl implements IDroneControl {
 //		cmd.goLeft(SPEED*3).doFor((DURATION)); // test
 //		cmd.hover(); // test
 		
-		cmd.goLeft(SPEED*3).doFor((long) (DURATION*0.5)); // test
-		cmd.hover(); // test
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {}
+//		cmd.goLeft(SPEED*3).doFor((long) (DURATION*0.5)); // test
+//		cmd.hover(); // test
+//		try {
+//			Thread.sleep(2000);
+//		} catch (InterruptedException e) {}
 		cmd.goLeft(SPEED*3).doFor((long) (DURATION*0.5)); // test
 		cmd.hover(); // test
 	}
 
 	@Override
 	public void turnDroneTo(int targetYaw) {
-		int yaw;
-		while((yaw = (this.getFlightData()[2] - targetYaw)) > -8 && yaw < 8){
+		int yaw = this.getFlightData()[2] - targetYaw;
+		Log.writeLog("Dronen drejes: " + yaw + " grader. Target Yaw: " + targetYaw);
+		while((yaw = (this.getFlightData()[2] - targetYaw)) < -8 || yaw > 8){
 			if(yaw > 179){
 				yaw = 360 - yaw;
 			} else if (yaw < -179) {
 				yaw = 360 + yaw;
 			}
-			Log.writeLog("Dronen drejes: " + yaw);
 			if(yaw > 0){
 				cmd.spinLeft(80).doFor(40);
 				cmd.spinRight(80).doFor(10);

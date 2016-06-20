@@ -24,10 +24,10 @@ public class DroneHelper {
 	 */
 	public DroneHelper(IDroneControl dc, int x, int y){
 		this.dc = dc;
-		xMax = x - 250;
-		xMin = 500;
-		yMax = y - 200;
-		yMin = 200;
+		xMax = x - 300;
+		xMin = 550;
+		yMax = y - 300;
+		yMin = 300;
 		this.y = y;
 		this.x = x;
 	}
@@ -308,10 +308,10 @@ public class DroneHelper {
 		// Når der er fløjet en runde (3 retningsskift), justeres dronens bane
 		if(newDir != lastDir){
 			directionChange++;
-			yMax = yMax - adjustment *(int) (directionChange / 3);
-			xMax = xMax - adjustment *(int) (directionChange / 3);
-			yMin = yMin + adjustment *(int) (directionChange / 3);
-			xMin = xMin + adjustment *(int) (directionChange / 3);
+			yMax = yMax - adjustment *(int) (directionChange / 4);
+			xMax = xMax - adjustment *(int) (directionChange / 4);
+			yMin = yMin + adjustment *(int) (directionChange / 4);
+			xMin = xMin + adjustment *(int) (directionChange / 4);
 		}
 		Log.writeLog("Direction: " + newDir);
 		return newDir;
@@ -430,22 +430,22 @@ public class DroneHelper {
 				// Bevæg frem/tilbage først
 				while(xDist > 50){
 					dc.forward();
-					xDist = xDist - 150;
+					xDist = xDist - 75;
 					Thread.sleep(3000);
 				}
 				while(xDist < -50){
 					dc.backward();
-					xDist = xDist + 150;
+					xDist = xDist + 75;
 					Thread.sleep(3000);
 				}	
 				while(yDist > 50){
 					dc.strafeLeft(0);
-					yDist = yDist - 150;
+					yDist = yDist - 75;
 					Thread.sleep(3000);
 				}
 				while(yDist < -50){
 					dc.strafeRight(0);
-					yDist = yDist + 150;
+					yDist = yDist + 75;
 					Thread.sleep(3000);
 				}
 				return true;
@@ -455,22 +455,22 @@ public class DroneHelper {
 				// Bevæg venstre/højre først
 				while(yDist > 50){
 					dc.strafeLeft(0);
-					yDist = yDist - 100;
+					yDist = yDist - 75;
 					Thread.sleep(3000);
 				}
 				while(yDist < -50){
 					dc.strafeRight(0);
-					yDist = yDist + 100;
+					yDist = yDist + 75;
 					Thread.sleep(3000);
 				}
 				while(xDist > 50){
 					dc.forward();
-					xDist = xDist - 100;
+					xDist = xDist - 75;
 					Thread.sleep(3000);
 				}
 				while(xDist < -50){
 					dc.backward();
-					xDist = xDist + 100;
+					xDist = xDist + 75;
 					Thread.sleep(3000);
 				}	
 				return true;
@@ -488,30 +488,37 @@ public class DroneHelper {
 	public boolean turnDroneByPosition(Koordinat drone) throws InterruptedException {
 		boolean adjusted = false;
 		int yaw = dc.getFlightData()[2];
-		if(drone.getX() > xMax - 350){ // Tæt på glasvæggen
+		if(drone.getX() > xMax - 300){ // Tæt på glasvæggen
 			if(Math.abs(yaw) >= 5){
+				Log.writeLog("Peger drone mod W01");
 				if(drone.getY() < 400){
 					dc.turnDroneTo(0); // Peg mod glasvæg
 					adjusted = true;
 				} 
 			}
 		} else if (drone.getY() > y-400){ // Langt fra glasvæg og i toppen af rummet
+			Log.writeLog("Peger drone mod W0");
 			dc.turnDroneTo(-90); // Peg mod væg0
 			adjusted = true;
 		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 400){
 			// Langt fra glasvæg og midt i rummet
-			if(Math.abs(yaw) - 179 > 5){			
+			Log.writeLog("Peger drone mod W03");
+			if(Math.abs(yaw) - 179 > 5){		
 				dc.turnDroneTo(-179);
 				adjusted = true;
 			}
 		} else if (drone.getY() < 400){
+			Log.writeLog("Peger drone mod W00");
 			if(Math.abs(yaw) - 90 > 5){
 				dc.turnDroneTo(90);
 				adjusted = true;
 			}
 		}
 		if(adjusted){			
+			Log.writeLog("Droneretning er justeret");
 			Thread.sleep(2000);
+		} else {
+			Log.writeLog("Droneretning er IKKE justeret");
 		}
 		return adjusted;
 	}

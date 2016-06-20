@@ -13,6 +13,7 @@ import org.opencv.videoio.VideoWriter;
 import billedanalyse.BilledAnalyse;
 import billedanalyse.IBilledAnalyse;
 import diverse.TakePicture;
+import diverse.koordinat.Koordinat;
 import diverse.koordinat.OpgaveRum;
 import drone.DroneControl;
 import drone.IDroneControl;
@@ -271,6 +272,7 @@ public class GuiController {
 
 	@FXML
 	void startCamera(ActionEvent event) {
+//		this.opgaveRum.setDronePosition(new Koordinat(600,600), Math.toRadians(45)); // DEBUG
 		if(GuiStarter.GUI_DEBUG){
 			System.out.println("Debug: GuiController.startCamera() kaldt!");
 		}

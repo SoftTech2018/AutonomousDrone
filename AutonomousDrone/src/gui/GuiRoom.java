@@ -4,6 +4,7 @@ package gui;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import diverse.Log;
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.M2;
@@ -44,10 +45,13 @@ public class GuiRoom extends Canvas{
 			@Override
 			public void handle(MouseEvent event) {
 
-
-				minYaw = minYaw + 0.1;
+				
+				clear();
 				drawVisible();
-				System.out.println(minYaw);
+
+//				minYaw = minYaw + 0.1;
+//				drawVisible();
+//				System.out.println(minYaw);
 			}
 		});
 
@@ -98,6 +102,7 @@ public class GuiRoom extends Canvas{
 		gc.fillText("W2", 150, 38);
 		gc.fillText("W1", 250, 150);
 
+		
 
 
 
@@ -134,8 +139,10 @@ public class GuiRoom extends Canvas{
 
 
 	public void clear() {
+//		Log.writeLog("Canvas cleared!");
+//		gc.clearRect(0, 0, 300, 450);
 		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 0, 250, 300);
+		gc.fillRect(0, 0, 300, 300);
 
 
 	}
@@ -218,6 +225,12 @@ public class GuiRoom extends Canvas{
 		gc.setFill(Color.WHITE);
 		gc.fillOval(v3.x+47, v3.y-2,diameter,diameter );
 		gc.fillOval(v4.x+47, v4.y-2,diameter,diameter );
+		
+		// Skriv dronens koordinat på GUI
+		gc.setStroke(Color.WHITE);
+		gc.setLineWidth(1);
+		gc.strokeText("(" + dp.getX() +"," + dp.getY() +")", P.x+20, P.y+20); 
+		
 
 		gc.setFill(temp); // sætter farven tilbage til hvad den var
 		

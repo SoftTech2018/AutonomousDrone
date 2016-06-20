@@ -19,7 +19,7 @@ public class LinearSolve  {
 		return b;
 	}
 	public static Vector2 calcCameraViewPointOnX(double a, double b, double yValue){
-		System.out.println("Hej fra LinearSolver. yValue er : " + yValue);
+//		System.out.println("Hej fra LinearSolver. yValue er : " + yValue);
 		double	x = (yValue - b)/a; 
 		return new  Vector2(x, yValue);
 	}
@@ -27,7 +27,7 @@ public class LinearSolve  {
 	public static Vector2 calcCameraViewPointOnY(double a, double b, double xValue){
 		double y = a*xValue+b;
 
-		System.out.println("Hej fra LinearSolver. xValue er : " + xValue);
+//		System.out.println("Hej fra LinearSolver. xValue er : " + xValue);
 		return new  Vector2(xValue, y);
 	}
 
@@ -44,17 +44,17 @@ public class LinearSolve  {
 		Vector2 newPosition = new Vector2(600,400);
 		double a = calcA(dp, newPosition);
 		double b = calcB(a, newPosition);
-		System.out.println(a);
-		System.out.println(b);
+//		System.out.println(a);
+//		System.out.println(b);
 		//		System.out.println(calcX(a,b,1060));
 		//		System.out.println(getYawAngle(dp, new Vector2(calcX(a,b,1060), 1060),300));
 	}
 
 	public static double getYawAngle(Vector2 dp, Vector2 cameraPoint, double baseDistance, double baseDegrees){
 		double cameraDistance = Math.sqrt(Math.pow(dp.x-cameraPoint.x, 2)+ Math.pow(dp.y-cameraPoint.y,2));
-		System.out.println("Distance fra cam girl til punkt " + cameraDistance);
-		System.out.println("BaseDistance = " +baseDistance);
-		Log.writeLog("Cam girl distance er : " + cameraDistance);
+//		System.out.println("Distance fra cam girl til punkt " + cameraDistance);
+//		System.out.println("BaseDistance = " +baseDistance);
+//		Log.writeLog("Cam girl distance er : " + cameraDistance);
 		double degree = Math.toDegrees(Math.acos((baseDistance/cameraDistance)));
 		if(baseDegrees == 0){
 			if (dp.y > cameraPoint.y){
@@ -84,7 +84,7 @@ public class LinearSolve  {
 		}
 
 
-		Log.writeLog("Den samlede vinkel er : " + degree);
+//		Log.writeLog("Den samlede vinkel er : " + degree);
 		return degree;
 	}
 

@@ -6,15 +6,21 @@ import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
 import diverse.koordinat.LinearSolve;
 import diverse.koordinat.M2;
+import diverse.koordinat.OpgaveRum;
 
 public class YawCalc{
 
-	PunktNavigering pn;
+	private PunktNavigering pn;
+	private OpgaveRum opgRum;
 
 	public YawCalc() {
 		pn = new PunktNavigering();
 	}
 
+	public void setOpgaveRum(OpgaveRum opg){
+		this.opgRum = opg;
+	}
+	
 	public double getYaw(QrFirkant qr){		
 
 		QrFirkant sq = qr;
@@ -117,30 +123,31 @@ public class YawCalc{
 		//			System.out.println();
 		return nyYaw;
 	}
-	public static int findYaw(String qrCode, double dist, Koordinat qrCentrum) throws NumberFormatException, IOException{
-		int yaw = 0;
+	
+	
+	public int findYaw(QrFirkant qrFirkant, Koordinat drone){
 		Vector2 CameraViewPoint = null;
 		PunktNavigering	punktNav = new PunktNavigering();
 		
 		double baseDegrees = 0;
 		double baseDistance = 0;
 		double distToCamCenter;
-		Vector2 dronePosition = new Vector2(600,500);  //opgrum.getDronePosition().getVector();
+		Vector2 dronePosition = drone.getVector(); 
 		boolean isX = false;
 		boolean isLeft = false;
 
-		distToCamCenter = Math.abs(640-qrCentrum.getX());
+		distToCamCenter = Math.abs(640-qrFirkant.getCentrum().getX());
 
-		if(qrCentrum.getX() < 640){
+		if(qrFirkant.getCentrum().getX() < 640){
 			isLeft = true;
 		}else{
 			isLeft = false;
 		}
-		String wall = qrCode.substring(0,3);
+		String wall = qrFirkant.getText().substring(0,3);
 		// Switch på hvilken væg der kigges på;
-		int number = Integer.parseInt(qrCode.substring(5,6));
-		System.out.println("Dronens Position er " + dronePosition);
-		System.out.println("Markeringen der kigges på er nummer " + number);
+		int number = Integer.parseInt(qrFirkant.getText().substring(5,6));
+//		System.out.println("Dronens Position er " + dronePosition);
+//		System.out.println("Markeringen der kigges på er nummer " + number);
 		if(number == 0|| number == 4){
 			return -999999999;
 		}
@@ -168,8 +175,8 @@ public class YawCalc{
 		}
 
 		// Find afstand fra qrKode til basisKoordinat
-		Vector2 qrKoordinat = opgRum.getMultiMarkings(qrCode)[1];
-		System.out.println("Det observeret vægmarkering har koordinatet" + qrKoordinat);
+		Vector2 qrKoordinat = opgRum.getMultiMarkings(qrFirkant.getText())[1];
+//		System.out.println("Det observeret vægmarkering har koordinatet" + qrKoordinat);
 
 
 		if (isX) {
@@ -181,7 +188,7 @@ public class YawCalc{
 
 		
 
-		double phi = punktNav.getAngle(640, qrCentrum.getX());
+		double phi = punktNav.getAngle(640, qrFirkant.getCentrum().getX());
 		if(!isLeft){
 			phi = phi * -1;
 		}
@@ -205,8 +212,8 @@ public class YawCalc{
 //		System.out.println("væggens koordinat er: " + CameraViewPoint);
 //		System.out.println("base degrees er " + baseDegrees);
 		double angle = LinearSolve.getYawAngle(dronePosition, CameraViewPoint, baseDistance, baseDegrees);
-		System.out.println("************************ Vinklen er " + angle + " *****************************'");
+//		System.out.println("************************ Vinklen er " + angle + " *****************************'");
 
-		return yaw;
+		return (int) angle;
 	}
 }
