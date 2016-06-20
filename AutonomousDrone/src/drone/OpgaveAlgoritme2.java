@@ -541,26 +541,26 @@ public class OpgaveAlgoritme2 implements Runnable {
 						// bagud
 						Log.writeLog("Justerer drone position i forhold til QR-kode. BAGLÆNS");
 						dc.backward();
-						xOffset = xOffset - 100;
+						xOffset = xOffset - 75;
 					} else if (firkanten.getHeight() < 100){ // TODO - korrekte pixelværdier for grænsetilfælde
 						// fremad
 						Log.writeLog("Justerer drone position i forhold til QR-kode. FORLÆNS");
 						dc.forward();
-						xOffset = xOffset + 100;
+						xOffset = xOffset + 75;
 					}
 					if (firkanten.getCentrum().getX() > 950){ // TODO - korrekte pixelværdier for grænsetilfælde
 						// strafe højre
 						Log.writeLog("Justerer drone position i forhold til QR-kode. HØJRE");
-						dc.right();
-						yOffset = yOffset - 100;
+						dc.strafeRight(0);;
+						yOffset = yOffset - 75;
 					} else if (firkanten.getCentrum().getX() < 250){ // TODO - korrekte pixelværdier for grænsetilfælde
 						// strafe venstre
 						Log.writeLog("Justerer drone position i forhold til QR-kode. VENSTRE");
-						dc.left();
-						yOffset = yOffset + 100;
+						dc.strafeLeft(0);
+						yOffset = yOffset + 75;
 					}
 					dc.hover();
-					Thread.sleep(2500); // Vent på billedet har opdateret og stabiliseret sig
+					Thread.sleep(3000); // Vent på billedet har opdateret og stabiliseret sig
 				} else {
 					Log.writeLog("DronePosition ikke fundet. Venter på stabilt billede.");
 				}
@@ -585,19 +585,19 @@ public class OpgaveAlgoritme2 implements Runnable {
 		//		this.setDroneHeight(240, 260);
 		//		Thread.sleep(2000);
 		//		Log.writeLog("Flyver ned til QR-højde");
-		this.setDroneHeight(130, 150);
+//		this.setDroneHeight(130, 150);
 		Thread.sleep(3500);
 		
-		dh.turnDroneByPosition(new Koordinat(650, 250));
+		dh.turnDroneByPosition(new Koordinat(600, 200)); // 90
 		Thread.sleep(3000);
 		
-		dh.turnDroneByPosition(new Koordinat(750, 500));
+		dh.turnDroneByPosition(new Koordinat(600, 900)); // -90
 		Thread.sleep(3000);
 		
-		dh.turnDroneByPosition(new Koordinat(650, 900));
+		dh.turnDroneByPosition(new Koordinat(100, 500)); // -179/179
 		Thread.sleep(3000);
 		
-		dh.turnDroneByPosition(new Koordinat(500, 250));
+		dh.turnDroneByPosition(new Koordinat(863, 200)); // 0
 		Thread.sleep(3000);
 
 //		ba.setDroneLocator(true);

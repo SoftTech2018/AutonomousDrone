@@ -25,7 +25,7 @@ public class DroneHelper {
 	public DroneHelper(IDroneControl dc, int x, int y){
 		this.dc = dc;
 		xMax = x - 300;
-		xMin = 550;
+		xMin = 450;
 		yMax = y - 300;
 		yMin = 300;
 		this.y = y;
@@ -489,18 +489,16 @@ public class DroneHelper {
 		boolean adjusted = false;
 		int yaw = dc.getFlightData()[2];
 		if(drone.getX() > x - 300){ // Tæt på glasvæggen
-			if(Math.abs(yaw) >= 5){
-				Log.writeLog("Peger drone mod W01." + drone.getX() + " : x: " + x);
-				if(drone.getY() > 400){
-					dc.turnDroneTo(0); // Peg mod glasvæg
-					adjusted = true;
-				} else if (drone.getY() < 400){
-					dc.turnDroneTo(90);
-					adjusted = true;
-				} else {
-					dc.turnDroneTo(-90);
-					adjusted = true;
-				}
+			Log.writeLog("Peger drone mod W01." + drone.getX() + " : x: " + x);
+			if(drone.getY() > 400){
+				dc.turnDroneTo(0); // Peg mod glasvæg
+				adjusted = true;
+			} else if (drone.getY() < 400){
+				dc.turnDroneTo(90);
+				adjusted = true;
+			} else {
+				dc.turnDroneTo(-90);
+				adjusted = true;
 			}
 		} else if (drone.getY() > y-400){ // Langt fra glasvæg og i toppen af rummet
 			Log.writeLog("Peger drone mod W02");
@@ -508,17 +506,13 @@ public class DroneHelper {
 			adjusted = true;
 		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 400){
 			// Langt fra glasvæg og midt i rummet
-			Log.writeLog("Peger drone mod W03");
-			if(Math.abs(yaw) - 179 > 5){		
-				dc.turnDroneTo(-179);
-				adjusted = true;
-			}
+			Log.writeLog("Peger drone mod W03");	
+			dc.turnDroneTo(-179);
+			adjusted = true;
 		} else if (drone.getY() < 400){
 			Log.writeLog("Peger drone mod W00");
-//			if(Math.abs(yaw) - 90 > 5){
-				dc.turnDroneTo(90);
-				adjusted = true;
-//			}
+			dc.turnDroneTo(90);
+			adjusted = true;
 		}
 		if(adjusted){			
 			Log.writeLog("Droneretning er justeret");
