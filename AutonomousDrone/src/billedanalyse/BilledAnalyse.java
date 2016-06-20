@@ -245,7 +245,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 			posPrecision = false;
 		}
 		double yawCorrection = this.yawCalc.getYaw(this.getFirkant());
-		dc.setYawCorrection(yawCorrection);
+		if(yawCorrection > -180 && yawCorrection < 180){
+			dc.setYawCorrection(yawCorrection);			
+		}
 	}
 
 	/**

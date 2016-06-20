@@ -45,7 +45,7 @@ public class GuiController {
 	private OpgaveRum opgaveRum;
 	private final boolean RECORDVIDEO = false; // Sæt til true for at optage en videostream.
 
-	private final boolean TAKEPICTURE = false; // Sæt til true for at tage et testbillede via toggle funktionen
+	private final boolean TAKEPICTURE = true; // Sæt til true for at tage et testbillede via toggle funktionen
 
 	private IDroneControl dc = new DroneControl();
 	private IBilledAnalyse ba = new BilledAnalyse(dc);

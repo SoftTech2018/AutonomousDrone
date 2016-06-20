@@ -529,7 +529,7 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void turnDroneTo(int targetYaw) {
 		int yaw;
-		while(Math.abs(yaw = (this.getFlightData()[2] - targetYaw)) > 5){
+		while(Math.abs(yaw = (this.getFlightData()[2] - targetYaw)) > 8){
 			if(yaw < 0){
 				yaw = Math.abs(yaw);
 			} else {

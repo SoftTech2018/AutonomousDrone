@@ -12,12 +12,24 @@ public class DroneHelper {
 
 	private IDroneControl dc;
 	private Koordinat papKasse;
-	private int adjustment = 100, xMax = 763, xMin = 400, yMax = 978, yMin = 200, directionChange = 0;
+	private int adjustment = 100, xMax, xMin, yMax, yMin, directionChange = 0, y, x;
 
 	public enum DIRECTION { UP, DOWN, LEFT, RIGHT, STOPPED };
 
-	public DroneHelper(IDroneControl dc){
+	/**
+	 * 
+	 * @param dc Implementation af IDroneControl
+	 * @param x Bredden af det fysiske rum i cm
+	 * @param y Længden/højden af det fysiske rum i cm
+	 */
+	public DroneHelper(IDroneControl dc, int x, int y){
 		this.dc = dc;
+		xMax = x - 200;
+		xMin = 500;
+		yMax = y - 200;
+		yMin = 200;
+		this.y = y;
+		this.x = x;
 	}
 
 	/**
@@ -230,18 +242,22 @@ public class DroneHelper {
 			} else {
 				newDir = DIRECTION.LEFT;
 			}
-		} else if (drone.getX() <= xMin){ // Langt fra vinduet
+		} else if (drone.getX() <= xMin && drone.getX() >= xMin - 200){ // Langt fra vinduet
 			if(drone.getY() > yMax){ // "Øverste del af rummet"
 				newDir = DIRECTION.RIGHT;
 			} else {
 				newDir = DIRECTION.UP;
 			}
 		} else if (drone.getX() > xMin && drone.getX() < xMax){ // Midten af rummet (x-retning)
-			if(drone.getY() > 1078/2){ // "Øverste del af rummet"
+			if(drone.getY() > yMax){ // "Øverste del af rummet"
 				newDir = DIRECTION.RIGHT;
-			} else {
+			} else if(drone.getY() < yMin){ // Nederste
 				newDir = DIRECTION.LEFT;
+			} else if(yMax > drone.getY() && yMin < drone.getY()){ // midten
+				newDir = DIRECTION.RIGHT;
 			}
+		} else if(drone.getX() < xMin - 200) { // MEGET langt fra vinduet
+			newDir = DIRECTION.RIGHT;
 		}
 
 		// Beregn den estimerede position når næste bevægelse er udført
@@ -414,22 +430,22 @@ public class DroneHelper {
 				// Bevæg frem/tilbage først
 				while(xDist > 50){
 					dc.forward();
-					xDist = xDist - 100;
+					xDist = xDist - 150;
 					Thread.sleep(3000);
 				}
 				while(xDist < -50){
 					dc.backward();
-					xDist = xDist + 100;
+					xDist = xDist + 150;
 					Thread.sleep(3000);
 				}	
 				while(yDist > 50){
 					dc.strafeLeft(0);
-					yDist = yDist - 100;
+					yDist = yDist - 150;
 					Thread.sleep(3000);
 				}
 				while(yDist < -50){
 					dc.strafeRight(0);
-					yDist = yDist + 100;
+					yDist = yDist + 150;
 					Thread.sleep(3000);
 				}
 				return true;
@@ -462,4 +478,42 @@ public class DroneHelper {
 		} 
 		return false;
 	}
+
+	/**
+	 * Drejer dronen så den peger mod den korrekte væg i forhold til sin position i rummet
+	 * @param drone Dronens position
+	 * @return
+	 * @throws InterruptedException
+	 */
+	public boolean turnDroneByPosition(Koordinat drone) throws InterruptedException {
+		boolean adjusted = false;
+		int yaw = dc.getFlightData()[2];
+		if(drone.getX() > xMin){
+			if(Math.abs((Math.abs(yaw) - 90)) >= 5){
+				if(drone.getY() < 400){
+					dc.turnDroneTo(90); // Peg mod væg2
+					adjusted = true;
+				} else if (drone.getY() > y-400){
+					dc.turnDroneTo(-90); // Peg mod væg0
+					adjusted = true;
+				}
+			}
+		} else if (drone.getX() < 300 && drone.getY() > 400 && drone.getY() < y - 400){
+			if(Math.abs(yaw) - 179 > 5){			
+				dc.turnDroneTo(-179);
+				adjusted = true;
+			}
+		} else {
+			if(Math.abs(yaw)> 5){
+				dc.turnDroneTo(0);
+				adjusted = true;
+			}
+		}
+		if(adjusted){			
+			Thread.sleep(2000);
+		}
+		return adjusted;
+	}
+
+
 }
