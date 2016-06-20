@@ -32,11 +32,13 @@ public class PapKasseFinder {
 	 * @param org Billedet der skal analyseres
 	 * @return Koordinaterne for centrum af de identificerede papkasser. Returnerer null hvis intet blev fundet
 	 */
-	public int findPapkasse(Mat org){
+	public int[] findPapkasse(Mat org){
 
 		PunktNavigering pn = new PunktNavigering();
-
-//		org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/4.jpg")));
+		
+		int [] output = new int[2];
+		
+//		org = bufferedImageToMat(UtilImageIO.loadImage(UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/5.jpg")));
 
 		Mat out = new Mat();
 		org.copyTo(out);
@@ -44,7 +46,6 @@ public class PapKasseFinder {
 		//		org.copyTo(temp);
 		Mat blurredImage = new Mat();
 		Mat hsvImage = new Mat();
-
 
 		Imgproc.blur(org, blurredImage, new Size(7, 7));
 
@@ -56,6 +57,13 @@ public class PapKasseFinder {
 		double satmax = 150;
 		double valmin = 35;
 		double valmax = 140;
+		
+//		double huemin = 70;
+//		double huemax = 180;
+//		double satmin = 5;
+//		double satmax = 150;
+//		double valmin = 35;
+//		double valmax = 140;
 
 		//		double huemin = 95;
 		//		double huemax = 124;
@@ -104,8 +112,8 @@ public class PapKasseFinder {
 
 		Core.inRange(hsvImage, minblue, maxblue, out);		
 
-		Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(6, 6));
-		Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(16, 16));
+		Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4));
+		Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12));
 
 		Imgproc.erode(out, out, erodeElement);
 		Imgproc.dilate(out, out, dilateElement);
@@ -153,22 +161,24 @@ public class PapKasseFinder {
 				int x = (int)(moment.get_m10() / area);
 				int y = (int)(moment.get_m01() / area);
 				double mudiff = Math.abs(moment.get_mu20()-moment.get_mu02());
-				if(area>3000 && area < 6000){
-					System.out.println("rect height: "+rect.height);
-					System.out.println("rect width: "+rect.width);
+//				Imgproc.drawContours(org, contours, i, new Scalar(255,0,0), 3);
+				if(area>1500 && area < 8000){
+//					System.out.println("rect height: "+rect.height);
+//					System.out.println("rect width: "+rect.width);
 //					Imgproc.rectangle(org, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 0, 0, 255), 3); 
-//					Imgproc.drawContours(org, contours, i, new Scalar(255,0,0), 3);
 //					Imgproc.putText(org, ""+i, new Point(x,y), 1, 5, new Scalar(0, 0, 0), 4);
-					System.out.println("contour: "+i);
-					System.out.println("arclength: "+Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true));
+//					System.out.println("contour: "+i);
+//					System.out.println("arclength: "+Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true));
 					//					System.out.println("rows: "+contours.get(i).rows());
 					//					System.out.println("col 0: "+contours.get(i).col(0).rows());
-					System.out.println("area: "+area);
+//					System.out.println("area: "+area);
 					//					for(int m = 0; m < contours.get(i).col(0).rows() ; m++ ){
 					//						System.out.println("cont width: "+contours.get(i).col(0).row(m));
 					//					}
 					centers.add(new Point(x,y));
 					rects.add(rect);
+//					Imgproc.rectangle(org, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 0, 0, 255), 3); 
+
 					if (moment.get_mu11()>-150000 && moment.get_mu11()<150000){
 						//						System.out.println("m00: "+moment.get_m00());
 						//						System.out.println("m01: "+moment.get_m01());
@@ -226,14 +236,18 @@ public class PapKasseFinder {
 					if(j<centers.size()){
 						double centerix = centers.get(i).x;
 						double centerjx = centers.get(j).x;
-						if(centerix>centerjx*0.9 && centerix<centerjx*1.1){
+						if(centerix>centerjx*0.90 && centerix<centerjx*1.10){
 							int ydiff = (int) Math.abs(centers.get(i).y-centers.get(j).y);
-							System.out.println("ydiff: "+ydiff);
-							System.out.println("heigth i: "+rects.get(i).height);
-							System.out.println("heigth j: "+rects.get(j).height);
-							int heightij = (int)((rects.get(i).height+rects.get(j).height)*1.2);
-							System.out.println("heigth i+j: "+heightij);
-							if(ydiff<heightij){
+//							System.out.println("ydiff: "+ydiff);
+//							System.out.println("heigth i: "+rects.get(i).height);
+//							System.out.println("heigth j: "+rects.get(j).height);
+							int heightij = (int)((rects.get(i).height+rects.get(j).height)*1.1);
+//							System.out.println("heigth i+j: "+heightij);
+							double ratioi = (double)rects.get(i).height/(double)rects.get(i).width;
+							double ratioj = (double)rects.get(j).height/(double)rects.get(j).width;
+							if(ydiff>heightij/2 && ydiff<heightij && ratioi < 1.8 && ratioj < 1.8 && ratioi > 0.5 && ratioj > 0.5){
+//								System.out.println("ratio i: "+ratioi);
+//								System.out.println("ratio j: "+ratioj);
 								
 								validcenter++;
 
@@ -263,6 +277,7 @@ public class PapKasseFinder {
 									//								centerx = (centerx+kassecenter.x)/2;
 									//								centery = (centery+kassecenter.y)/2;
 								}
+								System.out.println("dist: "+dist);
 								distsum+=dist;
 								sumx+=kassecenter.x;
 								sumy+=kassecenter.y;
@@ -274,19 +289,25 @@ public class PapKasseFinder {
 				}
 			}
 			if(dist>0){
+				System.out.println("validcenter: "+validcenter);
 				sumx=sumx/validcenter;
 				sumy=sumy/validcenter;
 				distsum=distsum/validcenter;
-				Imgproc.circle(org, new Point(sumx,sumy), 2, new Scalar(255, 255, 255),2);			
-				Imgproc.putText(org, " "+distsum+" mm", new Point(sumx,sumy), 1, 3, new Scalar(255, 255, 255), 3);		
+				output[0] = distsum;
+				output[1] = sumy;
+				Imgproc.circle(org, new Point(sumx,output[1]), 2, new Scalar(255, 255, 255),2);			
+				Imgproc.putText(org, " "+output[0]+" mm", new Point(sumx,output[1]), 1, 3, new Scalar(255, 255, 255), 3);		
 				
+			} else {
+				output[0] = -1;
+				output[1] = -1;
 			}
 		}
 
-
+		
 		//		UtilImageIO.saveImage(toBufferedImage(org), UtilIO.pathExample("C:/Users/ministeren/git/AutonomousDrone/AutonomousDrone/kasse.png"));
 //		ShowImages.showWindow(toBufferedImage(org),"Title",true);
-		return distsum;
+		return output;
 	}
 
 	public BufferedImage toBufferedImage(Mat m){
