@@ -34,7 +34,7 @@ public class YawCalc{
 
 		double nyA = 0;
 		double nyB = 0;
-		double nyC = 0;		
+		double nyC = 0;
 
 		double dist1 = pn.calcDist(line1height, h);
 		double dist2 = pn.calcDist(line2height, h);
@@ -61,42 +61,49 @@ public class YawCalc{
 			}
 		}		
 
-		A = Math.toDegrees(Math.acos(((b*b)+(c*c)-(a*a))/(2*b*c)));
-		B = Math.toDegrees(Math.acos(((a*a)+(c*c)-(b*b))/(2*a*c)));
+//		A = Math.toDegrees(Math.acos(((b*b)+(c*c)-(a*a))/(2*b*c)));
+//		B = Math.toDegrees(Math.acos(((a*a)+(c*c)-(b*b))/(2*a*c)));
 		C = Math.toDegrees(Math.acos(((b*b)+(a*a)-(c*c))/(2*b*a)));
-
-		double tempYaw = 0;
-		nyA = pn.getAngle(middle,linex);
-
-		//			double be = (1280/2)/Math.tan(Math.toRadians(69)/2);
-		//			nyA = Math.toDegrees(Math.atan(Math.abs(middle-linex)/be));
-
-		if(linex > middle && line2x > linex || linex < middle && line2x < linex){
-			nyC = 180 - C;
-			nyB = 180 - (nyA + nyC);
-			tempYaw = regulator*(180 - (90 + (180 - nyB)));
-		} else {
-			nyC = C;
-			nyB = 180 - (nyA + nyC);
-			tempYaw = regulator*(180 - (90 + nyB));
-		}
-
-		int nyYaw = (int) tempYaw;
-
-		if(qr.getText()!=null || !qr.getText().isEmpty()){
-			int wall = Integer.parseInt(""+qr.getText().charAt(2));			
-
-			if(wall == 0){
-				nyYaw = (int)(-90 + tempYaw);
-			} else if (wall == 2){
-				nyYaw = (int)(90 + tempYaw);
-			} else if (wall == 3){
-				if(tempYaw < 0){
-					nyYaw = (int)(179 + tempYaw);
-				} else {
-					nyYaw = (int)(-179 + tempYaw);
+		
+		int nyYaw = 0;
+		
+		if(!Double.isNaN(C)){
+			
+			double tempYaw = 0;
+			nyA = pn.getAngle(middle,linex);
+			
+			//			double be = (1280/2)/Math.tan(Math.toRadians(69)/2);
+			//			nyA = Math.toDegrees(Math.atan(Math.abs(middle-linex)/be));
+			
+			if(linex > middle && line2x > linex || linex < middle && line2x < linex){
+				nyC = 180 - C;
+				nyB = 180 - (nyA + nyC);
+				tempYaw = regulator*(180 - (90 + (180 - nyB)));
+			} else {
+				nyC = C;
+				nyB = 180 - (nyA + nyC);
+				tempYaw = regulator*(180 - (90 + nyB));
+			}
+			
+			nyYaw = (int) tempYaw;
+			
+			if(qr.getText()!=null || !qr.getText().isEmpty()){
+				int wall = Integer.parseInt(""+qr.getText().charAt(2));			
+				
+				if(wall == 0){
+					nyYaw = (int)(-90 + tempYaw);
+				} else if (wall == 2){
+					nyYaw = (int)(90 + tempYaw);
+				} else if (wall == 3){
+					if(tempYaw < 0){
+						nyYaw = (int)(179 + tempYaw);
+					} else {
+						nyYaw = (int)(-179 + tempYaw);
+					}
 				}
 			}
+		} else {
+			nyYaw = -1000;
 		}
 
 		System.err.println("nyYAW: "+nyYaw);
