@@ -105,6 +105,6 @@ public interface IBilledAnalyse {
 
 	void setPapKasseLocator(boolean papKasseLocator);
 
-	int getPapKasse();
+	int[] getPapKasse();
 
 }

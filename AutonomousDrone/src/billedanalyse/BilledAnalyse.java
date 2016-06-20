@@ -690,7 +690,7 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 	}
 
 	@Override
-	public int getPapKasse() {
+	public int[] getPapKasse() {
 		return this.papkassefinder.getDist();
 	}
 
