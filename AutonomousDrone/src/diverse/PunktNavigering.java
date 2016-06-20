@@ -21,6 +21,8 @@ import diverse.circleCalc.Circle;
 import diverse.circleCalc.CircleCircleIntersection;
 import diverse.circleCalc.Vector2;
 import diverse.koordinat.Koordinat;
+import diverse.koordinat.LinearSolve;
+import diverse.koordinat.M2;
 
 public class PunktNavigering {
 	

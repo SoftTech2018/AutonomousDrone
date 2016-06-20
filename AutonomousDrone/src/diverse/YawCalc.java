@@ -1,5 +1,12 @@
 package diverse;
 
+import java.io.IOException;
+
+import diverse.circleCalc.Vector2;
+import diverse.koordinat.Koordinat;
+import diverse.koordinat.LinearSolve;
+import diverse.koordinat.M2;
+
 public class YawCalc{
 
 	PunktNavigering pn;
@@ -109,5 +116,97 @@ public class YawCalc{
 		System.err.println("nyYAW: "+nyYaw);
 		//			System.out.println();
 		return nyYaw;
+	}
+	public static int findYaw(String qrCode, double dist, Koordinat qrCentrum) throws NumberFormatException, IOException{
+		int yaw = 0;
+		Vector2 CameraViewPoint = null;
+		PunktNavigering	punktNav = new PunktNavigering();
+		
+		double baseDegrees = 0;
+		double baseDistance = 0;
+		double distToCamCenter;
+		Vector2 dronePosition = new Vector2(600,500);  //opgrum.getDronePosition().getVector();
+		boolean isX = false;
+		boolean isLeft = false;
+
+		distToCamCenter = Math.abs(640-qrCentrum.getX());
+
+		if(qrCentrum.getX() < 640){
+			isLeft = true;
+		}else{
+			isLeft = false;
+		}
+		String wall = qrCode.substring(0,3);
+		// Switch på hvilken væg der kigges på;
+		int number = Integer.parseInt(qrCode.substring(5,6));
+		System.out.println("Dronens Position er " + dronePosition);
+		System.out.println("Markeringen der kigges på er nummer " + number);
+		if(number == 0|| number == 4){
+			return -999999999;
+		}
+		switch (wall) {
+
+		case "W00":
+			baseDegrees = 90;
+			isX = false;
+			break;
+		case "W01":
+			baseDegrees = 0;
+			isX = true;
+			break;
+		case "W02":
+			baseDegrees = 270;
+			isX = false;
+			break;
+		case "W03":
+			baseDegrees = 180;
+			isX = true;
+			break;
+
+		default:
+			break;
+		}
+
+		// Find afstand fra qrKode til basisKoordinat
+		Vector2 qrKoordinat = opgRum.getMultiMarkings(qrCode)[1];
+		System.out.println("Det observeret vægmarkering har koordinatet" + qrKoordinat);
+
+
+		if (isX) {
+			baseDistance = Math.abs(qrKoordinat.x - dronePosition.x);
+
+		}else if(!isX ){
+			baseDistance = Math.abs(qrKoordinat.y - dronePosition.y);
+		}
+
+		
+
+		double phi = punktNav.getAngle(640, qrCentrum.getX());
+		if(!isLeft){
+			phi = phi * -1;
+		}
+//		System.out.println("Phi er " + phi);
+
+		M2 m = new M2(Math.cos(Math.toRadians(phi)), -Math.sin(Math.toRadians(phi)), Math.sin(Math.toRadians(phi)), Math.cos(Math.toRadians(phi)));
+		Vector2 viewLine = m.mul(qrKoordinat.sub(dronePosition)).add(dronePosition);
+//		System.out.println("Det nye roteret koordinat: " +viewLine);
+
+		double a = LinearSolve.calcA(viewLine, dronePosition);
+//		System.out.println("hældning af den roteret linje " + a);
+		double b = LinearSolve.calcB(a, viewLine);
+//		System.out.println("linjen skærer med y " + b);
+		if(!isX){
+		 CameraViewPoint = LinearSolve.calcCameraViewPointOnX(a, b, qrKoordinat.y);
+//		 System.out.println( "Der læses på Y aksen");
+		}else{
+		 CameraViewPoint = LinearSolve.calcCameraViewPointOnY(a, b, qrKoordinat.x );
+//		 System.out.println( "der læses på X aksen");
+		}
+//		System.out.println("væggens koordinat er: " + CameraViewPoint);
+//		System.out.println("base degrees er " + baseDegrees);
+		double angle = LinearSolve.getYawAngle(dronePosition, CameraViewPoint, baseDistance, baseDegrees);
+		System.out.println("************************ Vinklen er " + angle + " *****************************'");
+
+		return yaw;
 	}
 }
