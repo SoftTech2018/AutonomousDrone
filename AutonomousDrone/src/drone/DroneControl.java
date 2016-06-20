@@ -535,14 +535,14 @@ public class DroneControl implements IDroneControl {
 	@Override
 	public void turnDroneTo(int targetYaw) {
 		int yaw;
-		while(Math.abs(yaw = (this.getFlightData()[2] - targetYaw)) > 8){
-			if(yaw < 0){
-				yaw = Math.abs(yaw);
-			} else {
+		while((yaw = (this.getFlightData()[2] - targetYaw)) > -8 && yaw < 8){
+			if(yaw > 179){
 				yaw = 360 - yaw;
+			} else if (yaw < -179) {
+				yaw = 360 + yaw;
 			}
 			Log.writeLog("Dronen drejes: " + yaw);
-			if(yaw > 180){
+			if(yaw > 0){
 				cmd.spinLeft(80).doFor(40);
 				cmd.spinRight(80).doFor(10);
 			} else {
