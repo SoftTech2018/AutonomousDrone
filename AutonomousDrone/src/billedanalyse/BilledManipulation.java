@@ -583,6 +583,8 @@ public class BilledManipulation {
 
 			//			Log.writeLog("MAPPET STØRRELSE "+gruppering.size());
 
+		} else if (!qrFirkantAll.isEmpty()){
+			setFirkanten(qrFirkantAll.get(0));
 		}
 
 		//			Log.writeLog("over 2 grupperinger");
