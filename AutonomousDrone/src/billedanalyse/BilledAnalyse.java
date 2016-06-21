@@ -613,6 +613,9 @@ public class BilledAnalyse implements IBilledAnalyse, Runnable {
 				if(droneLocator){
 					if(!this.findDronePos2(img)){
 						this.findDronePos(img);						
+					} else {
+						// Tegn den firkant der forsøges at blive læst
+//						Imgproc.rectangle(img, bm.getFirkanten().getPoint0(), bm.getFirkanten().getPoint2(), new Scalar(255,0,0), 3);
 					}
 				}
 
